@@ -1,0 +1,156 @@
+:root {
+  --text-color: white;
+  --font-family: "Rubik", serif;
+  --green-color: #c4f85c;
+  --container-color: #1c1c1e;
+  --container-color-two: #b9bbbc;
+  --background-color: #000000;
+  --purple-color: #7685f7;
+  --blue-color: #0098EA;
+  --blue-another-color: #1d71d1;
+}
+
+.bodyfriendspage {
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  min-height: 100vh;
+  width: 100vw;
+  background-color: var(--background-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.friends-banner {
+  width: 360px;
+  height: 100px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 15px;
+  box-sizing: border-box;
+  z-index: 10;
+  position: relative;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #FFDC00, #FF851B);
+}
+
+.friends-text {
+  display: flex;
+  flex-direction: column;
+  max-width: 240px;
+}
+
+.friends-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  margin-bottom: 4px;
+  margin-top: 0;
+}
+
+.friends-subtitle {
+  font-size: 16px;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  margin: 0;
+}
+
+.friends-visual {
+  width: 60px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Блок со статистикой приглашений a*/
+.stats-container {
+  width: 360px;
+  background-color: #0f0f0f;
+  border-radius: 8px;
+  padding: 15px;
+  box-sizing: border-box;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.stats-header {
+  position: relative;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.stats-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: white;
+  margin: 0 0 15px 0;
+  text-align: center;
+  text-shadow: 0 0 10px #FFDC00, 0 0 20px #FFDC00;
+  position: relative;
+  z-index: 2;
+}
+
+.stats-underline {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: #FFDC00;
+  z-index: 1;
+  border-radius: 2px;
+}
+
+.stats-content {
+  display: flex;
+  justify-content: space-between;
+}
+
+.stat-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.stat-number {
+  font-size: 28px;
+  font-weight: bold;
+  color: #FFDC00;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 14px;
+  color: var(--container-color-two);
+  text-align: center;
+}
+
+.Invite-button {
+  text-align: center;
+  font-family: var(--font-family);
+  background: linear-gradient(135deg, #FFDC00, #FF851B); 
+  color: var(--background-color);
+  padding: 10px;
+  border-radius: 15px;
+  width: 360px;
+  height: 50px;
+  border: none; 
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.Container-button {
+  display: flex;
+  flex-direction: column; 
+  margin-top: 20px;
+}

@@ -1,0 +1,104 @@
+:root {
+  --text-color: white;
+  --font-family: "Rubik", serif;
+  --green-color: #c4f85c;
+  --container-color: #1c1c1e;
+  --container-color-two: #b9bbbc;
+  --background-color: #000000;
+}
+
+
+.container-check-day {
+  border-radius: 15px;
+  width: 340px;
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  background-color: #0f0f0f; 
+  padding: 10px; 
+}
+
+.left-section-gif {
+  flex: 0 0 auto; 
+}
+
+
+.mid-section-textabout {
+  margin-right: 80px;
+  margin-left: 5px;
+  display: flex; 
+  flex-direction: column; 
+  align-items: flex-start; 
+}
+
+.second-span{
+  color: var(--container-color-two);
+}
+
+.first-span{
+  color: var(--text-color);
+}
+
+.right-section-button {
+  margin-left: 10px;
+  flex: 0 0 auto;
+}
+
+.Get-button {
+  background-color: var(--green-color);
+  color: var(--background-color);
+  border-radius: 25px;
+  font-size: 12px;
+  transition: background-color 0.3s, color 0.3s; 
+}
+
+.Get-button.disabled {
+  background-color: #1c1c1e; 
+  color: #b9bbbc; 
+  box-shadow: none; 
+  pointer-events: none; 
+  transition: none; 
+}
+
+@media (max-height: 800px) {
+  .mid-section-textabout{
+    margin-right: 115px;
+    font-size: 13px; 
+  }
+  .container-check-day{
+    height: 35px;
+    width: 320px;
+  }
+  .Get-button.disabled, .Get-button{
+    height: 35px;
+    font-size: 10px;
+    margin-top: 5px;    
+  }
+}
+
+@media (min-height: 890px) and (max-height: 940px) {
+  .container-check-day{
+    width: 380px;
+    height: 65px;
+  }
+  .mid-section-textabout{
+    margin-right: 105px;
+    font-size: 19px;
+  }
+}
+
+@media (max-height: 670px) {
+  .mid-section-textabout{
+    margin-right: 90px;
+    font-size: 13px; 
+  }
+  .container-check-day{
+    height: 35px; 
+    width: 320px;
+  }
+  .Get-button.disabled, .Get-button{
+    height: 35px;
+    font-size: 10px;
+    margin-top: 5px;    
+  }
+}

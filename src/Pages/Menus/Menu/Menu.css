@@ -1,0 +1,53 @@
+:root {
+  --text-color: white;
+  --font-family: "Rubik", serif;
+  --green-color: #c4f85c;
+  --container-color: #1c1c1e;
+  --container-color-two: #b9bbbc;
+  --background-color: #000000;
+}
+
+.menu {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #000000; 
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  z-index: 1000;
+  border-top: 1px solid var(--container-color-two); 
+}
+
+
+.menu-item {
+  display: flex;
+  flex-direction: column; 
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.Name {
+  font-weight: bold;
+  font-size: 12px;
+  font-family: var(--font-family);
+}
+
+.menu-item.friends-item a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.friends-background {
+  background-color: #2c2c2e; /* Темно-серый фон */
+  border-radius: 10px; /* Легкое скругление углов */
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 60px;
+  min-height: 50px;
+}

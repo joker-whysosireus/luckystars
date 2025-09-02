@@ -1,0 +1,39 @@
+:root {
+  --text-color: white;
+  --font-family: "Rubik", serif;
+  --green-color: #c4f85c;
+  --container-color: #1c1c1e;
+  --container-color-two: #b9bbbc;
+  --background-color: #000000;
+  --purple-color: #7685f7;
+  --blue-color: #0098EA;
+  --blue-another-color: #1d71d1;
+}
+
+html, .bodytaskspage {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  flex-direction: column;
+}
+
+.bodytaskspage {
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  min-height: 100vh;
+  width: 100vw;
+  background-image: url('./Containers/img-jsx-ts/Screen.jpg');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.no-scroll {
+  overflow: hidden;
+}
