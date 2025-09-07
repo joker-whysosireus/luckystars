@@ -183,6 +183,8 @@
   padding: 5px 10px;
   border-radius: 12px;
   border: 1px solid #444;
+  position: relative;
+  cursor: pointer;
 }
 
 .resource-count {
@@ -194,6 +196,13 @@
 
 .resource-icon {
   font-size: 20px;
+  margin-right: 5px;
+}
+
+.resource-add {
+  color: #c4f85c;
+  font-weight: bold;
+  font-size: 16px;
 }
 
 .text-banner {
@@ -333,4 +342,90 @@
 
 .square:active .square-front {
   background-color: #666;
+}
+
+/* Анимация пульсации при отсутствии блоков */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.square.pulse {
+  animation: pulse 0.6s ease-in-out;
+}
+
+/* Модальное окно */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.modal-content {
+  background-color: var(--container-color);
+  padding: 20px;
+  border-radius: 12px;
+  width: 300px;
+  max-width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  color: white;
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  text-align: center;
+  color: gold;
+}
+
+.blocks-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.block-option {
+  background-color: var(--container-color-two);
+  padding: 15px;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.block-option:hover {
+  background-color: #4a4a4a;
+}
+
+.block-amount {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.block-price {
+  color: gold;
+  font-size: 14px;
+}
+
+.close-modal {
+  width: 100%;
+  padding: 10px;
+  background-color: #c4f85c;
+  color: black;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close-modal:hover {
+  background-color: #b0e04c;
 }

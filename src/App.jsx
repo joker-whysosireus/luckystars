@@ -59,34 +59,7 @@ const App = () => {
     }, [location]); // Добавляем location в зависимости
 
     // Управление кнопкой "Назад" и ее обработчиками
-    useEffect(() => {
-        if (!telegramReady) return;
-        
-        const handleBackButton = () => {
-            if (location.pathname === '/market') {
-                // Всегда переходим на /wallet из /market
-                navigate('/wallet');
-            } else {
-                // Стандартное поведение для других страниц
-                navigate(-1);
-            }
-        };
-
-        // Определяем страницы, где должна отображаться кнопка "Назад"
-        const pagesWithBackButton = ['/board', '/market'];
-        
-        if (pagesWithBackButton.includes(location.pathname)) {
-            window.Telegram.WebApp.BackButton.onClick(handleBackButton);
-            window.Telegram.WebApp.BackButton.show();
-        } else {
-            window.Telegram.WebApp.BackButton.hide();
-        }
-
-        return () => {
-            // Удаляем обработчик при размонтировании
-            window.Telegram.WebApp.BackButton.offClick(handleBackButton);
-        };
-    }, [location.pathname, telegramReady, navigate]);
+    
 
     useEffect(() => {
         if (['/', '/friends', '/tasks'].includes(location.pathname)) {

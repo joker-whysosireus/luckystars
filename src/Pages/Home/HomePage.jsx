@@ -11,6 +11,7 @@ function HomePage({ userData, updateUserData, isActive }) {
   const [blocks, setBlocks] = useState([]);
   const [isResetting, setIsResetting] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showBlocksModal, setShowBlocksModal] = useState(false);
   const intervalRef = useRef(null);
   
   const texts = [
@@ -108,10 +109,35 @@ function HomePage({ userData, updateUserData, isActive }) {
     // Если происходит сброс блоков или анимация, игнорируем клики
     if (isResetting || isAnimating) return;
     
+    // Если нет блоков для открытия
+    if (blocksCount <= 0) {
+      // Анимация пульсации
+      const blockElement = document.querySelector(`.square[data-id="${blockId}"]`);
+      if (blockElement) {
+        blockElement.classList.add('pulse');
+        setTimeout(() => {
+          blockElement.classList.remove('pulse');
+        }, 600);
+      }
+      return;
+    }
+    
     const blockIndex = blocks.findIndex(b => b.id === blockId);
     
     // Если блок уже открыт или анимируется, ничего не делаем
     if (blocks[blockIndex].isOpened || blocks[blockIndex].isFlipping) return;
+    
+    // Уменьшаем счетчик блоков
+    const newBlocksCount = blocksCount - 1;
+    setBlocksCount(newBlocksCount);
+    
+    // Обновляем данные на сервере
+    if (userData && updateUserData) {
+      updateUserData({
+        ...userData,
+        bloks_count: newBlocksCount
+      });
+    }
     
     // Блокируем другие блоки во время анимации
     setIsAnimating(true);
@@ -171,6 +197,21 @@ function HomePage({ userData, updateUserData, isActive }) {
     setIsResetting(false);
   };
 
+  const handleBuyBlocks = (amount) => {
+    // Здесь будет логика покупки блоков
+    // В данном примере просто увеличиваем количество
+    const newBlocksCount = blocksCount + amount;
+    setBlocksCount(newBlocksCount);
+    
+    // Обновляем данные на сервере
+    if (userData && updateUserData) {
+      updateUserData({
+        ...userData,
+        bloks_count: newBlocksCount
+      });
+    }
+  };
+
   // Функция для отображения блоков
   const renderBlocks = () => {
     const rows = 6;
@@ -186,6 +227,7 @@ function HomePage({ userData, updateUserData, isActive }) {
             key={`${i}-${j}`} 
             className={`square ${block?.isFlipping ? 'flipping' : ''} ${block?.isOpened ? 'opened' : ''}`}
             onClick={() => handleSquareClick(block.id)}
+            data-id={block.id}
           >
             <div className="square-front"></div>
             <div className="square-back">
@@ -231,7 +273,7 @@ function HomePage({ userData, updateUserData, isActive }) {
           </div>
           <div className="user-details">
             <div className="user-name">
-              {userData?.first_name || 'First'} {userData?.last_name || 'Last'}
+              {userData?.first_name || 'First'}
             </div>
             <div className="user-username">
               @{userData?.username || 'username'}
@@ -241,9 +283,10 @@ function HomePage({ userData, updateUserData, isActive }) {
         
         {/* Секция с ресурсами */}
         <div className="user-resources">
-          <div className="resource-item">
+          <div className="resource-item" onClick={() => setShowBlocksModal(true)}>
             <div className="resource-count">{blocksCount}</div>
             <div className="resource-icon">🧱</div>
+            <div className="resource-add">+</div>
           </div>
           <div className="resource-item">
             <div className="resource-count">{shards}</div>
@@ -265,6 +308,34 @@ function HomePage({ userData, updateUserData, isActive }) {
       <div className="squares-container">
         {renderBlocks()}
       </div>
+      
+      {/* Модальное окно покупки блоков */}
+      {showBlocksModal && (
+        <div className="modal-overlay" onClick={() => setShowBlocksModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>Buy Blocks</h3>
+            <div className="blocks-options">
+              <div className="block-option" onClick={() => handleBuyBlocks(5)}>
+                <div className="block-amount">5 blocks</div>
+                <div className="block-price">5 ⭐</div>
+              </div>
+              <div className="block-option" onClick={() => handleBuyBlocks(10)}>
+                <div className="block-amount">10 blocks</div>
+                <div className="block-price">9 ⭐</div>
+              </div>
+              <div className="block-option" onClick={() => handleBuyBlocks(20)}>
+                <div className="block-amount">20 blocks</div>
+                <div className="block-price">16 ⭐</div>
+              </div>
+              <div className="block-option" onClick={() => handleBuyBlocks(100)}>
+                <div className="block-amount">100 blocks</div>
+                <div className="block-price">70 ⭐</div>
+              </div>
+            </div>
+            <button className="close-modal" onClick={() => setShowBlocksModal(false)}>Close</button>
+          </div>
+        </div>
+      )}
       
       <Menu />
     </section>
