@@ -10,7 +10,7 @@ import Leader from './Pages/Leaders/Leader.jsx';
 import Profile from './Pages/Profile/Profile.jsx';
 import telegramAnalytics from '@telegram-apps/analytics'; 
 
-const AUTH_FUNCTION_URL = 'https://functions-user.online/.netlify/functions/auth';
+const AUTH_FUNCTION_URL = 'https://lucky-stars-backend.netlify.app/.netlify/functions/auth';
 
 //    if (process.env.NODE_ENV === 'production') { 
 //        telegramAnalytics.init({
@@ -89,7 +89,7 @@ const App = () => {
     }, [location.pathname, telegramReady, navigate]);
 
     useEffect(() => {
-        if (['/', '/friends', '/tasks', '/boost'].includes(location.pathname)) {
+        if (['/', '/friends', '/tasks'].includes(location.pathname)) {
             document.body.classList.add('no-scroll');
         } else {
             document.body.classList.remove('no-scroll');
@@ -106,7 +106,7 @@ const App = () => {
             if (window.Telegram.WebApp.isActive) {
                 window.Telegram.WebApp.requestFullscreen();
                 window.Telegram.WebApp.isVerticalSwipesEnabled = false;
-            }
+           }
         }
     }, []);
 

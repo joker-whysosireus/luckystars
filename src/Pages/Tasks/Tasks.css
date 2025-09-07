@@ -24,14 +24,12 @@ html, .bodytaskspage {
   flex: 1;
   min-height: 100vh;
   width: 100vw;
-  background-image: url('./Containers/img-jsx-ts/Screen.jpg');
-  background-size: cover;
-  background-position: center;
+  background-color: #1c1c1e;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  box-sizing: border-box;
+  box-sizing: border-box;;
 }
 
 .no-scroll {
