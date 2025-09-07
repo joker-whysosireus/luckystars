@@ -34,37 +34,53 @@ function HomePage({ userData, updateUserData, isActive }) {
       setBlocksCount(userData.bloks_count || 0);
       
       // Загрузка блоков из localStorage или инициализация новых
-      const savedBlocks = localStorage.getItem(`userBlocks_${userData.telegram_user_id}`);
-      if (savedBlocks) {
-        setBlocks(JSON.parse(savedBlocks));
-      } else {
-        const rows = 6;
-        const cols = 5;
-        const initialBlocks = [];
-        
-        for (let i = 0; i < rows; i++) {
-          for (let j = 0; j < cols; j++) {
-            initialBlocks.push({
-              id: `${i}-${j}`,
-              row: i,
-              col: j,
-              isOpened: false,
-              shards: 0,
-              isFlipping: false,
-              isLoading: false
-            });
-          }
+      try {
+        const savedBlocks = localStorage.getItem(`userBlocks_${userData.telegram_user_id}`);
+        if (savedBlocks) {
+          setBlocks(JSON.parse(savedBlocks));
+        } else {
+          initializeBlocks();
         }
-        
-        setBlocks(initialBlocks);
+      } catch (error) {
+        console.error("Error loading blocks:", error);
+        initializeBlocks();
       }
+    } else {
+      // Если userData не передан, все равно инициализируем блоки
+      initializeBlocks();
     }
   }, [userData]);
+
+  const initializeBlocks = () => {
+    const rows = 6;
+    const cols = 5;
+    const initialBlocks = [];
+    
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < cols; j++) {
+        initialBlocks.push({
+          id: `${i}-${j}`,
+          row: i,
+          col: j,
+          isOpened: false,
+          shards: 0,
+          isFlipping: false,
+          isLoading: false
+        });
+      }
+    }
+    
+    setBlocks(initialBlocks);
+  };
 
   // Сохранение блоков в localStorage при изменении
   useEffect(() => {
     if (userData && blocks.length > 0) {
-      localStorage.setItem(`userBlocks_${userData.telegram_user_id}`, JSON.stringify(blocks));
+      try {
+        localStorage.setItem(`userBlocks_${userData.telegram_user_id}`, JSON.stringify(blocks));
+      } catch (error) {
+        console.error("Error saving blocks:", error);
+      }
     }
   }, [blocks, userData]);
 
@@ -103,7 +119,7 @@ function HomePage({ userData, updateUserData, isActive }) {
         }
       }, 2000);
     }
-  }, [blocks, isResetting]);
+  }, [blocks, isResetting, blocksCount, userData, updateUserData]);
 
   const handleSquareClick = async (blockId) => {
     // Если происходит сброс блоков или анимация, игнорируем клики
@@ -125,7 +141,7 @@ function HomePage({ userData, updateUserData, isActive }) {
     const blockIndex = blocks.findIndex(b => b.id === blockId);
     
     // Если блок уже открыт или анимируется, ничего не делаем
-    if (blocks[blockIndex].isOpened || blocks[blockIndex].isFlipping) return;
+    if (blockIndex === -1 || blocks[blockIndex].isOpened || blocks[blockIndex].isFlipping) return;
     
     // Уменьшаем счетчик блоков
     const newBlocksCount = blocksCount - 1;
@@ -221,13 +237,15 @@ function HomePage({ userData, updateUserData, isActive }) {
     for (let i = 0; i < rows; i++) {
       const row = [];
       for (let j = 0; j < cols; j++) {
-        const block = blocks.find(b => b.row === i && b.col === j);
+        const blockId = `${i}-${j}`;
+        const block = blocks.find(b => b.id === blockId);
+        
         row.push(
           <div 
-            key={`${i}-${j}`} 
+            key={blockId} 
             className={`square ${block?.isFlipping ? 'flipping' : ''} ${block?.isOpened ? 'opened' : ''}`}
-            onClick={() => handleSquareClick(block.id)}
-            data-id={block.id}
+            onClick={() => handleSquareClick(blockId)}
+            data-id={blockId}
           >
             <div className="square-front"></div>
             <div className="square-back">
