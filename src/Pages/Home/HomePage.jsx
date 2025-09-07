@@ -7,7 +7,7 @@ import PlantFR from './Containers/img-jsx/PlantFR';
 function HomePage({ userData, updateUserData, isActive }) {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [shards, setShards] = useState(0);
-  const [blocksCount, setBlocksCount] = useState(0); // Переименовано из leaves
+  const [blocksCount, setBlocksCount] = useState(0);
   const [blocks, setBlocks] = useState([]);
   const [isResetting, setIsResetting] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -26,48 +26,46 @@ function HomePage({ userData, updateUserData, isActive }) {
   
   const backgroundClass = currentTextIndex === 0 ? 'blue-bg' : 'yellow-bg';
 
-  // Загрузка данных из локального хранилища
+  // Инициализация данных из userData
   useEffect(() => {
-    const savedShards = localStorage.getItem('userShards');
-    const savedBlocksCount = localStorage.getItem('userBlocksCount');
-    const savedBlocks = localStorage.getItem('userBlocks');
-    
-    if (savedShards) setShards(parseInt(savedShards));
-    if (savedBlocksCount) setBlocksCount(parseInt(savedBlocksCount));
-    if (savedBlocks) setBlocks(JSON.parse(savedBlocks));
-  }, []);
-
-  // Сохранение данных в локальное хранилище при изменении
-  useEffect(() => {
-    localStorage.setItem('userShards', shards.toString());
-    localStorage.setItem('userBlocksCount', blocksCount.toString());
-    localStorage.setItem('userBlocks', JSON.stringify(blocks));
-  }, [shards, blocksCount, blocks]);
-
-  // Инициализация блоков, если они не загружены из хранилища
-  useEffect(() => {
-    if (blocks.length === 0) {
-      const rows = 6;
-      const cols = 5;
-      const initialBlocks = [];
+    if (userData) {
+      setShards(userData.shards || 0);
+      setBlocksCount(userData.bloks_count || 0);
       
-      for (let i = 0; i < rows; i++) {
-        for (let j = 0; j < cols; j++) {
-          initialBlocks.push({
-            id: `${i}-${j}`,
-            row: i,
-            col: j,
-            isOpened: false,
-            shards: 0,
-            isFlipping: false,
-            isLoading: false
-          });
+      // Загрузка блоков из localStorage или инициализация новых
+      const savedBlocks = localStorage.getItem(`userBlocks_${userData.telegram_user_id}`);
+      if (savedBlocks) {
+        setBlocks(JSON.parse(savedBlocks));
+      } else {
+        const rows = 6;
+        const cols = 5;
+        const initialBlocks = [];
+        
+        for (let i = 0; i < rows; i++) {
+          for (let j = 0; j < cols; j++) {
+            initialBlocks.push({
+              id: `${i}-${j}`,
+              row: i,
+              col: j,
+              isOpened: false,
+              shards: 0,
+              isFlipping: false,
+              isLoading: false
+            });
+          }
         }
+        
+        setBlocks(initialBlocks);
       }
-      
-      setBlocks(initialBlocks);
     }
-  }, [blocks.length]);
+  }, [userData]);
+
+  // Сохранение блоков в localStorage при изменении
+  useEffect(() => {
+    if (userData && blocks.length > 0) {
+      localStorage.setItem(`userBlocks_${userData.telegram_user_id}`, JSON.stringify(blocks));
+    }
+  }, [blocks, userData]);
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {
@@ -92,7 +90,16 @@ function HomePage({ userData, updateUserData, isActive }) {
       // Через 2 секунды сбрасываем все блоки и начисляем 1 блок
       setTimeout(() => {
         resetAllBlocks();
-        setBlocksCount(prev => prev + 1); // Начисляем 1 блок за открытие всех блоков
+        const newBlocksCount = blocksCount + 1;
+        setBlocksCount(newBlocksCount);
+        
+        // Обновляем данные на сервере
+        if (userData && updateUserData) {
+          updateUserData({
+            ...userData,
+            bloks_count: newBlocksCount
+          });
+        }
       }, 2000);
     }
   }, [blocks, isResetting]);
@@ -136,7 +143,17 @@ function HomePage({ userData, updateUserData, isActive }) {
     };
     
     setBlocks(finalizedBlocks);
-    setShards(prev => prev + randomShards);
+    const newShards = shards + randomShards;
+    setShards(newShards);
+    
+    // Обновляем данные на сервере
+    if (userData && updateUserData) {
+      updateUserData({
+        ...userData,
+        shards: newShards
+      });
+    }
+    
     setIsAnimating(false);
   };
 
@@ -205,7 +222,7 @@ function HomePage({ userData, updateUserData, isActive }) {
         <div className="user-info">
           <div className="user-avatar">
             <img 
-              src={userData?.avatar_url || '/default-avatar.png'} 
+              src={userData?.avatar || '/default-avatar.png'} 
               alt="Avatar" 
               onError={(e) => {
                 e.target.src = '/default-avatar.png';
@@ -226,7 +243,7 @@ function HomePage({ userData, updateUserData, isActive }) {
         <div className="user-resources">
           <div className="resource-item">
             <div className="resource-count">{blocksCount}</div>
-            <div className="resource-icon">🧱</div> {/* Иконка блоков вместо листьев */}
+            <div className="resource-icon">🧱</div>
           </div>
           <div className="resource-item">
             <div className="resource-count">{shards}</div>
