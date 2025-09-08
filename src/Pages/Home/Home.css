@@ -1,3 +1,370 @@
+:root {
+  --text-color: white;
+  --font-family: "Rubik", serif;
+  --green-color: #c4f85c;
+  --container-color: #1c1c1e;
+  --container-color-two: #3a3a3a;
+  --background-color: #000000;
+}
+
+.bodyhomepage {
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, 
+        #0f0f0f 0%,  
+        #0f0f0f 50%,
+        #013509 75%, 
+        #29c909 100%
+    );
+}
+
+/* Стили для частиц */
+.market-particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.market-particle {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  animation: float 15s infinite ease-in-out;
+}
+
+.market-particle.p1 { 
+  top: 10%; 
+  left: 10%; 
+  width: 4px; 
+  height: 4px; 
+  animation-delay: 0s; 
+}
+.market-particle.p2 { 
+  top: 20%; 
+  left: 80%; 
+  width: 6px; 
+  height: 6px; 
+  animation-delay: 1s; 
+}
+.market-particle.p3 { 
+  top: 30%; 
+  left: 25%; 
+  width: 3px; 
+  height: 3px; 
+  animation-delay: 2s; 
+}
+.market-particle.p4 { 
+  top: 40%; 
+  left: 60%; 
+  width: 5px; 
+  height: 5px; 
+  animation-delay: 3s; 
+}
+.market-particle.p5 { 
+  top: 60%; 
+  left: 15%; 
+  width: 4px; 
+  height: 4px; 
+  animation-delay: 4s; 
+}
+.market-particle.p6 { 
+  top: 70%; 
+  left: 70%; 
+  width: 7px; 
+  height: 7px; 
+  animation-delay: 5s; 
+}
+.market-particle.p7 { 
+  top: 80%; 
+  left: 40%; 
+  width: 5px; 
+  height: 5px; 
+  animation-delay: 6s; 
+}
+.market-particle.p8 { 
+  top: 30%; 
+  left: 90%; 
+  width: 4px; 
+  height: 4px; 
+  animation-delay: 7s; 
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+  }
+  25% {
+    transform: translateY(-20px) translateX(15px);
+  }
+  50% {
+    transform: translateY(10px) translateX(-15px);
+  }
+  75% {
+    transform: translateY(-10px) translateX(-10px);
+  }
+}
+
+.user-section {
+  width: 360px;
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 15px;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+  background-color: rgba(30, 30, 30, 0.8);
+  border-radius: 8px;
+  z-index: 1001;
+  color: white;
+  border: 1px solid #333;
+  position: relative;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin-right: 12px;
+  border: 2px solid #444;
+}
+
+.user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 2px;
+  color: white;
+}
+
+.user-username {
+  font-size: 12px;
+  color: #b9bbbc;
+}
+
+/* Секция с ресурсами */
+.user-resources {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.resource-item {
+  display: flex;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 5px 10px;
+  border-radius: 12px;
+  border: 1px solid #444;
+  position: relative;
+  cursor: pointer;
+}
+
+.resource-count {
+  color: gold;
+  font-weight: bold;
+  font-size: 16px;
+  margin-right: 5px;
+}
+
+.resource-icon {
+  font-size: 20px;
+  margin-right: 5px;
+}
+
+.resource-add {
+  color: #c4f85c;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.text-banner {
+  width: 360px;
+  height: 120px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 15px;
+  box-sizing: border-box;
+  margin-bottom: 20px;
+  position: relative;
+  border-radius: 8px;
+  transition: background 0.5s ease;
+  z-index: 1001;
+}
+
+.blue-bg {
+  background: linear-gradient(135deg, #0074D9, #7FDBFF);
+}
+
+.yellow-bg {
+  background: linear-gradient(135deg, #FFDC00, #FF851B);
+}
+
+.text-content {
+  display: flex;
+  flex-direction: column;
+  max-width: 240px;
+}
+
+.text-line-1 {
+  font-size: 23px;
+  font-weight: bold;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+  margin-bottom: 4px;
+}
+
+.text-line-2 {
+  font-size: 16px;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.icon-container {
+  width: 60px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.squares-container {
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  gap: 8px;
+  z-index: 1001;
+  background-color: rgba(30, 30, 30, 0.5);
+  padding: 10px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.square-row {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.square {
+  width: 60px;
+  height: 60px;
+  cursor: pointer;
+  border-radius: 4px;
+  position: relative;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  transition: transform 0.3s ease;
+}
+
+.square-front, .square-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.square-front {
+  background-color: var(--container-color-two);
+  border: 1px solid #444;
+}
+
+.square-back {
+  background-color: #666; /* Серый цвет открытого блока */
+  transform: rotateY(180deg);
+  border: 1px solid #888;
+}
+
+.square.flipping {
+  transform: rotateY(180deg);
+}
+
+.square.opened {
+  transform: rotateY(180deg);
+}
+
+.shards-count {
+  color: gold;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.square:hover .square-front {
+  background-color: #555;
+}
+
+.square:active .square-front {
+  background-color: #666;
+}
+
+/* Анимация пульсации при отсутствии блоков (без изменения цвета) */
+@keyframes pulse {
+  0% { 
+    transform: scale(1); 
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  }
+  50% { 
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+  }
+  100% { 
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+.square.pulse {
+  animation: pulse 0.6s ease-in-out;
+}
+
 /* Стили для модального окна снизу */
 .modal-overlay-bottom {
   position: fixed;
