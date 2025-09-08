@@ -381,7 +381,7 @@
 }
 
 .modal-content-bottom {
-  background-color: var(--container-color);
+  background-color: #0f0f0f;
   padding: 20px;
   border-top-left-radius: 16px;
   border-top-right-radius: 16px;
@@ -401,12 +401,6 @@
   }
 }
 
-.modal-content-bottom h3 {
-  margin-top: 0;
-  text-align: center;
-  color: gold;
-}
-
 .blocks-options-vertical {
   display: flex;
   flex-direction: column;
@@ -415,40 +409,32 @@
 }
 
 .block-option-vertical {
-  background-color: var(--container-color-two);
+  background: linear-gradient(45deg, #ffa726, #ff7043);
   padding: 15px;
   border-radius: 8px;
   text-align: center;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
+  color: white;
 }
 
 .block-option-vertical:hover {
-  background-color: #4a4a4a;
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+
+.block-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .block-amount {
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-bottom: 0;
 }
 
 .block-price {
-  color: gold;
-  font-size: 14px;
-}
-
-.close-modal {
-  width: 100%;
-  padding: 10px;
-  background-color: #c4f85c;
-  color: black;
-  border: none;
-  border-radius: 6px;
+  font-size: 16px;
   font-weight: bold;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-.close-modal:hover {
-  background-color: #b0e04c;
 }

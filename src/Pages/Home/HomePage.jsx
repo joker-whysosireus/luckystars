@@ -6,8 +6,6 @@ import PlantFR from './Containers/img-jsx/PlantFR';
 
 function HomePage({ userData, updateUserData, isActive }) {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
-  const [shards, setShards] = useState(0);
-  const [blocksCount, setBlocksCount] = useState(0);
   const [blocks, setBlocks] = useState([]);
   const [isResetting, setIsResetting] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -30,9 +28,6 @@ function HomePage({ userData, updateUserData, isActive }) {
   // Инициализация данных из userData
   useEffect(() => {
     if (userData) {
-      setShards(userData.shards || 0);
-      setBlocksCount(userData.bloks_count || 0);
-      
       // Загрузка блоков из localStorage или инициализация новых
       try {
         const savedBlocks = localStorage.getItem(`userBlocks_${userData.telegram_user_id}`);
@@ -107,8 +102,7 @@ function HomePage({ userData, updateUserData, isActive }) {
       // Через 2 секунды сбрасываем все блоки и начисляем 1 блок
       setTimeout(() => {
         resetAllBlocks();
-        const newBlocksCount = blocksCount + 1;
-        setBlocksCount(newBlocksCount);
+        const newBlocksCount = (userData?.bloks_count || 0) + 1;
         
         // Обновляем данные на сервере
         if (userData && updateUserData) {
@@ -119,14 +113,14 @@ function HomePage({ userData, updateUserData, isActive }) {
         }
       }, 2000);
     }
-  }, [blocks, isResetting, blocksCount, userData, updateUserData]);
+  }, [blocks, isResetting, userData, updateUserData]);
 
   const handleSquareClick = async (blockId) => {
     // Если происходит сброс блоков или анимация, игнорируем клики
     if (isResetting || isAnimating) return;
     
     // Если нет блоков для открытия - открываем модальное окно
-    if (blocksCount <= 0) {
+    if ((userData?.bloks_count || 0) <= 0) {
       setShowBlocksModal(true);
       return;
     }
@@ -137,8 +131,7 @@ function HomePage({ userData, updateUserData, isActive }) {
     if (blockIndex === -1 || blocks[blockIndex].isOpened || blocks[blockIndex].isFlipping) return;
     
     // Уменьшаем счетчик блоков
-    const newBlocksCount = blocksCount - 1;
-    setBlocksCount(newBlocksCount);
+    const newBlocksCount = (userData?.bloks_count || 0) - 1;
     
     // Обновляем данные на сервере
     if (userData && updateUserData) {
@@ -178,8 +171,7 @@ function HomePage({ userData, updateUserData, isActive }) {
     };
     
     setBlocks(finalizedBlocks);
-    const newShards = shards + randomShards;
-    setShards(newShards);
+    const newShards = (userData?.shards || 0) + randomShards;
     
     // Обновляем данные на сервере
     if (userData && updateUserData) {
@@ -207,10 +199,8 @@ function HomePage({ userData, updateUserData, isActive }) {
   };
 
   const handleBuyBlocks = (amount) => {
-    // Здесь будет логика покупки блоков
-    // В данном примере просто увеличиваем количество
-    const newBlocksCount = blocksCount + amount;
-    setBlocksCount(newBlocksCount);
+    // Увеличиваем количество блоков
+    const newBlocksCount = (userData?.bloks_count || 0) + amount;
     
     // Обновляем данные на сервере
     if (userData && updateUserData) {
@@ -298,12 +288,12 @@ function HomePage({ userData, updateUserData, isActive }) {
         {/* Секция с ресурсами */}
         <div className="user-resources">
           <div className="resource-item" onClick={() => setShowBlocksModal(true)}>
-            <div className="resource-count">{blocksCount}</div>
+            <div className="resource-count">{userData?.bloks_count || 0}</div>
             <div className="resource-icon">🧱</div>
             <div className="resource-add">+</div>
           </div>
           <div className="resource-item">
-            <div className="resource-count">{shards}</div>
+            <div className="resource-count">{userData?.shards || 0}</div>
             <div className="resource-icon">💎</div>
           </div>
         </div>
@@ -327,26 +317,32 @@ function HomePage({ userData, updateUserData, isActive }) {
       {showBlocksModal && (
         <div className="modal-overlay-bottom" onClick={() => setShowBlocksModal(false)}>
           <div className="modal-content-bottom" onClick={(e) => e.stopPropagation()}>
-            <h3>Buy Blocks</h3>
             <div className="blocks-options-vertical">
               <div className="block-option-vertical" onClick={() => handleBuyBlocks(5)}>
-                <div className="block-amount">5 blocks</div>
-                <div className="block-price">5 ⭐</div>
+                <div className="block-info-row">
+                  <div className="block-amount">5 blocks</div>
+                  <div className="block-price">5 ⭐</div>
+                </div>
               </div>
               <div className="block-option-vertical" onClick={() => handleBuyBlocks(10)}>
-                <div className="block-amount">10 blocks</div>
-                <div className="block-price">9 ⭐</div>
+                <div className="block-info-row">
+                  <div className="block-amount">10 blocks</div>
+                  <div className="block-price">9 ⭐</div>
+                </div>
               </div>
               <div className="block-option-vertical" onClick={() => handleBuyBlocks(20)}>
-                <div className="block-amount">20 blocks</div>
-                <div className="block-price">16 ⭐</div>
+                <div className="block-info-row">
+                  <div className="block-amount">20 blocks</div>
+                  <div className="block-price">16 ⭐</div>
+                </div>
               </div>
               <div className="block-option-vertical" onClick={() => handleBuyBlocks(100)}>
-                <div className="block-amount">100 blocks</div>
-                <div className="block-price">70 ⭐</div>
+                <div className="block-info-row">
+                  <div className="block-amount">100 blocks</div>
+                  <div className="block-price">70 ⭐</div>
+                </div>
               </div>
             </div>
-            <button className="close-modal" onClick={() => setShowBlocksModal(false)}>Close</button>
           </div>
         </div>
       )}
