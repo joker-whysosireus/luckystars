@@ -125,16 +125,9 @@ function HomePage({ userData, updateUserData, isActive }) {
     // Если происходит сброс блоков или анимация, игнорируем клики
     if (isResetting || isAnimating) return;
     
-    // Если нет блоков для открытия
+    // Если нет блоков для открытия - открываем модальное окно
     if (blocksCount <= 0) {
-      // Анимация пульсации
-      const blockElement = document.querySelector(`.square[data-id="${blockId}"]`);
-      if (blockElement) {
-        blockElement.classList.add('pulse');
-        setTimeout(() => {
-          blockElement.classList.remove('pulse');
-        }, 600);
-      }
+      setShowBlocksModal(true);
       return;
     }
     
@@ -226,6 +219,9 @@ function HomePage({ userData, updateUserData, isActive }) {
         bloks_count: newBlocksCount
       });
     }
+    
+    // Закрываем модальное окно после покупки
+    setShowBlocksModal(false);
   };
 
   // Функция для отображения блоков
@@ -329,23 +325,23 @@ function HomePage({ userData, updateUserData, isActive }) {
       
       {/* Модальное окно покупки блоков */}
       {showBlocksModal && (
-        <div className="modal-overlay" onClick={() => setShowBlocksModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-overlay-bottom" onClick={() => setShowBlocksModal(false)}>
+          <div className="modal-content-bottom" onClick={(e) => e.stopPropagation()}>
             <h3>Buy Blocks</h3>
-            <div className="blocks-options">
-              <div className="block-option" onClick={() => handleBuyBlocks(5)}>
+            <div className="blocks-options-vertical">
+              <div className="block-option-vertical" onClick={() => handleBuyBlocks(5)}>
                 <div className="block-amount">5 blocks</div>
                 <div className="block-price">5 ⭐</div>
               </div>
-              <div className="block-option" onClick={() => handleBuyBlocks(10)}>
+              <div className="block-option-vertical" onClick={() => handleBuyBlocks(10)}>
                 <div className="block-amount">10 blocks</div>
                 <div className="block-price">9 ⭐</div>
               </div>
-              <div className="block-option" onClick={() => handleBuyBlocks(20)}>
+              <div className="block-option-vertical" onClick={() => handleBuyBlocks(20)}>
                 <div className="block-amount">20 blocks</div>
                 <div className="block-price">16 ⭐</div>
               </div>
-              <div className="block-option" onClick={() => handleBuyBlocks(100)}>
+              <div className="block-option-vertical" onClick={() => handleBuyBlocks(100)}>
                 <div className="block-amount">100 blocks</div>
                 <div className="block-price">70 ⭐</div>
               </div>
