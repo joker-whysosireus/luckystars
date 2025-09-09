@@ -3,6 +3,7 @@ import './Home.css';
 import Menu from '../Menus/Menu/Menu';
 import MoomDay from './Containers/img-jsx/MoomDay';
 import PlantFR from './Containers/img-jsx/PlantFR';
+import axios from 'axios';
 
 function HomePage({ userData, updateUserData, isActive }) {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
@@ -10,6 +11,10 @@ function HomePage({ userData, updateUserData, isActive }) {
   const [isResetting, setIsResetting] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showBlocksModal, setShowBlocksModal] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingMethod, setProcessingMethod] = useState(null);
+  const [webApp, setWebApp] = useState(null);
   const intervalRef = useRef(null);
   
   const texts = [
@@ -24,6 +29,13 @@ function HomePage({ userData, updateUserData, isActive }) {
   ];
   
   const backgroundClass = currentTextIndex === 0 ? 'blue-bg' : 'yellow-bg';
+
+  // Получаем экземпляр WebApp Telegram
+  useEffect(() => {
+    if (window.Telegram && window.Telegram.WebApp) {
+      setWebApp(window.Telegram.WebApp);
+    }
+  }, []);
 
   // Инициализация данных из userData
   useEffect(() => {
@@ -198,20 +210,111 @@ function HomePage({ userData, updateUserData, isActive }) {
     setIsResetting(false);
   };
 
-  const handleBuyBlocks = (amount) => {
-    // Увеличиваем количество блоков
-    const newBlocksCount = (userData?.bloks_count || 0) + amount;
+  const handleCloseModal = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setShowBlocksModal(false);
+      setIsClosing(false);
+    }, 300);
+  };
+
+  const handleBuyWithStars = async (amount, price) => {
+    setIsProcessing(true);
+    setProcessingMethod('stars');
     
-    // Обновляем данные на сервере
-    if (userData && updateUserData) {
-      updateUserData({
-        ...userData,
-        bloks_count: newBlocksCount
+    try {
+      if (!webApp) {
+        throw new Error("WebApp not initialized");
+      }
+
+      // Создаем информацию о товаре согласно документации
+      const boosterInfo = {
+        item_id: `blocks_${amount}`,
+        title: `${amount} Blocks`,
+        description: `Purchase ${amount} blocks to open more squares`,
+        price: price,
+        currency: "XTR"
+      };
+
+      const invoiceData = {
+        title: boosterInfo.title,
+        description: boosterInfo.description,
+        payload: JSON.stringify({ 
+          item_id: boosterInfo.item_id, 
+          user_id: webApp.initDataUnsafe.user.id 
+        }),
+        currency: boosterInfo.currency,
+        prices: [{ amount: boosterInfo.price * 1000, label: boosterInfo.title }],
+      };
+
+      const response = await axios.post(
+        'https://functions-user.online/.netlify/functions/create-invoice',
+        invoiceData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      const { invoiceLink: newInvoiceLink } = response.data;
+
+      webApp.openInvoice(newInvoiceLink, async (status) => {
+        if (status === "paid") {
+          try {
+            const verificationResponse = await axios.post(
+              'https://functions-user.online/.netlify/functions/verify-payment',
+              {
+                payload: invoiceData.payload,
+                user_id: webApp.initDataUnsafe.user.id
+              },
+              {
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+              }
+            );
+
+            if (verificationResponse.status === 200) {
+              const data = verificationResponse.data;
+
+              if (data.success) {
+                if (!data.duplicate && !data.alreadyOwned) {
+                  // Увеличиваем количество блоков
+                  const newBlocksCount = (userData?.bloks_count || 0) + amount;
+                  
+                  // Обновляем данные на сервере
+                  if (userData && updateUserData) {
+                    updateUserData({
+                      ...userData,
+                      bloks_count: newBlocksCount
+                    });
+                  }
+                  
+                  // Закрываем модальное окно после успешной покупки
+                  handleCloseModal();
+                } else {
+                  console.error("Duplicate payment or already owned");
+                }
+              } else {
+                console.error("Payment verification failed");
+              }
+            }
+          } catch (verificationError) {
+            console.error("Verification Error", verificationError);
+          }
+        } else {
+          console.error("Payment cancelled or failed");
+        }
+        
+        setIsProcessing(false);
+        setProcessingMethod(null);
       });
+    } catch (error) {
+      console.error("Invoice Creation Error", error);
+      setIsProcessing(false);
+      setProcessingMethod(null);
     }
-    
-    // Закрываем модальное окно после покупки
-    setShowBlocksModal(false);
   };
 
   // Функция для отображения блоков
@@ -315,33 +418,37 @@ function HomePage({ userData, updateUserData, isActive }) {
       
       {/* Модальное окно покупки блоков */}
       {showBlocksModal && (
-        <div className="modal-overlay-bottom" onClick={() => setShowBlocksModal(false)}>
-          <div className="modal-content-bottom" onClick={(e) => e.stopPropagation()}>
-            <div className="blocks-options-vertical">
-              <div className="block-option-vertical" onClick={() => handleBuyBlocks(5)}>
-                <div className="block-info-row">
-                  <div className="block-amount">5 blocks</div>
-                  <div className="block-price">5 ⭐</div>
-                </div>
-              </div>
-              <div className="block-option-vertical" onClick={() => handleBuyBlocks(10)}>
-                <div className="block-info-row">
-                  <div className="block-amount">10 blocks</div>
-                  <div className="block-price">9 ⭐</div>
-                </div>
-              </div>
-              <div className="block-option-vertical" onClick={() => handleBuyBlocks(20)}>
-                <div className="block-info-row">
-                  <div className="block-amount">20 blocks</div>
-                  <div className="block-price">16 ⭐</div>
-                </div>
-              </div>
-              <div className="block-option-vertical" onClick={() => handleBuyBlocks(100)}>
-                <div className="block-info-row">
-                  <div className="block-amount">100 blocks</div>
-                  <div className="block-price">70 ⭐</div>
-                </div>
-              </div>
+        <div className={`modal-overlay ${isClosing ? 'closing' : ''}`} onClick={handleCloseModal}>
+          <div className={`modal-content ${isClosing ? 'closing' : ''}`} onClick={(e) => e.stopPropagation()}>
+            <div className="payment-methods">
+              <button 
+                className={`payment-btn stars-btn ${processingMethod === 'stars' && isProcessing ? 'processing' : ''}`}
+                onClick={() => handleBuyWithStars(5, 5)}
+                disabled={isProcessing}
+              >
+                {processingMethod === 'stars' && isProcessing ? 'Processing...' : `5 blocks - 5 ⭐`}
+              </button>
+              <button 
+                className={`payment-btn stars-btn ${processingMethod === 'stars' && isProcessing ? 'processing' : ''}`}
+                onClick={() => handleBuyWithStars(10, 9)}
+                disabled={isProcessing}
+              >
+                {processingMethod === 'stars' && isProcessing ? 'Processing...' : `10 blocks - 9 ⭐`}
+              </button>
+              <button 
+                className={`payment-btn stars-btn ${processingMethod === 'stars' && isProcessing ? 'processing' : ''}`}
+                onClick={() => handleBuyWithStars(20, 16)}
+                disabled={isProcessing}
+              >
+                {processingMethod === 'stars' && isProcessing ? 'Processing...' : `20 blocks - 16 ⭐`}
+              </button>
+              <button 
+                className={`payment-btn stars-btn ${processingMethod === 'stars' && isProcessing ? 'processing' : ''}`}
+                onClick={() => handleBuyWithStars(100, 70)}
+                disabled={isProcessing}
+              >
+                {processingMethod === 'stars' && isProcessing ? 'Processing...' : `100 blocks - 70 ⭐`}
+              </button>
             </div>
           </div>
         </div>

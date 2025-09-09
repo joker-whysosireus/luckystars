@@ -365,31 +365,89 @@
   animation: pulse 0.6s ease-in-out;
 }
 
-/* Стили для модального окна снизу */
-.modal-overlay-bottom {
+/* Стили для модального окна */
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.8);
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  flex-direction: column;
-  z-index: 2000;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 1000;
+  opacity: 0;
+  animation: fadeIn 0.3s ease-out forwards;
 }
 
-.modal-content-bottom {
-  background-color: #0f0f0f;
-  padding: 20px;
-  border-top-left-radius: 16px;
-  border-top-right-radius: 16px;
-  width: 100%;
-  max-width: 100%;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+.modal-overlay.closing {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+.modal-content {
+  background: #0f0f0f;
+  padding: 25px;
+  border-radius: 20px 20px 0 0;
+  width: 340px;
+  position: relative;
+  transform: translateY(100%);
+  animation: slideUp 0.3s ease-out forwards 0.1s;
+  box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.5);
+}
+
+.modal-content.closing {
+  animation: slideDown 0.3s ease-out forwards;
+}
+
+.payment-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.payment-btn {
+  padding: 15px;
+  border: none;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-family: "Rubik", serif;
+  font-size: 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.stars-btn {
+  background: linear-gradient(45deg, #ffa726, #ff7043);
   color: white;
-  animation: slideUp 0.3s ease-out;
+}
+
+.stars-btn.processing {
+  color: var(--container-color-two);
+  background: linear-gradient(45deg, #cc861e, #cc5936);
+  cursor: not-allowed;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes slideUp {
@@ -401,40 +459,11 @@
   }
 }
 
-.blocks-options-vertical {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 20px 0;
-}
-
-.block-option-vertical {
-  background: linear-gradient(45deg, #ffa726, #ff7043);
-  padding: 15px;
-  border-radius: 8px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s;
-  color: white;
-}
-
-.block-option-vertical:hover {
-  opacity: 0.9;
-  transform: scale(1.02);
-}
-
-.block-info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.block-amount {
-  font-weight: bold;
-  margin-bottom: 0;
-}
-
-.block-price {
-  font-size: 16px;
-  font-weight: bold;
+@keyframes slideDown {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
 }
