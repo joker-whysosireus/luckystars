@@ -91,13 +91,6 @@ function Friends({ userData, updateUserData }) {
       )}
 
       <div className='Button-container'>
-        <button 
-          className="about-program-btn" 
-          onClick={handleAboutProgramClick}
-          style={{marginBottom: '10px'}}
-        >
-          About the Referral Program
-        </button>
         <button className="invite-friends-btn" onClick={handleInviteFriends}>
           <span className="btn-icon">👥</span>
           Invite Friends
