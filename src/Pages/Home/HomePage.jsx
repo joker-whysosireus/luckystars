@@ -1,39 +1,24 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import './Home.css';
 import Menu from '../Menus/Menu/Menu';
-import MoomDay from './Containers/img-jsx/MoomDay';
-import PlantFR from './Containers/img-jsx/PlantFR';
 import axios from 'axios';
+import Stars from './Containers/img-jsx/Stars';
 
 function HomePage({ userData, updateUserData, isActive }) {
-  const [currentTextIndex, setCurrentTextIndex] = useState(0);
   const [blocks, setBlocks] = useState([]);
   const [isResetting, setIsResetting] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [showBlocksModal, setShowBlocksModal] = useState(false);
-  const [isClosing, setIsClosing] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingMethod, setProcessingMethod] = useState(null);
+  const [processingButton, setProcessingButton] = useState(null);
   const [webApp, setWebApp] = useState(null);
-  const intervalRef = useRef(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   
-  const texts = [
-    {
-      line1: "Follow the news!",
-      line2: "On our channel, we publish news about the project"
-    },
-    {
-      line1: "Free blocks!",
-      line2: "To unlock for free, watch ads and complete tasks"
-    }
-  ];
-  
-  const backgroundClass = currentTextIndex === 0 ? 'blue-bg' : 'yellow-bg';
-
   // Получаем экземпляр WebApp Telegram
   useEffect(() => {
     if (window.Telegram && window.Telegram.WebApp) {
-      setWebApp(window.Telegram.WebApp);
+      const webAppInstance = window.Telegram.WebApp;
+      setWebApp(webAppInstance);
     }
   }, []);
 
@@ -91,18 +76,6 @@ function HomePage({ userData, updateUserData, isActive }) {
     }
   }, [blocks, userData]);
 
-  useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setCurrentTextIndex(prevIndex => (prevIndex + 1) % texts.length);
-    }, 5000);
-    
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  }, [texts.length]);
-
   // Проверка, все ли блоки открыты
   useEffect(() => {
     if (blocks.length === 0) return;
@@ -131,9 +104,15 @@ function HomePage({ userData, updateUserData, isActive }) {
     // Если происходит сброс блоков или анимация, игнорируем клики
     if (isResetting || isAnimating) return;
     
-    // Если нет блоков для открытия - открываем модальное окно
+    // Если нет блоков для открытия - показываем уведомление
     if ((userData?.bloks_count || 0) <= 0) {
-      setShowBlocksModal(true);
+      if (webApp) {
+        webApp.showPopup({
+          title: "No Blocks",
+          message: "You don't have any blocks to open. Buy more blocks to continue playing.",
+          buttons: [{ type: "ok" }]
+        });
+      }
       return;
     }
     
@@ -210,24 +189,17 @@ function HomePage({ userData, updateUserData, isActive }) {
     setIsResetting(false);
   };
 
-  const handleCloseModal = () => {
-    setIsClosing(true);
-    setTimeout(() => {
-      setShowBlocksModal(false);
-      setIsClosing(false);
-    }, 300);
-  };
-
-  const handleBuyWithStars = async (amount, price) => {
+  const handleBuyWithStars = async (amount, price, buttonId) => {
     setIsProcessing(true);
     setProcessingMethod('stars');
+    setProcessingButton(buttonId);
     
     try {
       if (!webApp) {
         throw new Error("WebApp not initialized");
       }
 
-      // Создаем информацию о товаре согласно документации
+      // Создаем информацию о товаре
       const boosterInfo = {
         item_id: `blocks_${amount}`,
         title: `${amount} Blocks`,
@@ -290,9 +262,6 @@ function HomePage({ userData, updateUserData, isActive }) {
                       bloks_count: newBlocksCount
                     });
                   }
-                  
-                  // Закрываем модальное окно после успешной покупки
-                  handleCloseModal();
                 } else {
                   console.error("Duplicate payment or already owned");
                 }
@@ -309,12 +278,18 @@ function HomePage({ userData, updateUserData, isActive }) {
         
         setIsProcessing(false);
         setProcessingMethod(null);
+        setProcessingButton(null);
       });
     } catch (error) {
       console.error("Invoice Creation Error", error);
       setIsProcessing(false);
       setProcessingMethod(null);
+      setProcessingButton(null);
     }
+  };
+
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
   };
 
   // Функция для отображения блоков
@@ -359,100 +334,95 @@ function HomePage({ userData, updateUserData, isActive }) {
 
   return (
     <section className='bodyhomepage'>
-      {/* Частицы для фона */}
-      <div className="market-particles">
-        {[...Array(24)].map((_, i) => (
-          <div key={i} className={`market-particle p${(i % 8) + 1}`}></div>
-        ))}
-      </div>
-      
-      {/* Секция пользователя */}
-      <div className="user-section">
-        <div className="user-info">
-          <div className="user-avatar">
-            <img 
-              src={userData?.avatar || '/default-avatar.png'} 
-              alt="Avatar" 
-              onError={(e) => {
-                e.target.src = '/default-avatar.png';
-              }}
-            />
+      {/* Фиксированная верхняя секция с ресурсами */}
+      <div className="fixed-resources">
+        <div className="resources-container">
+          <div className="resource-block">
+            <div className="resource-count">{userData?.bloks_count || 0} 🧱</div>
           </div>
-          <div className="user-details">
-            <div className="user-name">
-              {userData?.first_name || 'First'}
-            </div>
-            <div className="user-username">
-              @{userData?.username || 'username'}
-            </div>
-          </div>
-        </div>
-        
-        {/* Секция с ресурсами */}
-        <div className="user-resources">
-          <div className="resource-item" onClick={() => setShowBlocksModal(true)}>
-            <div className="resource-count">{userData?.bloks_count || 0}</div>
-            <div className="resource-icon">🧱</div>
-            <div className="resource-add">+</div>
-          </div>
-          <div className="resource-item">
-            <div className="resource-count">{userData?.shards || 0}</div>
-            <div className="resource-icon">💎</div>
+          
+          <button className="info-button" onClick={toggleModal}>
+            ℹ️
+          </button>
+          
+          <div className="resource-block">
+            <div className="resource-count">{userData?.shards || 0} 💎</div>
           </div>
         </div>
       </div>
 
-      <div className={`text-banner ${backgroundClass}`}>
-        <div className="text-content">
-          <div className="text-line-1">{texts[currentTextIndex].line1}</div>
-          <div className="text-line-2">{texts[currentTextIndex].line2}</div>
+      {/* Секция с информацией о стоимости блоков */}
+      <div className="blocks-info-section">
+        <div className="blocks-info">
+          <div className="blocks-title">Blocks cost</div>
+          <div className="blocks-description">Choose how many blocks you want to buy</div>
+          <div className="blocks-note">P.S 5<Stars /> = 5 blocks</div>
         </div>
-        <div className="icon-container">
-          {currentTextIndex === 0 ? <MoomDay /> : <PlantFR />}
+        <div className={`buy-buttons ${isProcessing ? 'processing' : ''}`}>
+          <div className="button-row">
+            <button 
+              className={`buy-btn ${processingButton === 'btn1' ? 'processing' : ''}`}
+              onClick={() => handleBuyWithStars(5, 5, 'btn1')}
+              disabled={isProcessing}
+            >
+              {processingButton === 'btn1' ? 'Wait...' : <>5<Stars /></>}
+            </button>
+            <button 
+              className={`buy-btn ${processingButton === 'btn2' ? 'processing' : ''}`}
+              onClick={() => handleBuyWithStars(10, 10, 'btn2')}
+              disabled={isProcessing}
+            >
+              {processingButton === 'btn2' ? 'Wait...' : <>10<Stars /></>}
+            </button>
+          </div>
+          <div className="button-row">
+            <button 
+              className={`buy-btn ${processingButton === 'btn3' ? 'processing' : ''}`}
+              onClick={() => handleBuyWithStars(20, 20, 'btn3')}
+              disabled={isProcessing}
+            >
+              {processingButton === 'btn3' ? 'Wait...' : <>20<Stars /></>}
+            </button>
+            <button 
+              className={`buy-btn ${processingButton === 'btn4' ? 'processing' : ''}`}
+              onClick={() => handleBuyWithStars(50, 50, 'btn4')}
+              disabled={isProcessing}
+            >
+              {processingButton === 'btn4' ? 'Wait...' : <>50<Stars /></>}
+            </button>
+          </div>
         </div>
       </div>
       
+      {/* Игровое поле с блоками */}
       <div className="squares-container">
         {renderBlocks()}
       </div>
       
-      {/* Модальное окно покупки блоков */}
-      {showBlocksModal && (
-        <div className={`modal-overlay ${isClosing ? 'closing' : ''}`} onClick={handleCloseModal}>
-          <div className={`modal-content ${isClosing ? 'closing' : ''}`} onClick={(e) => e.stopPropagation()}>
-            <div className="payment-methods">
-              <button 
-                className={`payment-btn stars-btn ${processingMethod === 'stars' && isProcessing ? 'processing' : ''}`}
-                onClick={() => handleBuyWithStars(5, 5)}
-                disabled={isProcessing}
-              >
-                {processingMethod === 'stars' && isProcessing ? 'Processing...' : `5 blocks - 5 ⭐`}
-              </button>
-              <button 
-                className={`payment-btn stars-btn ${processingMethod === 'stars' && isProcessing ? 'processing' : ''}`}
-                onClick={() => handleBuyWithStars(10, 9)}
-                disabled={isProcessing}
-              >
-                {processingMethod === 'stars' && isProcessing ? 'Processing...' : `10 blocks - 9 ⭐`}
-              </button>
-              <button 
-                className={`payment-btn stars-btn ${processingMethod === 'stars' && isProcessing ? 'processing' : ''}`}
-                onClick={() => handleBuyWithStars(20, 16)}
-                disabled={isProcessing}
-              >
-                {processingMethod === 'stars' && isProcessing ? 'Processing...' : `20 blocks - 16 ⭐`}
-              </button>
-              <button 
-                className={`payment-btn stars-btn ${processingMethod === 'stars' && isProcessing ? 'processing' : ''}`}
-                onClick={() => handleBuyWithStars(100, 70)}
-                disabled={isProcessing}
-              >
-                {processingMethod === 'stars' && isProcessing ? 'Processing...' : `100 blocks - 70 ⭐`}
-              </button>
-            </div>
+      {/* Модальное окно */}
+      <div className={`modal-overlay ${isModalOpen ? 'open' : ''}`} onClick={toggleModal}>
+        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-title">About Blocks</div>
+          <div className="modal-text">
+            Each block contains a random amount of diamonds (shards) when opened.
+            You can get 1, 5, 10, 15, or 25 diamonds from each block.
+          </div>
+          <div className="modal-text">
+            When you open all blocks on the field, you'll receive +1 free block as a reward,
+            and all blocks will reset for you to open again.
+          </div>
+          <div className="modal-text">
+            Use diamonds to purchase more blocks and continue playing to earn even more diamonds!
+          </div>
+          <div className="modal-text">
+            <strong>Packages:</strong><br />
+            5 ⭐ = 5 blocks<br />
+            10 ⭐ = 10 blocks<br />
+            20 ⭐ = 20 blocks<br />
+            50 ⭐ = 50 blocks
           </div>
         </div>
-      )}
+      </div>
       
       <Menu />
     </section>

@@ -22,9 +22,10 @@
   flex-direction: column;
   box-sizing: border-box;
   background: linear-gradient(135deg, 
-        #0f0f0f 0%,  
-        #0f0f0f 75%, 
-        #000000 100%
+        #000000 0%,  
+        #0f0f0f 50%,
+        #013509 75%, 
+        #29c909 100%
     );
 }
 
@@ -98,7 +99,7 @@
 .stat-number {
   font-size: 28px;
   font-weight: bold;
-  color: #7FDBFF;
+  color: var(--green-color);
   margin-bottom: 5px;
 }
 
@@ -111,7 +112,7 @@
 .Invite-button {
   text-align: center;
   font-family: var(--font-family);
-  background: linear-gradient(135deg, #0074D9, #7FDBFF); 
+  background: linear-gradient(135deg, var(--green-color), #013509 ); 
   color: var(--background-color);
   padding: 10px;
   border-radius: 15px;
@@ -133,7 +134,7 @@
   border-radius: 15px;
   width: 360px;
   height: 55px;
-  border: 1px solid #7FDBFF; 
+  border: 1px solid #013509 ; 
 }
 
 .Container-button {
@@ -175,13 +176,13 @@
   content: ''; 
   width: 10px; 
   height: 10px; 
-  background-color: #7FDBFF; 
+  background-color: var(--green-color); 
   border-radius: 50%; 
   position: absolute; 
   left: -40px; 
   top: 25%; 
   transform: translateY(-50%); 
-  box-shadow: 0 0 10px #0074D9, 0 0 10px #7FDBFF;
+  box-shadow: 0 0 10px #013509 , 0 0 10px var(--green-color);
 }
 
 .left-section-gif-bonus-fr {

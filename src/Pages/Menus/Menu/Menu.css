@@ -12,12 +12,12 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(0, 0, 0, 0.3); 
+  border-top: 2px solid #121212;
+  background: #000000; 
   display: flex;
   justify-content: space-around;
   padding: 10px 0;
   z-index: 1002;
-  backdrop-filter: blur(4px); 
 }
 
 
@@ -38,16 +38,4 @@
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.friends-background {
-  background-color: #2c2c2e; /* Темно-серый фон */
-  border-radius: 10px; /* Легкое скругление углов */
-  padding: 8px 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-width: 60px;
-  min-height: 50px;
 }

@@ -40,14 +40,6 @@ const Menu = () => {
           </Link>
         </div>
         <div className="menu-item">
-          <Link to="/leader" onClick={handleClick('/leader')}>
-              {currentPath === '/leader' ? <CrownTwo /> : <CrownOne />}
-              <span className="Name" style={{ color: currentPath === '/leader' ? '#FFFA8A' : 'var(--container-color-two)' }}>
-                Leaders
-              </span>
-          </Link>
-        </div>
-        <div className="menu-item">
           <Link to="/tasks" onClick={handleClick('/tasks')}>
             {currentPath === '/tasks' ? <TasksIconTwoMenu /> : <TasksIconOneMenu />}
             <span className="Name" style={{ color: currentPath === '/tasks' ? '#FFFA8A' : 'var(--container-color-two)' }}>

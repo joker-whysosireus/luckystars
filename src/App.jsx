@@ -12,15 +12,6 @@ import telegramAnalytics from '@telegram-apps/analytics';
 
 const AUTH_FUNCTION_URL = 'https://lucky-stars-backend.netlify.app/.netlify/functions/auth';
 
-//    if (process.env.NODE_ENV === 'production') { 
-//        telegramAnalytics.init({
-//            token: 'eyJhcHBfbmFtZSI6ImxpcXVpZF9jb2luIiwiYXBwX3VybCI6Imh0dHBzOi8vdC5tZS9saXF1aWRfY29pbl9hcHAiLCJhcHBfZG9tYWluIjoiaHR0cHM6Ly9saXF1aWQtY29pbi5vbmxpbmUifQ==!+gZmuyBadR4FsLH1DnujDwZmZdPGQ+MPKi1klM8P8zk=', // SDK Auth token received via @DataChief_bot
-//           appName: 'liquid_coin_app', 
-//        });
- //   } else {
-  //      console.log("Telegram Analytics SDK not initialized in development mode.");
-  //  }
-
 const App = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -32,6 +23,11 @@ const App = () => {
 
     useEffect(() => {
         console.log("App.jsx: useEffect triggered");
+
+        // Устанавливаем цвет заголовка в Telegram
+        if (window.Telegram && window.Telegram.WebApp) {
+            window.Telegram.WebApp.setHeaderColor('#ffa500');
+        }
 
         // Обновляем предыдущий путь при изменении location
         previousPathRef.current = location.pathname;
@@ -58,9 +54,6 @@ const App = () => {
         };
     }, [location]); // Добавляем location в зависимости
 
-    // Управление кнопкой "Назад" и ее обработчиками
-    
-
     useEffect(() => {
         if (['/', '/friends', '/tasks'].includes(location.pathname)) {
             document.body.classList.add('no-scroll');
@@ -72,16 +65,6 @@ const App = () => {
             document.body.classList.remove('no-scroll');
         };
     }, [location.pathname]);
-
-    useEffect(() => {
-        if (window.Telegram && window.Telegram.WebApp) {
-            setIsActive(window.Telegram.WebApp.isActive);
-            if (window.Telegram.WebApp.isActive) {
-                window.Telegram.WebApp.requestFullscreen();
-                window.Telegram.WebApp.isVerticalSwipesEnabled = false;
-           }
-        }
-    }, []);
 
     useEffect(() => {
         if (telegramReady) {
