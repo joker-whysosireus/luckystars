@@ -4,9 +4,8 @@ import axios from 'axios';
 import HomePage from './Pages/Home/HomePage.jsx';
 import Friends from './Pages/Friends/Friends.jsx';
 import Tasks from './Pages/Tasks/Tasks.jsx';
-import PageTransition from './Pages/Transition/PageTransition.jsx';
-import Loader from './Pages/Loader/Loader.jsx';
-import Leader from './Pages/Leaders/Leader.jsx';
+import PageTransition from './Assets/Transition/PageTransition.jsx';
+import Loader from './Assets/Loader/Loader.jsx';
 import Profile from './Pages/Profile/Profile.jsx';
 import telegramAnalytics from '@telegram-apps/analytics'; 
 
@@ -147,7 +146,6 @@ const App = () => {
                         <Route path="/" element={<HomePage isActive={isActive} userData={userData} updateUserData={updateUserData} />} />
                         <Route path="/friends" element={<Friends isActive={isActive} userData={userData} updateUserData={updateUserData} />} />
                         <Route path="/tasks" element={<Tasks isActive={isActive} userData={userData} updateUserData={updateUserData} />} />
-                        <Route path="/leader" element={<Leader isActive={isActive} userData={userData} updateUserData={updateUserData} />} />
                         <Route path="/profile" element={<Profile isActive={isActive} userData={userData} updateUserData={updateUserData} />} />
                     </Routes>
                 </PageTransition>

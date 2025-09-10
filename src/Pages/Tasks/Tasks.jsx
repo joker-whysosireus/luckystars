@@ -1,22 +1,28 @@
+import { useState } from 'react';
 import Menu from '../Menus/Menu/Menu';
 import './Tasks.css';
-import Hight from './Containers/Hight-section/Hight';
+import FixedTopSection from '../Home/Containers/TopSection/FixedTopSection';
+import InfoModal from '../../Assets/Modal/InfoModal';
 
 function Tasks({ isActive, userData, updateUserData }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
 
   return (
-      <section className='bodytaskspage'>
-        <div className="market-gradient-bg"></div>
-            
-            {/* Частицы для фона */}
-            <div className="market-particles">
-                {[...Array(24)].map((_, i) => (
-                    <div key={i} className={`market-particle p${(i % 8) + 1}`}></div>
-                ))}
-            </div>
-        <Hight userData={userData} updateUserData={updateUserData} />
-        <Menu />
-      </section>
+    <section className='bodytaskspage'>
+      <FixedTopSection 
+        userData={userData} 
+        onInfoClick={toggleModal}
+      />
+      
+     
+      <InfoModal isOpen={isModalOpen} onClose={toggleModal} />
+      
+      <Menu />
+    </section>
   );
 }
 

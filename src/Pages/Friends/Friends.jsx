@@ -1,15 +1,25 @@
 import { useState } from 'react';
 import Menu from '../Menus/Menu/Menu';
-import FlyFR from './Containers-fr/img-jsx-fr/FlyFR';
 import './Friends.css';
-import DiamondGifFr from './Containers-fr/img-jsx-fr/DiamondGifFr';
+import FixedTopSection from '../Home/Containers/TopSection/FixedTopSection';
+import InfoModal from '../../Assets/Modal/InfoModal';
 
 function Friends({ userData, updateUserData }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
+  };
 
   return (
     <section className='bodyfriendspage'>
+      <FixedTopSection 
+        userData={userData} 
+        onInfoClick={toggleModal}
+      />
 
-      
+      {/* Общее модальное окно */}
+      <InfoModal isOpen={isModalOpen} onClose={toggleModal} />
       
       <Menu />
     </section>

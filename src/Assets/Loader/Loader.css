@@ -22,7 +22,7 @@
 
 .spinner {
   border: 12px solid var(--container-color); 
-  border-top: 12px solid var(--green-color);
+  border-top: 12px solid orange;
   border-radius: 50%;
   width: 120px; 
   height: 120px; 

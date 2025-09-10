@@ -3,6 +3,9 @@ import './Home.css';
 import Menu from '../Menus/Menu/Menu';
 import axios from 'axios';
 import Stars from './Containers/img-jsx/Stars';
+import FixedTopSection from './Containers/TopSection/FixedTopSection';
+import BuyBlocksSection from './Containers/BuyBlocks/BuyBlocksSection';
+import InfoModal from '../../Assets/Modal/InfoModal';
 
 function HomePage({ userData, updateUserData, isActive }) {
   const [blocks, setBlocks] = useState([]);
@@ -334,95 +337,24 @@ function HomePage({ userData, updateUserData, isActive }) {
 
   return (
     <section className='bodyhomepage'>
-      {/* Фиксированная верхняя секция с ресурсами */}
-      <div className="fixed-resources">
-        <div className="resources-container">
-          <div className="resource-block">
-            <div className="resource-count">{userData?.bloks_count || 0} 🧱</div>
-          </div>
-          
-          <button className="info-button" onClick={toggleModal}>
-            ℹ️
-          </button>
-          
-          <div className="resource-block">
-            <div className="resource-count">{userData?.shards || 0} 💎</div>
-          </div>
-        </div>
-      </div>
+      <FixedTopSection 
+        userData={userData} 
+        onInfoClick={toggleModal}
+      />
 
-      {/* Секция с информацией о стоимости блоков */}
-      <div className="blocks-info-section">
-        <div className="blocks-info">
-          <div className="blocks-title">Blocks cost</div>
-          <div className="blocks-description">Choose how many blocks you want to buy</div>
-          <div className="blocks-note">P.S 5<Stars /> = 5 blocks</div>
-        </div>
-        <div className={`buy-buttons ${isProcessing ? 'processing' : ''}`}>
-          <div className="button-row">
-            <button 
-              className={`buy-btn ${processingButton === 'btn1' ? 'processing' : ''}`}
-              onClick={() => handleBuyWithStars(5, 5, 'btn1')}
-              disabled={isProcessing}
-            >
-              {processingButton === 'btn1' ? 'Wait...' : <>5<Stars /></>}
-            </button>
-            <button 
-              className={`buy-btn ${processingButton === 'btn2' ? 'processing' : ''}`}
-              onClick={() => handleBuyWithStars(10, 10, 'btn2')}
-              disabled={isProcessing}
-            >
-              {processingButton === 'btn2' ? 'Wait...' : <>10<Stars /></>}
-            </button>
-          </div>
-          <div className="button-row">
-            <button 
-              className={`buy-btn ${processingButton === 'btn3' ? 'processing' : ''}`}
-              onClick={() => handleBuyWithStars(20, 20, 'btn3')}
-              disabled={isProcessing}
-            >
-              {processingButton === 'btn3' ? 'Wait...' : <>20<Stars /></>}
-            </button>
-            <button 
-              className={`buy-btn ${processingButton === 'btn4' ? 'processing' : ''}`}
-              onClick={() => handleBuyWithStars(50, 50, 'btn4')}
-              disabled={isProcessing}
-            >
-              {processingButton === 'btn4' ? 'Wait...' : <>50<Stars /></>}
-            </button>
-          </div>
-        </div>
-      </div>
+      <BuyBlocksSection
+        isProcessing={isProcessing}
+        processingButton={processingButton}
+        onBuyWithStars={handleBuyWithStars}
+      />
       
       {/* Игровое поле с блоками */}
       <div className="squares-container">
         {renderBlocks()}
       </div>
       
-      {/* Модальное окно */}
-      <div className={`modal-overlay ${isModalOpen ? 'open' : ''}`} onClick={toggleModal}>
-        <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-          <div className="modal-title">About Blocks</div>
-          <div className="modal-text">
-            Each block contains a random amount of diamonds (shards) when opened.
-            You can get 1, 5, 10, 15, or 25 diamonds from each block.
-          </div>
-          <div className="modal-text">
-            When you open all blocks on the field, you'll receive +1 free block as a reward,
-            and all blocks will reset for you to open again.
-          </div>
-          <div className="modal-text">
-            Use diamonds to purchase more blocks and continue playing to earn even more diamonds!
-          </div>
-          <div className="modal-text">
-            <strong>Packages:</strong><br />
-            5 ⭐ = 5 blocks<br />
-            10 ⭐ = 10 blocks<br />
-            20 ⭐ = 20 blocks<br />
-            50 ⭐ = 50 blocks
-          </div>
-        </div>
-      </div>
+      {/* Общее модальное окно */}
+      <InfoModal isOpen={isModalOpen} onClose={toggleModal} />
       
       <Menu />
     </section>
