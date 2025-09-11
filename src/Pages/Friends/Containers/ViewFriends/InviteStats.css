@@ -5,7 +5,7 @@
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   width: 375px;
   margin: 0 auto;
@@ -14,7 +14,7 @@
 .stat-card {
   background: #121212;
   border-radius: 0.75rem;
-  padding: 2.2rem;
+  padding: 1.5rem;
   text-align: center;
 }
 
@@ -34,6 +34,10 @@
 
 .bg-blue {
   background: rgba(59, 130, 246, 0.2);
+}
+
+.bg-green {
+  background: rgba(74, 222, 128, 0.2);
 }
 
 .stat-value {

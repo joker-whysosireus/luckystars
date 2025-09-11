@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import Menu from '../../Assets/Menus/Menu/Menu';
+import Menu from '../Menus/Menu/Menu';
 import './Friends.css';
 import FixedTopSection from '../Home/Containers/TopSection/FixedTopSection';
 import InfoModal from '../../Assets/Modal/InfoModal';
-import InviteStats from './Containers/ViewFriends/InviteStats';
-import ViewSection from './Containers/ViewSection/ViewSection';
+import InviteStats from './InviteStats';
+import ViewSection from './ViewSection';
 
 function Friends({ userData, updateUserData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,12 +34,9 @@ function Friends({ userData, updateUserData }) {
       />
 
       <div className="friends-content">
-        <InviteStats
-          totalInvites={3}
-          totalRewards={23}
-        />
+        <InviteStats userData={userData} />
         
-        <ViewSection friendsCount={3} />
+        <ViewSection userData={userData} />
 
         <div className='Button-container'>
           <button className="invite-friends-btn" onClick={handleInviteFriends}>

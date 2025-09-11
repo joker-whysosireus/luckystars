@@ -1,7 +1,9 @@
 import { Users, ArrowDown } from 'lucide-react';
-import './ViewFriendsButton.css';
+import './ViewSection.css';
 
-function ViewSection({ friendsCount = 0 }) {
+function ViewSection({ userData }) {
+  const friendsCount = userData?.invited_friends || 0;
+
   return (
     <div className="view-friends-container">
       <div className="friends-card">
