@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import './Home.css';
-import Menu from '../Menus/Menu/Menu';
+import Menu from '../../Assets/Menus/Menu/Menu';
 import axios from 'axios';
-import Stars from './Containers/img-jsx/Stars';
 import FixedTopSection from './Containers/TopSection/FixedTopSection';
 import BuyBlocksSection from './Containers/BuyBlocks/BuyBlocksSection';
 import InfoModal from '../../Assets/Modal/InfoModal';

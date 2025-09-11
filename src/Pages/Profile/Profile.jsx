@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Menu from "../Menus/Menu/Menu";
+import Menu from '../../Assets/Menus/Menu/Menu';
 import "./Profile.css";
 import FixedTopSection from "../Home/Containers/TopSection/FixedTopSection";
 import InfoModal from "../../Assets/Modal/InfoModal";
