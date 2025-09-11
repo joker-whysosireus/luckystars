@@ -3,8 +3,8 @@ import Menu from '../../Assets/Menus/Menu/Menu';
 import './Friends.css';
 import FixedTopSection from '../Home/Containers/TopSection/FixedTopSection';
 import InfoModal from '../../Assets/Modal/InfoModal';
-import InviteStats from './InviteStats';
-import ViewSection from './ViewSection';
+import InviteStats from './Containers/ViewFriends/InviteStats';
+import ViewSection from './Containers/ViewSection/ViewSection';
 
 function Friends({ userData, updateUserData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
