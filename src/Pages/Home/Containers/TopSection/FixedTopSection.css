@@ -37,6 +37,7 @@
   font-size: 18px;
   display: flex;
   align-items: center;
+  gap: 5px;
 }
 
 .info-button {

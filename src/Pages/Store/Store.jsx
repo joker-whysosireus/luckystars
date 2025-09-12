@@ -1,10 +1,10 @@
 import { useState } from "react";
 import Menu from '../../Assets/Menus/Menu/Menu';
-import "./Profile.css";
+import "./Store.css";
 import FixedTopSection from "../Home/Containers/TopSection/FixedTopSection";
 import InfoModal from "../../Assets/Modal/InfoModal";
 
-function Profile({ userData, updateUserData }) {
+function Store({ userData, updateUserData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const toggleModal = () => {
@@ -27,4 +27,4 @@ function Profile({ userData, updateUserData }) {
   );
 }
 
-export default Profile;
+export default Store;

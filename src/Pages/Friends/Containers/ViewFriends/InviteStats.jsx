@@ -1,4 +1,4 @@
-import { TrendingUp, Gift, Box } from 'lucide-react';
+import { TrendingUp, Diamond, Box } from 'lucide-react';
 import './InviteStats.css';
 
 function InviteStats({ userData }) {
@@ -19,15 +19,15 @@ function InviteStats({ userData }) {
         
         <div className="stat-card">
           <div className="stat-icon bg-blue">
-            <Gift size={24} color="#3b82f6" />
+            <Diamond size={24} color="#3b82f6" />
           </div>
           <div className="stat-value">{shardsForInvited}</div>
-          <div className="stat-label">Total Shards</div>
+          <div className="stat-label">Total Diamonds</div>
         </div>
 
         <div className="stat-card">
           <div className="stat-icon bg-green">
-            <Box size={24} color="#4ade80" />
+            <Box size={24} color="#ffa500" />
           </div>
           <div className="stat-value">{bloksForInvited}</div>
           <div className="stat-label">Blocks from Friends</div>

@@ -5,6 +5,7 @@ import FixedTopSection from '../Home/Containers/TopSection/FixedTopSection';
 import InfoModal from '../../Assets/Modal/InfoModal';
 import InviteStats from './Containers/ViewFriends/InviteStats';
 import ViewSection from './Containers/ViewSection/ViewSection';
+import { Box, Diamond } from 'lucide-react';
 
 function Friends({ userData, updateUserData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,7 +43,7 @@ function Friends({ userData, updateUserData }) {
           <button className="invite-friends-btn" onClick={handleInviteFriends}>
             <span className="btn-icon">👥</span>
             Invite Friends
-            <span className="btn-badge">+3 🧱 +10 💎</span>
+            <span className="btn-badge">+3 <Box size={12} color="#ffa500" /> +10 <Diamond size={12} color="#3b82f6" /> </span>
           </button>
         </div>
       </div>

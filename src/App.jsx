@@ -6,7 +6,7 @@ import Friends from './Pages/Friends/Friends.jsx';
 import Tasks from './Pages/Tasks/Tasks.jsx';
 import PageTransition from './Assets/Transition/PageTransition.jsx';
 import Loader from './Assets/Loader/Loader.jsx';
-import Profile from './Pages/Profile/Profile.jsx';
+import Store from './Pages/Store/Store.jsx';
 import telegramAnalytics from '@telegram-apps/analytics'; 
 
 const AUTH_FUNCTION_URL = 'https://lucky-stars-backend.netlify.app/.netlify/functions/auth';
@@ -146,7 +146,7 @@ const App = () => {
                         <Route path="/" element={<HomePage isActive={isActive} userData={userData} updateUserData={updateUserData} />} />
                         <Route path="/friends" element={<Friends isActive={isActive} userData={userData} updateUserData={updateUserData} />} />
                         <Route path="/tasks" element={<Tasks isActive={isActive} userData={userData} updateUserData={updateUserData} />} />
-                        <Route path="/profile" element={<Profile isActive={isActive} userData={userData} updateUserData={updateUserData} />} />
+                        <Route path="/profile" element={<Store isActive={isActive} userData={userData} updateUserData={updateUserData} />} />
                     </Routes>
                 </PageTransition>
             )}

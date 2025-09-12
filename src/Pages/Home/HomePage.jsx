@@ -318,7 +318,7 @@ function HomePage({ userData, updateUserData, isActive }) {
               {block?.isLoading ? (
                 <div className="loading-spinner"></div>
               ) : (
-                block?.isOpened && <span className="shards-count">{block.shards}💎</span>
+                block?.isOpened && <span className="shards-count">{block.shards}<Diamond size={14} color="#3b82f6" /></span>
               )}
             </div>
           </div>
