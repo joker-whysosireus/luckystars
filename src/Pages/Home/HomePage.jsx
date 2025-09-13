@@ -5,6 +5,7 @@ import axios from 'axios';
 import FixedTopSection from './Containers/TopSection/FixedTopSection';
 import BuyBlocksSection from './Containers/BuyBlocks/BuyBlocksSection';
 import InfoModal from '../../Assets/Modal/InfoModal';
+import { Diamond } from 'lucide-react';
 
 function HomePage({ userData, updateUserData, isActive }) {
   const [blocks, setBlocks] = useState([]);
