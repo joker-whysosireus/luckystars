@@ -1,6 +1,5 @@
-
 {
-  "name": "react", 
+  "name": "react",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -19,7 +18,7 @@
     "@ton/core": "^0.60.1",
     "@ton/crypto": "^3.3.0",
     "@tonconnect/sdk": "^3.0.6",
-    "@tonconnect/ui-react": "^2.2.0",
+    "@tonconnect/ui-react": "^2.3.0",
     "@tonsolutions/telemetree-react": "^1.2.15",
     "@twa-dev/sdk": "^8.0.2",
     "axios": "^1.8.4",
