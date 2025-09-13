@@ -51,7 +51,7 @@ const Menu = () => {
           <Link to="/store" onClick={handleClick('/store')}>
             {currentPath === '/store' ? <ProfileTwo /> : <ProfileOne />}
             <span className="Name" style={{ color: currentPath === '/store' ? '#FFFA8A' : 'var(--container-color-two)' }}>
-              Market
+              Store
             </span>
           </Link>
         </div>
