@@ -146,7 +146,7 @@ const App = () => {
                         <Route path="/" element={<HomePage isActive={isActive} userData={userData} updateUserData={updateUserData} />} />
                         <Route path="/friends" element={<Friends isActive={isActive} userData={userData} updateUserData={updateUserData} />} />
                         <Route path="/tasks" element={<Tasks isActive={isActive} userData={userData} updateUserData={updateUserData} />} />
-                        <Route path="/profile" element={<Store isActive={isActive} userData={userData} updateUserData={updateUserData} />} />
+                        <Route path="/store" element={<Store isActive={isActive} userData={userData} updateUserData={updateUserData} />} />
                     </Routes>
                 </PageTransition>
             )}

@@ -48,9 +48,9 @@ const Menu = () => {
           </Link>
         </div>
         <div className="menu-item">
-          <Link to="/profile" onClick={handleClick('/profile')}>
-            {currentPath === '/profile' ? <ProfileTwo /> : <ProfileOne />}
-            <span className="Name" style={{ color: currentPath === '/profile' ? '#FFFA8A' : 'var(--container-color-two)' }}>
+          <Link to="/store" onClick={handleClick('/store')}>
+            {currentPath === '/store' ? <ProfileTwo /> : <ProfileOne />}
+            <span className="Name" style={{ color: currentPath === '/store' ? '#FFFA8A' : 'var(--container-color-two)' }}>
               Market
             </span>
           </Link>
