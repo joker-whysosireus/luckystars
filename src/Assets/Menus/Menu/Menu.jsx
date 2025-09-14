@@ -6,8 +6,6 @@ import FriendsIconOneMenu from '../img-jsx/FriendsIconMenu';
 import FriendsIconTwoMenu from '../img-jsx/FriendsIconTwoMenu';
 import TasksIconOneMenu from '../img-jsx/TasksIconMenu';
 import TasksIconTwoMenu from '../img-jsx/TasksIconTwoMenu';
-import CrownOne from '../img-jsx/CrownOne';
-import CrownTwo from '../img-jsx/CrownTwo';
 import ProfileOne from '../img-jsx/ProfileOne';
 import ProfileTwo from '../img-jsx/ProfileTwo';
 
@@ -51,7 +49,7 @@ const Menu = () => {
           <Link to="/store" onClick={handleClick('/store')}>
             {currentPath === '/store' ? <ProfileTwo /> : <ProfileOne />}
             <span className="Name" style={{ color: currentPath === '/store' ? '#FFFA8A' : 'var(--container-color-two)' }}>
-              Store
+              Gifts
             </span>
           </Link>
         </div>
