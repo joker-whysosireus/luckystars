@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import HomePage from './Pages/Home/HomePage.jsx';
 import Friends from './Pages/Friends/Friends.jsx';
@@ -7,7 +7,6 @@ import Tasks from './Pages/Tasks/Tasks.jsx';
 import PageTransition from './Assets/Transition/PageTransition.jsx';
 import Loader from './Assets/Loader/Loader.jsx';
 import Store from './Pages/Store/Store.jsx';
-import telegramAnalytics from '@telegram-apps/analytics'; 
 
 const AUTH_FUNCTION_URL = 'https://lucky-stars-backend.netlify.app/.netlify/functions/auth';
 
@@ -21,28 +20,52 @@ const App = () => {
     useEffect(() => {
         console.log("App.jsx: useEffect triggered");
 
-        if (typeof window.Telegram !== 'undefined' && typeof window.Telegram.WebApp !== 'undefined') {
+        // Проверяем, что находимся в Telegram WebApp
+        const isTelegramWebApp = () => {
             try {
-                window.Telegram.WebApp.enableClosingConfirmation();
-                console.log("Telegram WebApp initialized");
+                return window.Telegram && window.Telegram.WebApp;
+            } catch (e) {
+                return false;
+            }
+        };
+
+        if (isTelegramWebApp()) {
+            try {
+                const webApp = window.Telegram.WebApp;
+                console.log("Telegram WebApp detected, initializing...");
+                
+                // Основные настройки WebApp
+                webApp.setHeaderColor('#ffa500');
+                webApp.expand();
+                
+                // Отключаем закрытие свайпом
+                if (webApp.disableSwipeToClose) {
+                    webApp.disableSwipeToClose();
+                }
+                
+                // Включаем подтверждение закрытия
+                if (webApp.enableClosingConfirmation) {
+                    webApp.enableClosingConfirmation();
+                }
+                
+                console.log("Telegram WebApp initialized successfully");
                 setTelegramReady(true);
             } catch (error) {
-                console.error("App.jsx: Error initializing Telegram WebApp:", error);
-                setTelegramReady(false); 
+                console.error("Error initializing Telegram WebApp:", error);
+                setTelegramReady(true); // Все равно продолжаем, даже если есть ошибки
             }
         } else {
-            console.warn("Telegram WebApp not found");
-            setTelegramReady(false); 
+            console.warn("Not in Telegram WebApp environment, running in standalone mode");
+            setTelegramReady(true); // Продолжаем работу вне Telegram
         }
 
         return () => {
-            if (window.Telegram && window.Telegram.WebApp) {
+            // Cleanup
+            if (isTelegramWebApp() && window.Telegram.WebApp.disableClosingConfirmation) {
                 window.Telegram.WebApp.disableClosingConfirmation();
-                webApp.disableSwipeToClose();
-                window.Telegram.WebApp.setHeaderColor('#ffa500');
             }
         };
-    }, []); // Добавляем location в зависимости
+    }, []);
 
     useEffect(() => {
         if (['/', '/friends', '/tasks'].includes(location.pathname)) {
@@ -58,62 +81,65 @@ const App = () => {
 
     useEffect(() => {
         if (telegramReady) {
-            console.log("App.jsx: Auth useEffect triggered");
-            const initData = window.Telegram?.WebApp?.initData || '';
-            console.log("App.jsx: initData:", initData);
+            console.log("App.jsx: Starting authentication check");
+            
+            // Функция для безопасного получения initData
+            const getInitData = () => {
+                try {
+                    return window.Telegram?.WebApp?.initData || '';
+                } catch (e) {
+                    return '';
+                }
+            };
 
-            const initDataUnsafe = window.Telegram?.WebApp?.initDataUnsafe || {};
-            console.log("App.jsx: initDataUnsafe:", initDataUnsafe);
-
-            console.log("App.jsx: AUTH_FUNCTION_URL:", AUTH_FUNCTION_URL);
+            const initData = getInitData();
+            console.log("App.jsx: initData available:", !!initData);
 
             if (initData) {
-                console.log("App.jsx: initData exists, sending request");
-                console.log("App.jsx: Sending initData:", initData);
-
-                fetch(AUTH_FUNCTION_URL, {
+                console.log("App.jsx: Sending authentication request");
+                
+                // Добавляем таймаут для запроса
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error("Authentication timeout")), 10000)
+                );
+                
+                const authPromise = fetch(AUTH_FUNCTION_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ initData }),
-                })
+                });
+
+                Promise.race([authPromise, timeoutPromise])
                     .then(response => {
-                        console.log("App.jsx: Response status:", response.status);
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status}`);
                         }
                         return response.json();
                     })
                     .then(data => {
-                        console.log("App.jsx: Auth data:", data);
+                        console.log("App.jsx: Authentication response received");
                         if (data.isValid) {
-                            console.log("App.jsx: Авторизация прошла успешно , поздравляем!");
+                            console.log("App.jsx: Authentication successful");
                             setUserData(data.userData);
-                            
-                            setTimeout(() => {
-                                setAuthCheckLoading(false);
-                            }, 2000);
                         } else {
-                            console.error("App.jsx: Ошибка авторизации: Недействительные данные Telegram.");
+                            console.error("App.jsx: Authentication failed");
                             setUserData(null);
-                            setAuthCheckLoading(false); 
                         }
                     })
                     .catch(error => {
-                        console.error("App.jsx: Ошибка при запросе к Netlify Function:", error);
+                        console.error("App.jsx: Authentication error:", error);
                         setUserData(null);
-                        setAuthCheckLoading(false); 
                     })
                     .finally(() => {
-                        console.log("App.jsx: Auth check complete");
+                        console.log("App.jsx: Authentication process completed");
+                        setAuthCheckLoading(false);
                     });
             } else {
-                console.warn("App.jsx: Нет данных инициализации Telegram.");
+                console.warn("App.jsx: No initData available");
                 setAuthCheckLoading(false);
             }
-        } else {
-            console.log("App.jsx: Telegram WebApp not ready yet, skipping auth");
         }
     }, [telegramReady]);
 
@@ -126,6 +152,25 @@ const App = () => {
             console.error('Error fetching user data:', error);
         }
     };
+
+    // Если приложение не в среде Telegram, показываем заглушку
+    if (!telegramReady && !window.Telegram) {
+        return (
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: '100vh',
+                backgroundColor: '#000',
+                color: '#fff'
+            }}>
+                <div>
+                    <h1>Это приложение работает только в Telegram</h1>
+                    <p>Откройте его через Telegram-бота</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <>
