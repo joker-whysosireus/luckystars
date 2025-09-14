@@ -14,8 +14,10 @@ function HomePage({ userData, updateUserData, isActive }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingMethod, setProcessingMethod] = useState(null);
   const [processingButton, setProcessingButton] = useState(null);
-  const [webApp, setWebApp] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Получаем экземпляр WebApp Telegram
+  const webApp = window.Telegram?.WebApp || null;
 
   // Инициализация данных из userData
   useEffect(() => {
