@@ -13,23 +13,13 @@ const AUTH_FUNCTION_URL = 'https://lucky-stars-backend.netlify.app/.netlify/func
 
 const App = () => {
     const location = useLocation();
-    const navigate = useNavigate();
     const [isActive, setIsActive] = useState(false);
     const [userData, setUserData] = useState(null);
     const [authCheckLoading, setAuthCheckLoading] = useState(true);
     const [telegramReady, setTelegramReady] = useState(false);
-    const previousPathRef = useRef('/'); // Храним предыдущий путь
 
     useEffect(() => {
         console.log("App.jsx: useEffect triggered");
-
-        // Устанавливаем цвет заголовка в Telegram
-        if (window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.setHeaderColor('#ffa500');
-        }
-
-        // Обновляем предыдущий путь при изменении location
-        previousPathRef.current = location.pathname;
 
         if (typeof window.Telegram !== 'undefined' && typeof window.Telegram.WebApp !== 'undefined') {
             try {
@@ -48,10 +38,11 @@ const App = () => {
         return () => {
             if (window.Telegram && window.Telegram.WebApp) {
                 window.Telegram.WebApp.disableClosingConfirmation();
-                window.Telegram.WebApp.BackButton.offClick();
+                webApp.disableSwipeToClose();
+                window.Telegram.WebApp.setHeaderColor('#ffa500');
             }
         };
-    }, [location]); // Добавляем location в зависимости
+    }, []); // Добавляем location в зависимости
 
     useEffect(() => {
         if (['/', '/friends', '/tasks'].includes(location.pathname)) {

@@ -10,6 +10,7 @@
 }
 
 body {
+  background: #000000;
   font-family: var(--font-family);
   line-height: 1.5;
   font-weight: 400;

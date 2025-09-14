@@ -11,38 +11,33 @@
 }
 
 .store-content {
-    margin: 0 auto;
     width: 100%;
     flex-grow: 1;
     padding: 80px 23px 100px;
     display: flex;
     justify-content: center;
-    align-items: center;
     box-sizing: border-box;
 }
 
 .gifts-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 170px);
-    gap: 20px;
+    display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    align-items: start;
+    gap: 20px;
     padding: 0;
     margin: 0 auto;
-    width: 100%;
-    max-width: 340px;
+    max-width: 360px; /* 170px * 2 + 20px gap */
 }
 
 .gift-card {
-    
     border-radius: 15px;
-    padding: 15px;
+    padding: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
     box-shadow: 0 5px 15px rgba(255, 165, 0, 0.2);
     height: 280px;
-    width: 170px;
+    width: 160px;
     box-sizing: border-box;
 }
 

@@ -16,14 +16,6 @@ function HomePage({ userData, updateUserData, isActive }) {
   const [processingButton, setProcessingButton] = useState(null);
   const [webApp, setWebApp] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  // Получаем экземпляр WebApp Telegram
-  useEffect(() => {
-    if (window.Telegram && window.Telegram.WebApp) {
-      const webAppInstance = window.Telegram.WebApp;
-      setWebApp(webAppInstance);
-    }
-  }, []);
 
   // Инициализация данных из userData
   useEffect(() => {
@@ -103,6 +95,56 @@ function HomePage({ userData, updateUserData, isActive }) {
     }
   }, [blocks, isResetting, userData, updateUserData]);
 
+  const updateShardsOnServer = async (shardsToAdd) => {
+    try {
+      const response = await axios.post(
+        'https://functions-user.online/.netlify/functions/update-shards',
+        {
+          telegram_user_id: userData.telegram_user_id,
+          shards: shardsToAdd
+        }
+      );
+
+      if (response.data.success) {
+        // Обновляем локальные данные
+        updateUserData({
+          ...userData,
+          shards: response.data.newShards
+        });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error updating shards:", error);
+      return false;
+    }
+  };
+
+  const updateBlocksOnServer = async (blocksToAdd) => {
+    try {
+      const response = await axios.post(
+        'https://functions-user.online/.netlify/functions/update-blocks',
+        {
+          telegram_user_id: userData.telegram_user_id,
+          blocks: blocksToAdd
+        }
+      );
+
+      if (response.data.success) {
+        // Обновляем локальные данные
+        updateUserData({
+          ...userData,
+          bloks_count: response.data.newBlocksCount
+        });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error updating blocks:", error);
+      return false;
+    }
+  };
+
   const handleSquareClick = async (blockId) => {
     // Если происходит сброс блоков или анимация, игнорируем клики
     if (isResetting || isAnimating) return;
@@ -128,7 +170,9 @@ function HomePage({ userData, updateUserData, isActive }) {
     const newBlocksCount = (userData?.bloks_count || 0) - 1;
     
     // Обновляем данные на сервере
-    if (userData && updateUserData) {
+    const blocksUpdated = await updateBlocksOnServer(-1);
+    if (!blocksUpdated) {
+      // Если не удалось обновить на сервере, откатываем локально
       updateUserData({
         ...userData,
         bloks_count: newBlocksCount
@@ -138,8 +182,8 @@ function HomePage({ userData, updateUserData, isActive }) {
     // Блокируем другие блоки во время анимации
     setIsAnimating(true);
     
-    // Случайное количество осколков (1, 5, 10, 15, 25)
-    const shardValues = [1, 5, 10, 15, 25];
+    // Случайное количество осколков с повышенной вероятностью 1 и 5
+    const shardValues = [1, 1, 1, 1, 5, 5, 5, 10, 15, 25];
     const randomShards = shardValues[Math.floor(Math.random() * shardValues.length)];
     
     // Начинаем анимацию переворота
@@ -165,10 +209,12 @@ function HomePage({ userData, updateUserData, isActive }) {
     };
     
     setBlocks(finalizedBlocks);
-    const newShards = (userData?.shards || 0) + randomShards;
     
-    // Обновляем данные на сервере
-    if (userData && updateUserData) {
+    // Обновляем алмазы на сервере
+    const shardsUpdated = await updateShardsOnServer(randomShards);
+    if (!shardsUpdated) {
+      // Если не удалось обновить на сервере, обновляем локально
+      const newShards = (userData?.shards || 0) + randomShards;
       updateUserData({
         ...userData,
         shards: newShards
@@ -219,7 +265,7 @@ function HomePage({ userData, updateUserData, isActive }) {
           user_id: webApp.initDataUnsafe.user.id 
         }),
         currency: boosterInfo.currency,
-        prices: [{ amount: boosterInfo.price * 1000, label: boosterInfo.title }],
+        prices: [{ amount: boosterInfo.price, label: boosterInfo.title }],
       };
 
       const response = await axios.post(
@@ -255,11 +301,11 @@ function HomePage({ userData, updateUserData, isActive }) {
 
               if (data.success) {
                 if (!data.duplicate && !data.alreadyOwned) {
-                  // Увеличиваем количество блоков
-                  const newBlocksCount = (userData?.bloks_count || 0) + amount;
-                  
-                  // Обновляем данные на сервере
-                  if (userData && updateUserData) {
+                  // Увеличиваем количество блоков на сервере
+                  const blocksUpdated = await updateBlocksOnServer(amount);
+                  if (!blocksUpdated) {
+                    // Если не удалось обновить на сервере, обновляем локально
+                    const newBlocksCount = (userData?.bloks_count || 0) + amount;
                     updateUserData({
                       ...userData,
                       bloks_count: newBlocksCount
