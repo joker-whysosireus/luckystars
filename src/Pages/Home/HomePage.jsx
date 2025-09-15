@@ -11,36 +11,37 @@ import { Diamond } from 'lucide-react';
 const itemConfigs = {
   blocks_5: {
     item_id: "blocks_5",
-    title: "5 Blocks",
-    description: "Get 5 blocks to uncover more treasures! Perfect for quick exploration.",
+    title: "Blocks Pack",
+    description: "Purchase blocks to unlock more treasures in the game",
     price: 5,
-    currency: "XTR",
-    amount: 5
+    currency: "XTR"
   },
   blocks_25: {
     item_id: "blocks_25",
-    title: "25 Blocks",
-    description: "Unlock 25 blocks for extended gameplay. Discover more shards and rewards!",
+    title: "Blocks Pack",
+    description: "Purchase blocks to unlock more treasures in the game",
     price: 25,
-    currency: "XTR",
-    amount: 25
+    currency: "XTR"
   },
   blocks_75: {
     item_id: "blocks_75",
-    title: "75 Blocks",
-    description: "A treasure chest of 75 blocks! Maximize your chances to find rare shards.",
+    title: "Blocks Pack",
+    description: "Purchase blocks to unlock more treasures in the game",
     price: 75,
-    currency: "XTR",
-    amount: 75
+    currency: "XTR"
   },
   blocks_125: {
     item_id: "blocks_125",
-    title: "125 Blocks",
-    description: "The ultimate pack with 125 blocks! Dominate the game with endless possibilities.",
+    title: "Blocks Pack",
+    description: "Purchase blocks to unlock more treasures in the game",
     price: 125,
-    currency: "XTR",
-    amount: 125
+    currency: "XTR"
   }
+};
+
+// Функция для получения количества блоков из item_id
+const getAmountFromItemId = (itemId) => {
+  return parseInt(itemId.split('_')[1]);
 };
 
 function HomePage({ userData, updateUserData, isActive }) {
@@ -233,7 +234,7 @@ function HomePage({ userData, updateUserData, isActive }) {
     };
     setBlocks(updatedBlocks);
     
-    // Имитируем задержку для индикатора загрузки
+    // Имитируем задержку для индикатора загрузка
     await new Promise(resolve => setTimeout(resolve, 800));
     
     // После завершения анимации устанавливаем значения
@@ -286,11 +287,11 @@ function HomePage({ userData, updateUserData, isActive }) {
         throw new Error("WebApp not initialized");
       }
 
-      // Используем унифицированную конфигурацию
-      const itemConfig = Object.values(itemConfigs).find(item => item.amount === amount);
+      // Находим конфиг по цене (так как amount убран из конфига)
+      const itemConfig = Object.values(itemConfigs).find(item => item.price === price);
       
       if (!itemConfig) {
-        throw new Error(`No configuration found for amount: ${amount}`);
+        throw new Error(`No configuration found for price: ${price}`);
       }
 
       const invoiceData = {
@@ -337,11 +338,14 @@ function HomePage({ userData, updateUserData, isActive }) {
 
               if (data.success) {
                 if (!data.duplicate && !data.alreadyOwned) {
+                  // Получаем количество блоков из item_id
+                  const blocksToAdd = getAmountFromItemId(itemConfig.item_id);
+                  
                   // Увеличиваем количество блоков на сервере
-                  const blocksUpdated = await updateBlocksOnServer(amount);
+                  const blocksUpdated = await updateBlocksOnServer(blocksToAdd);
                   if (!blocksUpdated) {
                     // Если не удалось обновить на сервере, обновляем локально
-                    const newBlocksCount = (userData?.bloks_count || 0) + amount;
+                    const newBlocksCount = (userData?.bloks_count || 0) + blocksToAdd;
                     updateUserData({
                       ...userData,
                       bloks_count: newBlocksCount
