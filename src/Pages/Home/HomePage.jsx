@@ -7,6 +7,42 @@ import BuyBlocksSection from './Containers/BuyBlocks/BuyBlocksSection';
 import InfoModal from '../../Assets/Modal/InfoModal';
 import { Diamond } from 'lucide-react';
 
+// УНИФИЦИРОВАННАЯ КОНФИГУРАЦИЯ ТОВАРОВ
+const itemConfigs = {
+  blocks_5: {
+    item_id: "blocks_5",
+    title: "5 Blocks",
+    description: "Get 5 blocks to uncover more treasures! Perfect for quick exploration.",
+    price: 5,
+    currency: "XTR",
+    amount: 5
+  },
+  blocks_25: {
+    item_id: "blocks_25",
+    title: "25 Blocks",
+    description: "Unlock 25 blocks for extended gameplay. Discover more shards and rewards!",
+    price: 25,
+    currency: "XTR",
+    amount: 25
+  },
+  blocks_75: {
+    item_id: "blocks_75",
+    title: "75 Blocks",
+    description: "A treasure chest of 75 blocks! Maximize your chances to find rare shards.",
+    price: 75,
+    currency: "XTR",
+    amount: 75
+  },
+  blocks_125: {
+    item_id: "blocks_125",
+    title: "125 Blocks",
+    description: "The ultimate pack with 125 blocks! Dominate the game with endless possibilities.",
+    price: 125,
+    currency: "XTR",
+    amount: 125
+  }
+};
+
 function HomePage({ userData, updateUserData, isActive }) {
   const [blocks, setBlocks] = useState([]);
   const [isResetting, setIsResetting] = useState(false);
@@ -250,65 +286,22 @@ function HomePage({ userData, updateUserData, isActive }) {
         throw new Error("WebApp not initialized");
       }
 
-      // Создаем уникальную информацию о товаре для каждого типа блоков
-      let boosterInfo;
+      // Используем унифицированную конфигурацию
+      const itemConfig = Object.values(itemConfigs).find(item => item.amount === amount);
       
-      switch(amount) {
-        case 5:
-          boosterInfo = {
-            item_id: "blocks_5",
-            title: "5 Blocks Pack",
-            description: "Get 5 blocks to uncover more treasures! Perfect for quick exploration.",
-            price: price,
-            currency: "XTR"
-          };
-          break;
-        case 25:
-          boosterInfo = {
-            item_id: "blocks_25",
-            title: "25 Blocks Bundle",
-            description: "Unlock 25 blocks for extended gameplay. Discover more shards and rewards!",
-            price: price,
-            currency: "XTR"
-          };
-          break;
-        case 75:
-          boosterInfo = {
-            item_id: "blocks_75",
-            title: "75 Blocks Treasure Chest",
-            description: "A treasure chest of 75 blocks! Maximize your chances to find rare shards.",
-            price: price,
-            currency: "XTR"
-          };
-          break;
-        case 125:
-          boosterInfo = {
-            item_id: "blocks_125",
-            title: "125 Blocks Mega Pack",
-            description: "The ultimate pack with 125 blocks! Dominate the game with endless possibilities.",
-            price: price,
-            currency: "XTR"
-          };
-          break;
-        default:
-          boosterInfo = {
-            item_id: `blocks_${amount}`,
-            title: `${amount} Blocks`,
-            description: `Purchase ${amount} blocks to open more squares`,
-            price: price,
-            currency: "XTR"
-          };
+      if (!itemConfig) {
+        throw new Error(`No configuration found for amount: ${amount}`);
       }
 
       const invoiceData = {
-        title: boosterInfo.title,
-        description: boosterInfo.description,
+        title: itemConfig.title,
+        description: itemConfig.description,
         payload: JSON.stringify({ 
-          item_id: boosterInfo.item_id, 
+          item_id: itemConfig.item_id, 
           user_id: webApp.initDataUnsafe.user.id 
         }),
-        currency: boosterInfo.currency,
-        prices: [{ amount: boosterInfo.price, label: boosterInfo.title }],
+        currency: itemConfig.currency,
+        prices: [{ amount: itemConfig.price, label: itemConfig.title }],
       };
 
       const response = await axios.post(
