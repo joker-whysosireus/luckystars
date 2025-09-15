@@ -250,14 +250,55 @@ function HomePage({ userData, updateUserData, isActive }) {
         throw new Error("WebApp not initialized");
       }
 
-      // Создаем информацию о товаре
-      const boosterInfo = {
-        item_id: `blocks_${amount}`,
-        title: `${amount} Blocks`,
-        description: `Purchase ${amount} blocks to open more squares`,
-        price: price,
-        currency: "XTR"
-      };
+      // Создаем уникальную информацию о товаре для каждого типа блоков
+      let boosterInfo;
+      
+      switch(amount) {
+        case 5:
+          boosterInfo = {
+            item_id: "blocks_5",
+            title: "5 Blocks Pack",
+            description: "Get 5 blocks to uncover more treasures! Perfect for quick exploration.",
+            price: price,
+            currency: "XTR"
+          };
+          break;
+        case 25:
+          boosterInfo = {
+            item_id: "blocks_25",
+            title: "25 Blocks Bundle",
+            description: "Unlock 25 blocks for extended gameplay. Discover more shards and rewards!",
+            price: price,
+            currency: "XTR"
+          };
+          break;
+        case 75:
+          boosterInfo = {
+            item_id: "blocks_75",
+            title: "75 Blocks Treasure Chest",
+            description: "A treasure chest of 75 blocks! Maximize your chances to find rare shards.",
+            price: price,
+            currency: "XTR"
+          };
+          break;
+        case 125:
+          boosterInfo = {
+            item_id: "blocks_125",
+            title: "125 Blocks Mega Pack",
+            description: "The ultimate pack with 125 blocks! Dominate the game with endless possibilities.",
+            price: price,
+            currency: "XTR"
+          };
+          break;
+        default:
+          boosterInfo = {
+            item_id: `blocks_${amount}`,
+            title: `${amount} Blocks`,
+            description: `Purchase ${amount} blocks to open more squares`,
+            price: price,
+            currency: "XTR"
+          };
+      }
 
       const invoiceData = {
         title: boosterInfo.title,
