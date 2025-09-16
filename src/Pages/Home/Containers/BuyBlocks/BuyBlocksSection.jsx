@@ -24,26 +24,26 @@ function BuyBlocksSection({
           </button>
           <button 
             className={`buy-btn ${processingButton === 'btn2' ? 'processing' : ''}`}
-            onClick={() => onBuyWithStars(25, 25, 'btn2')} // Исправлено: 25 вместо 10
+            onClick={() => onBuyWithStars(25, 25, 'btn2')}
             disabled={isProcessing}
           >
-            {processingButton === 'btn2' ? 'Wait...' : <>25<Stars /></>} // Исправлено: 25 вместо 10
+            {processingButton === 'btn2' ? 'Wait...' : <>25<Stars /></>}
           </button>
         </div>
         <div className="button-row">
           <button 
             className={`buy-btn ${processingButton === 'btn3' ? 'processing' : ''}`}
-            onClick={() => onBuyWithStars(75, 75, 'btn3')} // Исправлено: 75 вместо 20
+            onClick={() => onBuyWithStars(75, 75, 'btn3')}
             disabled={isProcessing}
           >
-            {processingButton === 'btn3' ? 'Wait...' : <>75<Stars /></>} // Исправлено: 75 вместо 20
+            {processingButton === 'btn3' ? 'Wait...' : <>75<Stars /></>}
           </button>
           <button 
             className={`buy-btn ${processingButton === 'btn4' ? 'processing' : ''}`}
-            onClick={() => onBuyWithStars(125, 125, 'btn4')} // Исправлено: 125 вместо 50
+            onClick={() => onBuyWithStars(125, 125, 'btn4')}
             disabled={isProcessing}
           >
-            {processingButton === 'btn4' ? 'Wait...' : <>125<Stars /></>} // Исправлено: 125 вместо 50
+            {processingButton === 'btn4' ? 'Wait...' : <>125<Stars /></>}
           </button>
         </div>
       </div>

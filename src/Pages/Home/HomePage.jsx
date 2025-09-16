@@ -11,37 +11,36 @@ import { Diamond } from 'lucide-react';
 const itemConfigs = {
   blocks_5: {
     item_id: "blocks_5",
-    title: "Blocks Pack",
-    description: "Purchase blocks to unlock more treasures in the game",
+    title: "5 Blocks Pack",
+    description: "Purchase 5 blocks to unlock more treasures in the game",
     price: 5,
-    currency: "XTR"
+    currency: "XTR",
+    amount: 5
   },
   blocks_25: {
     item_id: "blocks_25",
-    title: "Blocks Pack",
-    description: "Purchase blocks to unlock more treasures in the game",
+    title: "25 Blocks Pack",
+    description: "Purchase 25 blocks to unlock more treasures in the game",
     price: 25,
-    currency: "XTR"
+    currency: "XTR",
+    amount: 25
   },
   blocks_75: {
     item_id: "blocks_75",
-    title: "Blocks Pack",
-    description: "Purchase blocks to unlock more treasures in the game",
+    title: "75 Blocks Pack",
+    description: "Purchase 75 blocks to unlock more treasures in the game",
     price: 75,
-    currency: "XTR"
+    currency: "XTR",
+    amount: 75
   },
   blocks_125: {
     item_id: "blocks_125",
-    title: "Blocks Pack",
-    description: "Purchase blocks to unlock more treasures in the game",
+    title: "125 Blocks Pack",
+    description: "Purchase 125 blocks to unlock more treasures in the game",
     price: 125,
-    currency: "XTR"
+    currency: "XTR",
+    amount: 125
   }
-};
-
-// Функция для получения количества блоков из item_id
-const getAmountFromItemId = (itemId) => {
-  return parseInt(itemId.split('_')[1]);
 };
 
 function HomePage({ userData, updateUserData, isActive }) {
@@ -287,11 +286,12 @@ function HomePage({ userData, updateUserData, isActive }) {
         throw new Error("WebApp not initialized");
       }
 
-      // Находим конфиг по цене (так как amount убран из конфига)
-      const itemConfig = Object.values(itemConfigs).find(item => item.price === price);
+      // Находим конфиг по количеству блоков
+      const itemId = `blocks_${amount}`;
+      const itemConfig = itemConfigs[itemId];
       
       if (!itemConfig) {
-        throw new Error(`No configuration found for price: ${price}`);
+        throw new Error(`No configuration found for amount: ${amount}`);
       }
 
       const invoiceData = {
@@ -338,8 +338,8 @@ function HomePage({ userData, updateUserData, isActive }) {
 
               if (data.success) {
                 if (!data.duplicate && !data.alreadyOwned) {
-                  // Получаем количество блоков из item_id
-                  const blocksToAdd = getAmountFromItemId(itemConfig.item_id);
+                  // Получаем количество блоков из конфига
+                  const blocksToAdd = itemConfig.amount;
                   
                   // Увеличиваем количество блоков на сервере
                   const blocksUpdated = await updateBlocksOnServer(blocksToAdd);
@@ -351,18 +351,55 @@ function HomePage({ userData, updateUserData, isActive }) {
                       bloks_count: newBlocksCount
                     });
                   }
+                  
+                  // Показываем уведомление об успешной покупке
+                  if (webApp) {
+                    webApp.showPopup({
+                      title: "Purchase Successful",
+                      message: `You have successfully purchased ${blocksToAdd} blocks!`,
+                      buttons: [{ type: "ok" }]
+                    });
+                  }
                 } else {
                   console.error("Duplicate payment or already owned");
+                  if (webApp) {
+                    webApp.showPopup({
+                      title: "Payment Error",
+                      message: "This payment has already been processed.",
+                      buttons: [{ type: "ok" }]
+                    });
+                  }
                 }
               } else {
                 console.error("Payment verification failed");
+                if (webApp) {
+                  webApp.showPopup({
+                    title: "Payment Error",
+                    message: "Payment verification failed. Please try again.",
+                    buttons: [{ type: "ok" }]
+                  });
+                }
               }
             }
           } catch (verificationError) {
             console.error("Verification Error", verificationError);
+            if (webApp) {
+              webApp.showPopup({
+                title: "Payment Error",
+                message: "An error occurred during payment verification.",
+                buttons: [{ type: "ok" }]
+              });
+            }
           }
         } else {
           console.error("Payment cancelled or failed");
+          if (webApp) {
+            webApp.showPopup({
+              title: "Payment Cancelled",
+              message: "Payment was cancelled or failed. Please try again.",
+              buttons: [{ type: "ok" }]
+            });
+          }
         }
         
         setIsProcessing(false);
@@ -371,6 +408,13 @@ function HomePage({ userData, updateUserData, isActive }) {
       });
     } catch (error) {
       console.error("Invoice Creation Error", error);
+      if (webApp) {
+        webApp.showPopup({
+          title: "Payment Error",
+          message: "An error occurred while creating the invoice.",
+          buttons: [{ type: "ok" }]
+        });
+      }
       setIsProcessing(false);
       setProcessingMethod(null);
       setProcessingButton(null);
