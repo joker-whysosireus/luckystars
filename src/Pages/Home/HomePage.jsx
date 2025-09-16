@@ -161,7 +161,7 @@ function HomePage({ userData, updateUserData, isActive }) {
   const updateBlocksOnServer = async (blocksToAdd) => {
     try {
       const response = await axios.post(
-        'https://functions-user.online/.netlify/functions/update-blocks',
+        'https://lucky-stars-backend.netlify.app/.netlify/functions/update-blocks',
         {
           telegram_user_id: userData.telegram_user_id,
           blocks: blocksToAdd
@@ -306,7 +306,7 @@ function HomePage({ userData, updateUserData, isActive }) {
       };
 
       const response = await axios.post(
-        'https://functions-user.online/.netlify/functions/create-invoice',
+        'https://lucky-stars-backend.netlify.app/.netlify/functions/create-invoice',
         invoiceData,
         {
           headers: {
@@ -321,7 +321,7 @@ function HomePage({ userData, updateUserData, isActive }) {
         if (status === "paid") {
           try {
             const verificationResponse = await axios.post(
-              'https://functions-user.online/.netlify/functions/verify-payment',
+              'https://lucky-stars-backend.netlify.app/.netlify/functions/verify-payment',
               {
                 payload: invoiceData.payload,
                 user_id: webApp.initDataUnsafe.user.id
