@@ -27,7 +27,7 @@ function InviteStats({ userData }) {
 
         <div className="stat-card">
           <div className="stat-icon bg-green">
-            <Box size={24} color="#ffa500" />
+            <Box size={24} color="#3a3a3a" />
           </div>
           <div className="stat-value">{bloksForInvited}</div>
           <div className="stat-label">Blocks from Friends</div>

@@ -33,11 +33,11 @@
 }
 
 .bg-blue {
-  background: rgba(59, 130, 246, 0.2);
+  background: black;
 }
 
 .bg-green {
-  background: rgba(195, 222, 74, 0.2);
+  background: white;
 }
 
 .stat-value {

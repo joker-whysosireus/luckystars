@@ -5,7 +5,7 @@ import axios from 'axios';
 import FixedTopSection from './Containers/TopSection/FixedTopSection';
 import BuyBlocksSection from './Containers/BuyBlocks/BuyBlocksSection';
 import InfoModal from '../../Assets/Modal/InfoModal';
-import { Diamond } from 'lucide-react';
+import { Diamond, Box } from 'lucide-react';
 
 // УНИФИЦИРОВАННАЯ КОНФИГУРАЦИЯ ТОВАРОВ
 const itemConfigs = {
@@ -462,12 +462,14 @@ function HomePage({ userData, updateUserData, isActive }) {
             onClick={() => handleSquareClick(blockId)}
             data-id={blockId}
           >
-            <div className="square-front"></div>
+            <div className="square-front">
+              {!block?.isOpened && <Box size={24} color="#3a3a3a" style={{ opacity: 0.7 }} />}
+            </div>
             <div className="square-back">
               {block?.isLoading ? (
                 <div className="loading-spinner"></div>
               ) : (
-                block?.isOpened && <span className="shards-count">{block.shards}<Diamond size={14} color="#3b82f6" /></span>
+                block?.isOpened && <span className="shards-count">{block.shards}  <Diamond size={14} color="#3b82f6" /></span>
               )}
             </div>
           </div>

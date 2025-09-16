@@ -30,12 +30,13 @@
 }
 
 .gift-card {
+    background-color: #0f0f0f;
     border-radius: 15px;
     padding: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    box-shadow: 0 5px 15px rgba(255, 165, 0, 0.2);
+    border: 1px solid #121212;
     height: 280px;
     width: 160px;
     box-sizing: border-box;
@@ -54,7 +55,7 @@
     font-size: 12px;
     padding: 4px 12px;
     border-radius: 10px;
-    background-color: #1c1c1e;
+    background-color: #000000;
     white-space: nowrap;
     display: flex;
     align-items: center;
@@ -67,7 +68,7 @@
     font-size: 12px;
     padding: 4px 12px;
     border-radius: 10px;
-    background-color: #1c1c1e;
+    background-color: #000000;
     white-space: nowrap;
     display: flex;
     align-items: center;

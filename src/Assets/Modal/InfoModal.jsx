@@ -1,35 +1,67 @@
 import './InfoModal.css';
+import { Box, Diamond } from 'lucide-react';
+import Stars from '../../Pages/Home/Containers/img-jsx/Stars';
 
 function InfoModal({ isOpen, onClose }) {
   return (
     <div className={`modal-overlay ${isOpen ? 'open' : ''}`} onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-title">About Blocks & Rewards</div>
-        <div className="modal-text">
-          Each block contains a random amount of diamonds (shards) when opened.
-          You can get 1, 5, 10, 15, or 25 diamonds from each block.
+        <div className="modal-header">
+          <div className="modal-title">About Blocks & Diamonds</div>
         </div>
-        <div className="modal-text">
-          When you open all blocks on the field, you'll receive +1 free block as a reward,
-          and all blocks will reset for you to open again.
-        </div>
-        <div className="modal-text">
-          Use diamonds to purchase more blocks and continue playing to earn even more diamonds!
-        </div>
-        <div className="modal-text">
-          <strong>Packages:</strong><br />
-          5 ⭐ = 5 blocks<br />
-          10 ⭐ = 10 blocks<br />
-          20 ⭐ = 20 blocks<br />
-          50 ⭐ = 50 blocks
-        </div>
-        <div className="modal-text">
-          <strong>Friend Invitation:</strong><br />
-          For each friend you invite, you receive 3 blocks and 10 diamonds as a bonus.
-        </div>
-        <div className="modal-text">
-          <strong>Task Rewards:</strong><br />
-          Complete tasks to earn 2 blocks, and watch 5 ads to get 1 free block.
+        
+        <div className="modal-scrollable">
+          <div className="resource-explanation">
+            <div className="resource-item">
+              <Box size={20} color="#b9bbbc" />
+              <span>Number of blocks you can open</span>
+            </div>
+            <div className="resource-item">
+              <Diamond size={20} color="#3b82f6" />
+              <span>Diamonds collected to redeem for Telegram gifts</span>
+            </div>
+          </div>
+          
+          <div className="modal-text">
+            Each block contains a random amount of diamonds when opened.
+            You can get 1, 5, 10, 15, or 25 diamonds from each block.
+          </div>
+          
+          <div className="modal-text">
+            When you open all blocks on the field, you'll receive +1 free block as a reward,
+            and all blocks will reset for you to open again.
+          </div>
+          
+          <div className="modal-text">
+            Use diamonds to redeem exclusive gifts in Telegram! The more diamonds you collect,
+            the better gifts you can unlock.
+          </div>
+          
+          <div className="modal-text">
+            <strong>Block Packages:</strong><br />
+            <div className="package-item">
+              5 Blocks = <Stars size={16} /> 5
+            </div>
+            <div className="package-item">
+              25 Blocks = <Stars size={16} /> 25
+            </div>
+            <div className="package-item">
+              75 Blocks = <Stars size={16} /> 75
+            </div>
+            <div className="package-item">
+              125 Blocks = <Stars size={16} /> 125
+            </div>
+          </div>
+          
+          <div className="modal-text">
+            <strong>Friend Invitation:</strong><br />
+            Invite friends to play and earn bonus blocks and diamonds when they join.
+          </div>
+          
+          <div className="modal-text">
+            <strong>Daily Rewards:</strong><br />
+            Check back daily to claim free blocks and complete tasks for extra diamonds.
+          </div>
         </div>
       </div>
     </div>

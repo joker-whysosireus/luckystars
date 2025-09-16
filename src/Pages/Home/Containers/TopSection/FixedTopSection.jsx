@@ -6,11 +6,11 @@ function FixedTopSection({ userData, onInfoClick }) {
     <div className="fixed-resources">
       <div className="resources-container">
         <div className="resource-block">
-          <div className="resource-count">{userData?.bloks_count || 0} <Box size={18} color="#ffa500" /></div>
+          <div className="resource-count">{userData?.bloks_count || 0} <Box size={18} color="#3a3a3a" /></div>
         </div>
         
         <button className="info-button" onClick={onInfoClick}>
-          ℹ️
+          INFO
         </button>
         
         <div className="resource-block">
