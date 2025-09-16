@@ -136,7 +136,7 @@ function HomePage({ userData, updateUserData, isActive }) {
   const updateShardsOnServer = async (shardsToAdd) => {
     try {
       const response = await axios.post(
-        'https://functions-user.online/.netlify/functions/update-shards',
+        'https://lucky-stars-backend.netlify.app/.netlify/functions/update-shards',
         {
           telegram_user_id: userData.telegram_user_id,
           shards: shardsToAdd
@@ -154,6 +154,30 @@ function HomePage({ userData, updateUserData, isActive }) {
       return false;
     } catch (error) {
       console.error("Error updating shards:", error);
+      return false;
+    }
+  };
+
+  const useBlockOnServer = async () => {
+    try {
+      const response = await axios.post(
+        'https://lucky-stars-backend.netlify.app/.netlify/functions/use-block',
+        {
+          telegram_user_id: userData.telegram_user_id
+        }
+      );
+
+      if (response.data.success) {
+        // Обновляем локальные данные
+        updateUserData({
+          ...userData,
+          bloks_count: response.data.newBlocksCount
+        });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error using block:", error);
       return false;
     }
   };
@@ -204,17 +228,11 @@ function HomePage({ userData, updateUserData, isActive }) {
     // Если блок уже открыт или анимируется, ничего не делаем
     if (blockIndex === -1 || blocks[blockIndex].isOpened || blocks[blockIndex].isFlipping) return;
     
-    // Уменьшаем счетчик блоков
-    const newBlocksCount = (userData?.bloks_count || 0) - 1;
-    
-    // Обновляем данные на сервере
-    const blocksUpdated = await updateBlocksOnServer(-1);
-    if (!blocksUpdated) {
-      // Если не удалось обновить на сервере, откатываем локально
-      updateUserData({
-        ...userData,
-        bloks_count: newBlocksCount
-      });
+    // Уменьшаем счетчик блоков на сервере
+    const blockUsed = await useBlockOnServer();
+    if (!blockUsed) {
+      console.error("Failed to use block on server");
+      return;
     }
     
     // Блокируем другие блоки во время анимации
