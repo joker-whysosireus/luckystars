@@ -4,7 +4,7 @@ function Bucket() {
 
   return(
     <div>
-      <img src={buket} alt="Star" style={{width: '80px', height: '80px'}} />
+      <img src={buket} alt="Star" style={{width: '160px', height: '160px'}} />
     </div>
   );
 }

@@ -4,7 +4,7 @@ function Tort() {
 
   return(
     <div>
-      <img src={tort} alt="Star" style={{width: '80px', height: '80px'}} />
+      <img src={tort} alt="Star" style={{width: '160px', height: '160px'}} />
     </div>
   );
 }

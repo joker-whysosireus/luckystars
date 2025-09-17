@@ -4,7 +4,7 @@ function Heart() {
 
   return(
     <div>
-      <img src={heart} alt="Star" style={{width: '80px', height: '80px'}} />
+      <img src={heart} alt="Star" style={{width: '150px', height: '150px'}} />
     </div>
   );
 }

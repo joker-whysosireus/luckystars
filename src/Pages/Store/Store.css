@@ -13,20 +13,20 @@
 .store-content {
     width: 100%;
     flex-grow: 1;
-    padding: 80px 23px 100px;
+    padding: 80px 8px 100px;
     display: flex;
     justify-content: center;
     box-sizing: border-box;
 }
 
 .gifts-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 20px;
     padding: 0;
     margin: 0 auto;
-    max-width: 360px; /* 170px * 2 + 20px gap */
+    width: 100%;
+    max-width: 405px; /* Уменьшено с 415px на 10px (5px на каждую карточку) */
 }
 
 .gift-card {
@@ -38,7 +38,7 @@
     align-items: center;
     border: 1px solid #121212;
     height: 280px;
-    width: 160px;
+    width: 177px;
     box-sizing: border-box;
 }
 
