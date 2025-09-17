@@ -255,6 +255,9 @@ function HomePage({ userData, updateUserData, isActive }) {
     // Если блок уже открыт или анимируется, ничего не делаем
     if (blockIndex === -1 || blocks[blockIndex].isOpened) return;
     
+    // Блокируем все блоки во время анимации
+    setIsAnimating(true);
+    
     // Добавляем блок в обработку
     setProcessingBlocks(prev => new Set(prev).add(blockId));
     
@@ -267,11 +270,9 @@ function HomePage({ userData, updateUserData, isActive }) {
         newSet.delete(blockId);
         return newSet;
       });
+      setIsAnimating(false);
       return;
     }
-    
-    // Блокируем другие блоки во время анимации
-    setIsAnimating(true);
     
     // Случайное количество осколков с повышенной вероятностью 1 и 5
     const shardValues = [1, 1, 1, 1, 5, 5, 5, 10, 15, 25];
@@ -312,7 +313,7 @@ function HomePage({ userData, updateUserData, isActive }) {
       });
     }
     
-    // Убираем блок из обработки
+    // Убираем блок из обработки и разблокируем другие блоки
     setProcessingBlocks(prev => {
       const newSet = new Set(prev);
       newSet.delete(blockId);
@@ -517,7 +518,7 @@ function HomePage({ userData, updateUserData, isActive }) {
           <div 
             key={blockId} 
             className={`square ${block?.isFlipping ? 'flipping' : ''} ${block?.isOpened ? 'opened' : ''} ${isProcessing ? 'processing' : ''}`}
-            onClick={() => !isProcessing && handleSquareClick(blockId)}
+            onClick={() => !isProcessing && !isAnimating && handleSquareClick(blockId)}
             data-id={blockId}
           >
             <div className="square-front">
