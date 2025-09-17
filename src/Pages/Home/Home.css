@@ -31,10 +31,8 @@
   gap: 13px;
   flex: 1;
   height: auto;
-  position: relative;
 }
 
-/* Состояние блокировки при анимации */
 .squares-container.disabled {
   pointer-events: none;
   opacity: 0.7;
@@ -54,7 +52,7 @@
   position: relative;
   perspective: 1000px;
   transform-style: preserve-3d;
-  transition: transform 0.2s ease; /* Уменьшил время анимации */
+  transition: transform 0.3s ease;
 }
 
 .square.disabled {
@@ -67,23 +65,21 @@
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
-  border-radius: 10px; /* Увеличил радиус скругления */
+  border-radius: 4px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .square-front {
-  background-color: #3a3a3c;
-  border: 2px solid #555557;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  background-color: #b9bbbc;
+  border: 1px solid #444;
 }
 
 .square-back {
-  background: linear-gradient(145deg, #4facfe 0%, #00f2fe 100%);
+  background-color: #666;
   transform: rotateY(180deg);
-  border: 2px solid #6cb7ff;
-  box-shadow: 0 2px 8px rgba(79, 172, 254, 0.4);
+  border: 1px solid #888;
 }
 
 .square.flipping {
@@ -99,79 +95,12 @@
   font-weight: bold;
   font-size: 18px;
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-  display: flex;
-  align-items: center;
-  gap: 4px;
 }
 
-.loading-spinner {
-  width: 20px; /* Немного уменьшил размер */
-  height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: #fff;
-  animation: spin 0.6s linear infinite; /* Ускорил анимацию */
+.square:hover .square-front {
+  background-color: #555;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Индикатор обработки блока */
-.processing-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
-}
-
-.square:hover .square-front:not(.disabled) {
-  background-color: #4a4a4c;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
-}
-
-.square:active .square-front:not(.disabled) {
-  background-color: #5a5a5c;
-  transform: translateY(0);
-}
-
-/* Адаптивность для мобильных устройств */
-@media (max-width: 480px) {
-  .squares-container {
-    width: 340px;
-    gap: 10px;
-  }
-  
-  .square {
-    width: 55px;
-    height: 55px;
-  }
-  
-  .shards-count {
-    font-size: 16px;
-  }
-}
-
-/* Анимация появления блоков */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.square {
-  animation: fadeIn 0.3s ease-out;
+.square:active .square-front {
+  background-color: #666;
 }
