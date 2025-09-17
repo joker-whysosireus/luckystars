@@ -20,6 +20,7 @@ function Store({ userData, updateUserData }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [confettiKey, setConfettiKey] = useState(0);
+  const [confettiOpacity, setConfettiOpacity] = useState(1);
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
@@ -43,8 +44,20 @@ function Store({ userData, updateUserData }) {
 
   const triggerConfetti = () => {
     setShowConfetti(true);
+    setConfettiOpacity(1);
     setConfettiKey(prev => prev + 1);
-    setTimeout(() => setShowConfetti(false), 5000);
+    
+    // Плавное исчезновение конфетти
+    const fadeOutInterval = setInterval(() => {
+      setConfettiOpacity(prev => Math.max(0, prev - 0.05));
+    }, 200);
+    
+    // Полное отключение конфетти через 5 секунд
+    setTimeout(() => {
+      clearInterval(fadeOutInterval);
+      setShowConfetti(false);
+      setConfettiOpacity(1);
+    }, 5000);
   };
 
   const fetchUserGifts = async () => {
@@ -136,13 +149,17 @@ function Store({ userData, updateUserData }) {
   return (
     <section className="profile-page">
       {showConfetti && (
-        <Confetti
-          key={confettiKey}
-          recycle={true}
-          numberOfPieces={200}
-          gravity={0.3}
-          colors={['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff']}
-        />
+        <div style={{ opacity: confettiOpacity, transition: 'opacity 0.2s ease' }}>
+          <Confetti
+            key={confettiKey}
+            recycle={true}
+            numberOfPieces={150}
+            gravity={0.1} // Меньшая гравитация для медленного падения
+            initialVelocityY={10} // Начальная скорость по Y
+            wind={0.01} // Легкий ветерок для более естественного движения
+            colors={['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff']}
+          />
+        </div>
       )}
       
       <FixedTopSection 
