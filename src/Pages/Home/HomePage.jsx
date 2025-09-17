@@ -287,10 +287,7 @@ function HomePage({ userData, updateUserData, isActive }) {
     };
     setBlocks(updatedBlocks);
     
-    // Уменьшаем задержку для индикатора загрузки до 300мс
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    // После завершения анимации устанавливаем значения
+    // Убираем задержку и сразу открываем блок
     const finalizedBlocks = [...updatedBlocks];
     finalizedBlocks[blockIndex] = {
       ...finalizedBlocks[blockIndex],
