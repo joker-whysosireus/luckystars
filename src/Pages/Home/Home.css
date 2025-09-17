@@ -50,11 +50,6 @@
   transition: transform 0.3s ease;
 }
 
-.square.disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
 .square-front, .square-back {
   position: absolute;
   width: 100%;

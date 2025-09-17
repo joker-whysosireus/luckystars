@@ -46,11 +46,12 @@ const itemConfigs = {
 function HomePage({ userData, updateUserData, isActive }) {
   const [blocks, setBlocks] = useState([]);
   const [isResetting, setIsResetting] = useState(false);
-  const [isProcessingBlock, setIsProcessingBlock] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingMethod, setProcessingMethod] = useState(null);
   const [processingButton, setProcessingButton] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [processingBlocks, setProcessingBlocks] = useState(new Set());
   
   // Получаем экземпляр WebApp Telegram
   const webApp = window.Telegram?.WebApp || null;
@@ -71,8 +72,8 @@ function HomePage({ userData, updateUserData, isActive }) {
             col: block.col,
             isOpened: block.isOpened || false,
             shards: block.shards || 0,
-            isFlipping: false,
-            isLoading: false
+            isFlipping: false, // Сбрасываем состояние анимации
+            isLoading: false   // Сбрасываем состояние загрузки
           }));
           
           setBlocks(validatedBlocks);
@@ -234,8 +235,8 @@ function HomePage({ userData, updateUserData, isActive }) {
   };
 
   const handleSquareClick = async (blockId) => {
-    // Если происходит сброс блоков или обработка другого блока, игнорируем клики
-    if (isResetting || isProcessingBlock) return;
+    // Если происходит сброс блоков или анимация, игнорируем клики
+    if (isResetting || isAnimating || processingBlocks.has(blockId)) return;
     
     // Если нет блоков для открытия - показываем уведомление
     if ((userData?.bloks_count || 0) <= 0) {
@@ -251,25 +252,32 @@ function HomePage({ userData, updateUserData, isActive }) {
     
     const blockIndex = blocks.findIndex(b => b.id === blockId);
     
-    // Если блок уже открыт, ничего не делаем
+    // Если блок уже открыт или анимируется, ничего не делаем
     if (blockIndex === -1 || blocks[blockIndex].isOpened) return;
     
-    // Блокируем другие блоки во время обработки
-    setIsProcessingBlock(true);
+    // Добавляем блок в обработку
+    setProcessingBlocks(prev => new Set(prev).add(blockId));
     
     // Уменьшаем счетчик блоков на сервере
     const blockUsed = await useBlockOnServer();
     if (!blockUsed) {
       console.error("Failed to use block on server");
-      setIsProcessingBlock(false);
+      setProcessingBlocks(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(blockId);
+        return newSet;
+      });
       return;
     }
+    
+    // Блокируем другие блоки во время анимации
+    setIsAnimating(true);
     
     // Случайное количество осколков с повышенной вероятностью 1 и 5
     const shardValues = [1, 1, 1, 1, 5, 5, 5, 10, 15, 25];
     const randomShards = shardValues[Math.floor(Math.random() * shardValues.length)];
     
-    // Начинаем анимацию переворота и показываем индикатор загрузки
+    // Начинаем анимацию переворота
     const updatedBlocks = [...blocks];
     updatedBlocks[blockIndex] = {
       ...updatedBlocks[blockIndex],
@@ -278,7 +286,10 @@ function HomePage({ userData, updateUserData, isActive }) {
     };
     setBlocks(updatedBlocks);
     
-    // Мгновенное открытие блока без задержки
+    // Уменьшаем задержку для индикатора загрузки до 500мс
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // После завершения анимации устанавливаем значения
     const finalizedBlocks = [...updatedBlocks];
     finalizedBlocks[blockIndex] = {
       ...finalizedBlocks[blockIndex],
@@ -301,22 +312,43 @@ function HomePage({ userData, updateUserData, isActive }) {
       });
     }
     
-    // Разблокируем другие блоки
-    setIsProcessingBlock(false);
+    // Убираем блок из обработки
+    setProcessingBlocks(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(blockId);
+      return newSet;
+    });
+    
+    setIsAnimating(false);
   };
 
   const resetAllBlocks = () => {
-    // Сбрасываем состояние блоков
+    // Сбрасываем состояние блоков с небольшой задержкой для плавности
+    setTimeout(() => {
+      const resetBlocks = blocks.map(block => ({
+        ...block,
+        isOpened: false,
+        isFlipping: false,
+        isLoading: false,
+        shards: 0
+      }));
+      
+      setBlocks(resetBlocks);
+      setIsResetting(false);
+    }, 300);
+  };
+
+  // Функция для принудительного сброса зависших блоков
+  const resetStuckBlocks = () => {
     const resetBlocks = blocks.map(block => ({
       ...block,
-      isOpened: false,
       isFlipping: false,
-      isLoading: false,
-      shards: 0
+      isLoading: false
     }));
     
     setBlocks(resetBlocks);
-    setIsResetting(false);
+    setIsAnimating(false);
+    setProcessingBlocks(new Set());
   };
 
   const handleBuyWithStars = async (amount, price, buttonId) => {
@@ -479,12 +511,13 @@ function HomePage({ userData, updateUserData, isActive }) {
       for (let j = 0; j < cols; j++) {
         const blockId = `${i}-${j}`;
         const block = blocks.find(b => b.id === blockId);
+        const isProcessing = processingBlocks.has(blockId);
         
         row.push(
           <div 
             key={blockId} 
-            className={`square ${block?.isFlipping ? 'flipping' : ''} ${block?.isOpened ? 'opened' : ''} ${isProcessingBlock ? 'disabled' : ''}`}
-            onClick={() => !isProcessingBlock && handleSquareClick(blockId)}
+            className={`square ${block?.isFlipping ? 'flipping' : ''} ${block?.isOpened ? 'opened' : ''} ${isProcessing ? 'processing' : ''}`}
+            onClick={() => !isProcessing && handleSquareClick(blockId)}
             data-id={blockId}
           >
             <div className="square-front">
@@ -497,6 +530,7 @@ function HomePage({ userData, updateUserData, isActive }) {
                 block?.isOpened && <span className="shards-count">{block.shards}  <Diamond size={14} color="#3b82f6" /></span>
               )}
             </div>
+            {isProcessing && <div className="processing-overlay"></div>}
           </div>
         );
       }
@@ -508,6 +542,32 @@ function HomePage({ userData, updateUserData, isActive }) {
     }
     
     return squares;
+  };
+
+  // Добавляем кнопку для принудительного сброса блоков (для отладки)
+  const renderDebugButton = () => {
+    if (process.env.NODE_ENV === 'development') {
+      return (
+        <button 
+          onClick={resetStuckBlocks}
+          style={{
+            position: 'fixed',
+            bottom: '80px',
+            right: '20px',
+            zIndex: 1000,
+            padding: '10px',
+            backgroundColor: '#ff4757',
+            color: 'white',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer'
+          }}
+        >
+          Reset Stuck Blocks
+        </button>
+      );
+    }
+    return null;
   };
 
   return (
@@ -530,6 +590,8 @@ function HomePage({ userData, updateUserData, isActive }) {
       
       {/* Общее модальное окно */}
       <InfoModal isOpen={isModalOpen} onClose={toggleModal} />
+      
+      {renderDebugButton()}
       
       <Menu />
     </section>
