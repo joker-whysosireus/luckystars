@@ -255,6 +255,9 @@ function HomePage({ userData, updateUserData, isActive }) {
     // Если блок уже открыт или анимируется, ничего не делаем
     if (blockIndex === -1 || blocks[blockIndex].isOpened) return;
     
+    // Блокируем все блоки во время анимации
+    setIsAnimating(true);
+    
     // Добавляем блок в обработку
     setProcessingBlocks(prev => new Set(prev).add(blockId));
     
@@ -262,6 +265,7 @@ function HomePage({ userData, updateUserData, isActive }) {
     const blockUsed = await useBlockOnServer();
     if (!blockUsed) {
       console.error("Failed to use block on server");
+      setIsAnimating(false);
       setProcessingBlocks(prev => {
         const newSet = new Set(prev);
         newSet.delete(blockId);
@@ -269,9 +273,6 @@ function HomePage({ userData, updateUserData, isActive }) {
       });
       return;
     }
-    
-    // Блокируем другие блоки во время анимации
-    setIsAnimating(true);
     
     // Случайное количество осколков с повышенной вероятностью 1 и 5
     const shardValues = [1, 1, 1, 1, 5, 5, 5, 10, 15, 25];
@@ -286,8 +287,8 @@ function HomePage({ userData, updateUserData, isActive }) {
     };
     setBlocks(updatedBlocks);
     
-    // Уменьшаем задержку для индикатора загрузки до 500мс
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Минимальная задержка для индикатора загрузки - 200мс
+    await new Promise(resolve => setTimeout(resolve, 200));
     
     // После завершения анимации устанавливаем значения
     const finalizedBlocks = [...updatedBlocks];
@@ -517,7 +518,7 @@ function HomePage({ userData, updateUserData, isActive }) {
           <div 
             key={blockId} 
             className={`square ${block?.isFlipping ? 'flipping' : ''} ${block?.isOpened ? 'opened' : ''} ${isProcessing ? 'processing' : ''}`}
-            onClick={() => !isProcessing && handleSquareClick(blockId)}
+            onClick={() => !isProcessing && !isAnimating && handleSquareClick(blockId)}
             data-id={blockId}
           >
             <div className="square-front">
