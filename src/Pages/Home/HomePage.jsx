@@ -71,7 +71,8 @@ function HomePage({ userData, updateUserData, isActive }) {
             col: block.col,
             isOpened: block.isOpened || false,
             shards: block.shards || 0,
-            isFlipping: false
+            isFlipping: false,
+            isLoading: false
           }));
           
           setBlocks(validatedBlocks);
@@ -105,7 +106,8 @@ function HomePage({ userData, updateUserData, isActive }) {
           col: j,
           isOpened: false,
           shards: 0,
-          isFlipping: false
+          isFlipping: false,
+          isLoading: false
         });
       }
     }
@@ -267,11 +269,12 @@ function HomePage({ userData, updateUserData, isActive }) {
     const shardValues = [1, 1, 1, 1, 5, 5, 5, 10, 15, 25];
     const randomShards = shardValues[Math.floor(Math.random() * shardValues.length)];
     
-    // Начинаем анимацию переворота
+    // Начинаем анимацию переворота и показываем индикатор загрузки
     const updatedBlocks = [...blocks];
     updatedBlocks[blockIndex] = {
       ...updatedBlocks[blockIndex],
-      isFlipping: true
+      isFlipping: true,
+      isLoading: true
     };
     setBlocks(updatedBlocks);
     
@@ -281,6 +284,7 @@ function HomePage({ userData, updateUserData, isActive }) {
       ...finalizedBlocks[blockIndex],
       isOpened: true,
       isFlipping: false,
+      isLoading: false,
       shards: randomShards
     };
     
@@ -307,6 +311,7 @@ function HomePage({ userData, updateUserData, isActive }) {
       ...block,
       isOpened: false,
       isFlipping: false,
+      isLoading: false,
       shards: 0
     }));
     
@@ -486,7 +491,11 @@ function HomePage({ userData, updateUserData, isActive }) {
               {!block?.isOpened && <Box size={24} color="#3a3a3a" style={{ opacity: 0.7 }} />}
             </div>
             <div className="square-back">
-              {block?.isOpened && <span className="shards-count">{block.shards}  <Diamond size={14} color="#3b82f6" /></span>}
+              {block?.isLoading ? (
+                <div className="loading-spinner"></div>
+              ) : (
+                block?.isOpened && <span className="shards-count">{block.shards}  <Diamond size={14} color="#3b82f6" /></span>
+              )}
             </div>
           </div>
         );
@@ -515,7 +524,7 @@ function HomePage({ userData, updateUserData, isActive }) {
       />
       
       {/* Игровое поле с блоками */}
-      <div className={`squares-container ${isProcessingBlock ? 'disabled' : ''}`}>
+      <div className="squares-container">
         {renderBlocks()}
       </div>
       

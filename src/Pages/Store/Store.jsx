@@ -149,19 +149,24 @@ function Store({ userData, updateUserData }) {
   return (
     <section className="profile-page">
       {showConfetti && (
-        <div style={{ opacity: confettiOpacity, transition: 'opacity 0.2s ease' }}>
-          <Confetti
-            key={confettiKey}
-            recycle={true}
-            numberOfPieces={150}
-            gravity={0.1} // Меньшая гравитация для медленного падения
-            initialVelocityY={10} // Начальная скорость по Y
-            wind={0.01} // Легкий ветерок для более естественного движения
-            colors={['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff']}
-          />
-        </div>
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    pointerEvents: 'none',
+                    opacity: confettiOpacity,
+                    transition: 'opacity 2s ease-in-out',
+                    zIndex: 10000,
+                }}>
+                    <Confetti
+                        width={window.innerWidth}
+                        height={window.innerHeight}
+                        recycle={false}
+                    />
+                </div>
       )}
-      
       <FixedTopSection 
         userData={userData} 
         onInfoClick={toggleModal}
