@@ -11,19 +11,25 @@ import Gift from "./Containers/img-jsx/Gift";
 import Heart from "./Containers/img-jsx/Heart";
 import Tort from "./Containers/img-jsx/Tort";
 import Stars from "./Containers/img-jsx/Stars";
-import { Diamond } from "lucide-react";
+import { Diamond, X } from "lucide-react";
 import axios from 'axios';
 
 function Store({ userData, updateUserData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [userGifts, setUserGifts] = useState({});
   const [processingGiftId, setProcessingGiftId] = useState(null);
+  const [selectedGift, setSelectedGift] = useState(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [confettiKey, setConfettiKey] = useState(0);
   const [confettiOpacity, setConfettiOpacity] = useState(1);
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
+  };
+
+  const toggleConfirmModal = () => {
+    setIsConfirmModalOpen(!isConfirmModalOpen);
   };
 
   const gifts = [
@@ -77,30 +83,36 @@ function Store({ userData, updateUserData }) {
     }
   };
 
-  const handleBuyGift = async (gift) => {
-    if (processingGiftId) return;
+  const handleBuyClick = (gift) => {
+    setSelectedGift(gift);
+    toggleConfirmModal();
+  };
+
+  const handleConfirmPurchase = async () => {
+    if (!selectedGift || processingGiftId) return;
     
     // Проверяем, достаточно ли алмазов
-    if ((userData?.shards || 0) < gift.price) {
+    if ((userData?.shards || 0) < selectedGift.price) {
       if (window.Telegram?.WebApp) {
         window.Telegram.WebApp.showPopup({
           title: "Not Enough Diamonds",
-          message: `You need ${gift.price} diamonds to buy this ${gift.displayName}.`,
+          message: `You need ${selectedGift.price} diamonds to buy this ${selectedGift.displayName}.`,
           buttons: [{ type: "ok" }]
         });
       }
+      toggleConfirmModal();
       return;
     }
 
-    setProcessingGiftId(gift.id);
+    setProcessingGiftId(selectedGift.id);
 
     try {
       const response = await axios.post(
         'https://lucky-stars-backend.netlify.app/.netlify/functions/buy-gift',
         {
           telegram_user_id: userData.telegram_user_id,
-          gift_name: gift.name,
-          gift_price: gift.price
+          gift_name: selectedGift.name,
+          gift_price: selectedGift.price
         }
       );
 
@@ -109,13 +121,13 @@ function Store({ userData, updateUserData }) {
         updateUserData({
           ...userData,
           shards: response.data.newShards,
-          [gift.name]: (userData[gift.name] || 0) + 1
+          [selectedGift.name]: (userData[selectedGift.name] || 0) + 1
         });
         
         // Обновляем список подарков
         setUserGifts(prev => ({
           ...prev,
-          [gift.name]: (prev[gift.name] || 0) + 1
+          [selectedGift.name]: (prev[selectedGift.name] || 0) + 1
         }));
 
         // Запускаем конфетти
@@ -125,7 +137,7 @@ function Store({ userData, updateUserData }) {
         if (window.Telegram?.WebApp) {
           window.Telegram.WebApp.showPopup({
             title: "Success!",
-            message: `You've successfully purchased a ${gift.displayName}.`,
+            message: `You've successfully purchased a ${selectedGift.displayName}.`,
             buttons: [{ type: "ok" }]
           });
         }
@@ -143,6 +155,7 @@ function Store({ userData, updateUserData }) {
       }
     } finally {
       setProcessingGiftId(null);
+      setSelectedGift(null);
     }
   };
 
@@ -195,14 +208,39 @@ function Store({ userData, updateUserData }) {
                 
                 <button 
                   className={`buy-button ${isProcessing ? 'processing' : ''}`}
-                  onClick={() => handleBuyGift(gift)}
+                  onClick={() => handleBuyClick(gift)}
                   disabled={isProcessing}
                 >
-                  {isProcessing ? 'Processing...' : `Buy for ${gift.price}`} <Diamond size={14} />
+                  {isProcessing ? 'Processing...' : 
+                    <span>Buy for {gift.price} <Diamond size={14} /></span>
+                  }
                 </button>
               </div>
             );
           })}
+        </div>
+      </div>
+
+      {/* Модальное окно подтверждения */}
+      <div className={`modal-overlay confirm-modal-overlay ${isConfirmModalOpen ? 'open' : ''}`}>
+        <div className="modal-content confirm-modal-content">
+          <div className="modal-header">
+            <h2 className="modal-title">Are you sure?</h2>
+            <button className="modal-close" onClick={toggleConfirmModal}>
+              <X size={24} />
+            </button>
+          </div>
+          <div className="modal-scrollable">
+            <div className="confirm-message">
+              <p>Do you want to buy {selectedGift?.displayName} for {selectedGift?.price} diamonds?</p>
+            </div>
+            <button 
+              className="confirm-button"
+              onClick={handleConfirmPurchase}
+            >
+              Confirm purchase
+            </button>
+          </div>
         </div>
       </div>
 
