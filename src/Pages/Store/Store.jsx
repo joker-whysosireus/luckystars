@@ -4,6 +4,7 @@ import Menu from '../../Assets/Menus/Menu/Menu';
 import "./Store.css";
 import FixedTopSection from "../Home/Containers/TopSection/FixedTopSection";
 import InfoModal from "../../Assets/Modal/InfoModal";
+import ConfirmModal from "./Containers/Modal/ConfirmModal";
 import Bear from "./Containers/img-jsx/Bear";
 import Bucket from "./Containers/img-jsx/Bucket";
 import Flower from "./Containers/img-jsx/Flower";
@@ -11,15 +12,15 @@ import Gift from "./Containers/img-jsx/Gift";
 import Heart from "./Containers/img-jsx/Heart";
 import Tort from "./Containers/img-jsx/Tort";
 import Stars from "./Containers/img-jsx/Stars";
-import { Diamond, X } from "lucide-react";
+import { Diamond } from "lucide-react";
 import axios from 'axios';
 
 function Store({ userData, updateUserData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [userGifts, setUserGifts] = useState({});
-  const [processingGiftId, setProcessingGiftId] = useState(null);
   const [selectedGift, setSelectedGift] = useState(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [confettiKey, setConfettiKey] = useState(0);
   const [confettiOpacity, setConfettiOpacity] = useState(1);
@@ -89,7 +90,7 @@ function Store({ userData, updateUserData }) {
   };
 
   const handleConfirmPurchase = async () => {
-    if (!selectedGift || processingGiftId) return;
+    if (!selectedGift) return;
     
     // Проверяем, достаточно ли алмазов
     if ((userData?.shards || 0) < selectedGift.price) {
@@ -104,7 +105,7 @@ function Store({ userData, updateUserData }) {
       return;
     }
 
-    setProcessingGiftId(selectedGift.id);
+    setIsProcessing(true);
 
     try {
       const response = await axios.post(
@@ -154,7 +155,8 @@ function Store({ userData, updateUserData }) {
         });
       }
     } finally {
-      setProcessingGiftId(null);
+      setIsProcessing(false);
+      toggleConfirmModal();
       setSelectedGift(null);
     }
   };
@@ -191,7 +193,6 @@ function Store({ userData, updateUserData }) {
           {gifts.map((gift) => {
             const GiftComponent = gift.component;
             const userGiftCount = userGifts[gift.name] || 0;
-            const isProcessing = processingGiftId === gift.id;
             
             return (
               <div key={gift.id} className="gift-card">
@@ -207,13 +208,12 @@ function Store({ userData, updateUserData }) {
                 </div>
                 
                 <button 
-                  className={`buy-button ${isProcessing ? 'processing' : ''}`}
+                  className="buy-button"
                   onClick={() => handleBuyClick(gift)}
-                  disabled={isProcessing}
                 >
-                  {isProcessing ? 'Processing...' : 
-                    <span>Buy for {gift.price} <Diamond size={14} /></span>
-                  }
+                  <span className="button-content">
+                    Buy for {gift.price} <Diamond size={14} />
+                  </span>
                 </button>
               </div>
             );
@@ -221,28 +221,13 @@ function Store({ userData, updateUserData }) {
         </div>
       </div>
 
-      {/* Модальное окно подтверждения */}
-      <div className={`modal-overlay confirm-modal-overlay ${isConfirmModalOpen ? 'open' : ''}`}>
-        <div className="modal-content confirm-modal-content">
-          <div className="modal-header">
-            <h2 className="modal-title">Are you sure?</h2>
-            <button className="modal-close" onClick={toggleConfirmModal}>
-              <X size={24} />
-            </button>
-          </div>
-          <div className="modal-scrollable">
-            <div className="confirm-message">
-              <p>Do you want to buy {selectedGift?.displayName} for {selectedGift?.price} diamonds?</p>
-            </div>
-            <button 
-              className="confirm-button"
-              onClick={handleConfirmPurchase}
-            >
-              Confirm purchase
-            </button>
-          </div>
-        </div>
-      </div>
+      <ConfirmModal
+        isOpen={isConfirmModalOpen}
+        onClose={toggleConfirmModal}
+        gift={selectedGift}
+        onConfirm={handleConfirmPurchase}
+        isProcessing={isProcessing}
+      />
 
       <InfoModal isOpen={isModalOpen} onClose={toggleModal} />
              
