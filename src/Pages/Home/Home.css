@@ -85,7 +85,8 @@
 /* Стиль для блоков во время задержки после открытия */
 .squares-container.cooldown .square:not(.opened) {
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.8; /* Более плавное затемнение */
+  transition: opacity 0.3s ease; /* Плавный переход */
 }
 
 .shards-count {

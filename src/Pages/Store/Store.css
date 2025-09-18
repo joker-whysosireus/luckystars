@@ -26,7 +26,7 @@
     padding: 0;
     margin: 0 auto;
     width: 100%;
-    max-width: 405px; /* Уменьшено с 415px на 10px (5px на каждую карточку) */
+    max-width: 405px;
 }
 
 .gift-card {
@@ -103,8 +103,18 @@
     gap: 4px;
 }
 
-.buy-button:hover {
+.buy-button:hover:not(:disabled) {
     background: linear-gradient(to right, #ff5500, #ff8c00);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(255, 165, 0, 0.4);
+}
+
+.buy-button.processing {
+    background: #3a3a3a;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.buy-button.processing span {
+    color: #b9bbbc;
 }

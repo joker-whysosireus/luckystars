@@ -17,7 +17,7 @@ import axios from 'axios';
 function Store({ userData, updateUserData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [userGifts, setUserGifts] = useState({});
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingGiftId, setProcessingGiftId] = useState(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [confettiKey, setConfettiKey] = useState(0);
   const [confettiOpacity, setConfettiOpacity] = useState(1);
@@ -78,7 +78,7 @@ function Store({ userData, updateUserData }) {
   };
 
   const handleBuyGift = async (gift) => {
-    if (isProcessing) return;
+    if (processingGiftId) return;
     
     // Проверяем, достаточно ли алмазов
     if ((userData?.shards || 0) < gift.price) {
@@ -92,7 +92,7 @@ function Store({ userData, updateUserData }) {
       return;
     }
 
-    setIsProcessing(true);
+    setProcessingGiftId(gift.id);
 
     try {
       const response = await axios.post(
@@ -142,30 +142,31 @@ function Store({ userData, updateUserData }) {
         });
       }
     } finally {
-      setIsProcessing(false);
+      setProcessingGiftId(null);
     }
   };
 
   return (
     <section className="profile-page">
       {showConfetti && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    pointerEvents: 'none',
-                    opacity: confettiOpacity,
-                    transition: 'opacity 2s ease-in-out',
-                    zIndex: 10000,
-                }}>
-                    <Confetti
-                        width={window.innerWidth}
-                        height={window.innerHeight}
-                        recycle={false}
-                    />
-                </div>
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          pointerEvents: 'none',
+          opacity: confettiOpacity,
+          transition: 'opacity 2s ease-in-out',
+          zIndex: 10000,
+        }}>
+          <Confetti
+            key={confettiKey}
+            width={window.innerWidth}
+            height={window.innerHeight}
+            recycle={false}
+          />
+        </div>
       )}
       <FixedTopSection 
         userData={userData} 
@@ -177,6 +178,7 @@ function Store({ userData, updateUserData }) {
           {gifts.map((gift) => {
             const GiftComponent = gift.component;
             const userGiftCount = userGifts[gift.name] || 0;
+            const isProcessing = processingGiftId === gift.id;
             
             return (
               <div key={gift.id} className="gift-card">
