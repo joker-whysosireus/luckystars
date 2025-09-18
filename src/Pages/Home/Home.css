@@ -55,7 +55,7 @@
   width: 100%;
   height: 100%;
   backface-visibility: hidden;
-  border-radius: 4px;
+  border-radius: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -72,8 +72,10 @@
   border: 1px solid #888;
 }
 
-.square.flipping {
+/* Убрано состояние flipping, заменено на loading */
+.square.loading {
   transform: rotateY(180deg);
+  background-color: #e5e7eb; /* Серый цвет для загрузки */
 }
 
 .square.opened {
@@ -108,11 +110,23 @@
   background-color: #666;
 }
 
+/* Убрано затемнение экрана (opacity: 0.7) */
 .squares-container.disabled {
   pointer-events: none;
-  opacity: 0.7;
 }
 
 .squares-container.disabled .square {
   cursor: not-allowed;
+}
+
+/* Скрываем переднюю часть при загрузке и открытии */
+.square.loading .square-front,
+.square.opened .square-front {
+  display: none;
+}
+
+/* Показываем заднюю часть при загрузке и открытии */
+.square.loading .square-back,
+.square.opened .square-back {
+  display: flex;
 }

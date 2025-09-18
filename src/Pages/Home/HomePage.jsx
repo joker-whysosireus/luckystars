@@ -78,7 +78,6 @@ function HomePage({ userData, updateUserData, isActive }) {
             col: block.col,
             isOpened: block.isOpened || false,
             shards: block.shards || 0,
-            isFlipping: false,
             isLoading: false
           }));
           
@@ -113,7 +112,6 @@ function HomePage({ userData, updateUserData, isActive }) {
           col: j,
           isOpened: false,
           shards: 0,
-          isFlipping: false,
           isLoading: false
         });
       }
@@ -231,7 +229,7 @@ function HomePage({ userData, updateUserData, isActive }) {
     const currentBlock = blocksRef.current.find(b => b.id === blockId);
     
     // Если блок уже открыт или анимируется, ничего не делаем
-    if (!currentBlock || currentBlock.isOpened || currentBlock.isFlipping) return;
+    if (!currentBlock || currentBlock.isOpened || currentBlock.isLoading) return;
     
     // Если нет блоков для открытия - показываем уведомление
     if ((userData?.bloks_count || 0) <= 0) {
@@ -251,10 +249,10 @@ function HomePage({ userData, updateUserData, isActive }) {
     // Добавляем блок в обработку
     setProcessingBlocks(prev => new Set(prev).add(blockId));
     
-    // Обновляем UI - показываем серый блок и спиннер сразу
+    // Обновляем UI - сразу показываем лоадер
     const updatedBlocks = blocksRef.current.map(block => 
       block.id === blockId 
-        ? { ...block, isFlipping: true }
+        ? { ...block, isLoading: true }
         : block
     );
     setBlocks(updatedBlocks);
@@ -266,7 +264,7 @@ function HomePage({ userData, updateUserData, isActive }) {
       // Восстанавливаем состояние блока при ошибке
       const errorBlocks = blocksRef.current.map(block => 
         block.id === blockId 
-          ? { ...block, isFlipping: false }
+          ? { ...block, isLoading: false }
           : block
       );
       setBlocks(errorBlocks);
@@ -284,7 +282,7 @@ function HomePage({ userData, updateUserData, isActive }) {
     const shardValues = [1, 1, 1, 1, 5, 5, 5, 10, 15, 25];
     const randomShards = shardValues[Math.floor(Math.random() * shardValues.length)];
     
-    // Показываем loader на короткое время (300ms)
+    // Имитация загрузки
     await new Promise(resolve => setTimeout(resolve, 300));
     
     // После завершения анимации устанавливаем значения
@@ -293,7 +291,7 @@ function HomePage({ userData, updateUserData, isActive }) {
         ? { 
             ...block, 
             isOpened: true, 
-            isFlipping: false, 
+            isLoading: false, 
             shards: randomShards 
           }
         : block
@@ -327,7 +325,6 @@ function HomePage({ userData, updateUserData, isActive }) {
     const resetBlocks = blocks.map(block => ({
       ...block,
       isOpened: false,
-      isFlipping: false,
       isLoading: false,
       shards: 0
     }));
@@ -339,7 +336,6 @@ function HomePage({ userData, updateUserData, isActive }) {
   const resetStuckBlocks = () => {
     const resetBlocks = blocks.map(block => ({
       ...block,
-      isFlipping: false,
       isLoading: false
     }));
     
@@ -513,15 +509,15 @@ function HomePage({ userData, updateUserData, isActive }) {
         row.push(
           <div 
             key={blockId} 
-            className={`square ${block?.isFlipping ? 'flipping' : ''} ${block?.isOpened ? 'opened' : ''} ${isProcessing ? 'processing' : ''}`}
+            className={`square ${block?.isLoading ? 'loading' : ''} ${block?.isOpened ? 'opened' : ''} ${isProcessing ? 'processing' : ''}`}
             onClick={() => handleSquareClick(blockId)}
             data-id={blockId}
           >
             <div className="square-front">
-              {!block?.isOpened && !block?.isFlipping && <Box size={24} color="#3a3a3a" style={{ opacity: 0.7 }} />}
+              {!block?.isOpened && !block?.isLoading && <Box size={24} color="#3a3a3a" style={{ opacity: 0.7 }} />}
             </div>
             <div className="square-back">
-              {block?.isFlipping ? (
+              {block?.isLoading ? (
                 <div className="loading-spinner"></div>
               ) : (
                 block?.isOpened && <span className="shards-count">{block.shards}  <Diamond size={14} color="#3b82f6" /></span>
