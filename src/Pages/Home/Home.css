@@ -82,6 +82,12 @@
   transform: rotateY(180deg);
 }
 
+/* Стиль для блоков во время задержки после открытия */
+.squares-container.cooldown .square:not(.opened) {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .shards-count {
   color: #ffd700;
   font-weight: bold;
@@ -129,4 +135,15 @@
 .square.loading .square-back,
 .square.opened .square-back {
   display: flex;
+}
+
+/* Анимация для нового открытого блока */
+.square.recently-opened {
+  animation: pulse 2s ease;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+  70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
 }

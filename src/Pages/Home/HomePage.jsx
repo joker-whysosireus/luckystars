@@ -52,6 +52,7 @@ function HomePage({ userData, updateUserData, isActive }) {
   const [processingButton, setProcessingButton] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [processingBlocks, setProcessingBlocks] = useState(new Set());
+  const [isCooldown, setIsCooldown] = useState(false);
   
   // Получаем экземпляр WebApp Telegram
   const webApp = window.Telegram?.WebApp || null;
@@ -78,7 +79,8 @@ function HomePage({ userData, updateUserData, isActive }) {
             col: block.col,
             isOpened: block.isOpened || false,
             shards: block.shards || 0,
-            isLoading: false
+            isLoading: false,
+            recentlyOpened: false
           }));
           
           setBlocks(validatedBlocks);
@@ -112,7 +114,8 @@ function HomePage({ userData, updateUserData, isActive }) {
           col: j,
           isOpened: false,
           shards: 0,
-          isLoading: false
+          isLoading: false,
+          recentlyOpened: false
         });
       }
     }
@@ -222,8 +225,8 @@ function HomePage({ userData, updateUserData, isActive }) {
   };
 
   const handleSquareClick = async (blockId) => {
-    // Если происходит сброс блоков или анимация, игнорируем клики
-    if (isResetting || isAnimating || processingBlocks.has(blockId)) return;
+    // Если происходит сброс блоков, анимация, задержка или блок уже в обработке, игнорируем клики
+    if (isResetting || isAnimating || isCooldown || processingBlocks.has(blockId)) return;
     
     // Получаем актуальное состояние блока
     const currentBlock = blocksRef.current.find(b => b.id === blockId);
@@ -292,7 +295,8 @@ function HomePage({ userData, updateUserData, isActive }) {
             ...block, 
             isOpened: true, 
             isLoading: false, 
-            shards: randomShards 
+            shards: randomShards,
+            recentlyOpened: true
           }
         : block
     );
@@ -318,6 +322,19 @@ function HomePage({ userData, updateUserData, isActive }) {
     });
     
     setIsAnimating(false);
+    
+    // Устанавливаем задержку на 2 секунды
+    setIsCooldown(true);
+    setTimeout(() => {
+      setIsCooldown(false);
+      
+      // Убираем флаг недавно открытого блока
+      const updatedBlocks = blocksRef.current.map(block => ({
+        ...block,
+        recentlyOpened: false
+      }));
+      setBlocks(updatedBlocks);
+    }, 2000);
   };
 
   const resetAllBlocks = () => {
@@ -326,7 +343,8 @@ function HomePage({ userData, updateUserData, isActive }) {
       ...block,
       isOpened: false,
       isLoading: false,
-      shards: 0
+      shards: 0,
+      recentlyOpened: false
     }));
     
     setBlocks(resetBlocks);
@@ -336,11 +354,13 @@ function HomePage({ userData, updateUserData, isActive }) {
   const resetStuckBlocks = () => {
     const resetBlocks = blocks.map(block => ({
       ...block,
-      isLoading: false
+      isLoading: false,
+      recentlyOpened: false
     }));
     
     setBlocks(resetBlocks);
     setIsAnimating(false);
+    setIsCooldown(false);
     setProcessingBlocks(new Set());
   };
 
@@ -509,7 +529,7 @@ function HomePage({ userData, updateUserData, isActive }) {
         row.push(
           <div 
             key={blockId} 
-            className={`square ${block?.isLoading ? 'loading' : ''} ${block?.isOpened ? 'opened' : ''} ${isProcessing ? 'processing' : ''}`}
+            className={`square ${block?.isLoading ? 'loading' : ''} ${block?.isOpened ? 'opened' : ''} ${block?.recentlyOpened ? 'recently-opened' : ''} ${isProcessing ? 'processing' : ''}`}
             onClick={() => handleSquareClick(blockId)}
             data-id={blockId}
           >
@@ -576,7 +596,7 @@ function HomePage({ userData, updateUserData, isActive }) {
       />
       
       {/* Игровое поле с блоками */}
-      <div className={`squares-container ${isAnimating ? 'disabled' : ''}`}>
+      <div className={`squares-container ${isAnimating ? 'disabled' : ''} ${isCooldown ? 'cooldown' : ''}`}>
         {renderBlocks()}
       </div>
       
