@@ -251,7 +251,7 @@ function HomePage({ userData, updateUserData, isActive }) {
     // Добавляем блок в обработку
     setProcessingBlocks(prev => new Set(prev).add(blockId));
     
-    // Обновляем UI - показываем серый блок
+    // Обновляем UI - показываем серый блок и спиннер сразу
     const updatedBlocks = blocksRef.current.map(block => 
       block.id === blockId 
         ? { ...block, isFlipping: true }
@@ -518,10 +518,10 @@ function HomePage({ userData, updateUserData, isActive }) {
             data-id={blockId}
           >
             <div className="square-front">
-              {!block?.isOpened && <Box size={24} color="#3a3a3a" style={{ opacity: 0.7 }} />}
+              {!block?.isOpened && !block?.isFlipping && <Box size={24} color="#3a3a3a" style={{ opacity: 0.7 }} />}
             </div>
             <div className="square-back">
-              {block?.isFlipping && !block?.isOpened ? (
+              {block?.isFlipping ? (
                 <div className="loading-spinner"></div>
               ) : (
                 block?.isOpened && <span className="shards-count">{block.shards}  <Diamond size={14} color="#3b82f6" /></span>
@@ -580,7 +580,7 @@ function HomePage({ userData, updateUserData, isActive }) {
       />
       
       {/* Игровое поле с блоками */}
-      <div className="squares-container">
+      <div className={`squares-container ${isAnimating ? 'disabled' : ''}`}>
         {renderBlocks()}
       </div>
       
