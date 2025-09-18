@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import './Home.css';
 import Menu from '../../Assets/Menus/Menu/Menu';
 import axios from 'axios';
@@ -55,6 +55,12 @@ function HomePage({ userData, updateUserData, isActive }) {
   
   // Получаем экземпляр WebApp Telegram
   const webApp = window.Telegram?.WebApp || null;
+  const blocksRef = useRef(blocks);
+
+  // Обновляем ref при изменении blocks
+  useEffect(() => {
+    blocksRef.current = blocks;
+  }, [blocks]);
 
   // Инициализация данных из userData
   useEffect(() => {
@@ -135,30 +141,13 @@ function HomePage({ userData, updateUserData, isActive }) {
     if (allOpened && !isResetting) {
       setIsResetting(true);
       
-      // Через 1 секунду сбрасываем все блоки и начисляем 1 блок
+      // Через 1 секунду просто сбрасываем все блоки без начисления награды
       setTimeout(() => {
         resetAllBlocks();
-        const newBlocksCount = (userData?.bloks_count || 0) + 1;
-        
-        // Обновляем данные на сервере
-        if (userData && updateUserData) {
-          updateUserData({
-            ...userData,
-            bloks_count: newBlocksCount
-          });
-        }
-        
-        // Показываем уведомление о получении блока
-        if (webApp) {
-          webApp.showPopup({
-            title: "Congratulations!",
-            message: "You've opened all blocks and received 1 free block!",
-            buttons: [{ type: "ok" }]
-          });
-        }
+        setIsResetting(false);
       }, 1000);
     }
-  }, [blocks, isResetting, userData, updateUserData]);
+  }, [blocks, isResetting]);
 
   const updateShardsOnServer = async (shardsToAdd) => {
     try {
@@ -238,6 +227,12 @@ function HomePage({ userData, updateUserData, isActive }) {
     // Если происходит сброс блоков или анимация, игнорируем клики
     if (isResetting || isAnimating || processingBlocks.has(blockId)) return;
     
+    // Получаем актуальное состояние блока
+    const currentBlock = blocksRef.current.find(b => b.id === blockId);
+    
+    // Если блок уже открыт или анимируется, ничего не делаем
+    if (!currentBlock || currentBlock.isOpened || currentBlock.isFlipping) return;
+    
     // Если нет блоков для открытия - показываем уведомление
     if ((userData?.bloks_count || 0) <= 0) {
       if (webApp) {
@@ -250,11 +245,6 @@ function HomePage({ userData, updateUserData, isActive }) {
       return;
     }
     
-    const blockIndex = blocks.findIndex(b => b.id === blockId);
-    
-    // Если блок уже открыт или анимируется, ничего не делаем
-    if (blockIndex === -1 || blocks[blockIndex].isOpened) return;
-    
     // Блокируем все блоки во время анимации
     setIsAnimating(true);
     
@@ -262,11 +252,11 @@ function HomePage({ userData, updateUserData, isActive }) {
     setProcessingBlocks(prev => new Set(prev).add(blockId));
     
     // Обновляем UI - показываем серый блок
-    const updatedBlocks = [...blocks];
-    updatedBlocks[blockIndex] = {
-      ...updatedBlocks[blockIndex],
-      isFlipping: true
-    };
+    const updatedBlocks = blocksRef.current.map(block => 
+      block.id === blockId 
+        ? { ...block, isFlipping: true }
+        : block
+    );
     setBlocks(updatedBlocks);
     
     // Уменьшаем счетчик блоков на сервере
@@ -274,11 +264,11 @@ function HomePage({ userData, updateUserData, isActive }) {
     if (!blockUsed) {
       console.error("Failed to use block on server");
       // Восстанавливаем состояние блока при ошибке
-      const errorBlocks = [...blocks];
-      errorBlocks[blockIndex] = {
-        ...errorBlocks[blockIndex],
-        isFlipping: false
-      };
+      const errorBlocks = blocksRef.current.map(block => 
+        block.id === blockId 
+          ? { ...block, isFlipping: false }
+          : block
+      );
       setBlocks(errorBlocks);
       
       setProcessingBlocks(prev => {
@@ -298,13 +288,16 @@ function HomePage({ userData, updateUserData, isActive }) {
     await new Promise(resolve => setTimeout(resolve, 300));
     
     // После завершения анимации устанавливаем значения
-    const finalizedBlocks = [...blocks];
-    finalizedBlocks[blockIndex] = {
-      ...finalizedBlocks[blockIndex],
-      isOpened: true,
-      isFlipping: false,
-      shards: randomShards
-    };
+    const finalizedBlocks = blocksRef.current.map(block => 
+      block.id === blockId 
+        ? { 
+            ...block, 
+            isOpened: true, 
+            isFlipping: false, 
+            shards: randomShards 
+          }
+        : block
+    );
     
     setBlocks(finalizedBlocks);
     
@@ -330,19 +323,16 @@ function HomePage({ userData, updateUserData, isActive }) {
   };
 
   const resetAllBlocks = () => {
-    // Сбрасываем состояние блоков с небольшой задержкой для плавности
-    setTimeout(() => {
-      const resetBlocks = blocks.map(block => ({
-        ...block,
-        isOpened: false,
-        isFlipping: false,
-        isLoading: false,
-        shards: 0
-      }));
-      
-      setBlocks(resetBlocks);
-      setIsResetting(false);
-    }, 300);
+    // Сбрасываем состояние блоков
+    const resetBlocks = blocks.map(block => ({
+      ...block,
+      isOpened: false,
+      isFlipping: false,
+      isLoading: false,
+      shards: 0
+    }));
+    
+    setBlocks(resetBlocks);
   };
 
   // Функция для принудительного сброса зависших блоков
@@ -524,7 +514,7 @@ function HomePage({ userData, updateUserData, isActive }) {
           <div 
             key={blockId} 
             className={`square ${block?.isFlipping ? 'flipping' : ''} ${block?.isOpened ? 'opened' : ''} ${isProcessing ? 'processing' : ''}`}
-            onClick={() => !isProcessing && !isAnimating && handleSquareClick(blockId)}
+            onClick={() => handleSquareClick(blockId)}
             data-id={blockId}
           >
             <div className="square-front">
