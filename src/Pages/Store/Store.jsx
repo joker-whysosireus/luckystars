@@ -29,8 +29,14 @@ function Store({ userData, updateUserData }) {
     setIsModalOpen(!isModalOpen);
   };
 
-  const toggleConfirmModal = () => {
-    setIsConfirmModalOpen(!isConfirmModalOpen);
+  const openConfirmModal = (gift) => {
+    setSelectedGift(gift);
+    setIsConfirmModalOpen(true);
+  };
+
+  const closeConfirmModal = () => {
+    setIsConfirmModalOpen(false);
+    setSelectedGift(null);
   };
 
   const gifts = [
@@ -85,8 +91,7 @@ function Store({ userData, updateUserData }) {
   };
 
   const handleBuyClick = (gift) => {
-    setSelectedGift(gift);
-    toggleConfirmModal();
+    openConfirmModal(gift);
   };
 
   const handleConfirmPurchase = async () => {
@@ -101,7 +106,7 @@ function Store({ userData, updateUserData }) {
           buttons: [{ type: "ok" }]
         });
       }
-      toggleConfirmModal();
+      closeConfirmModal();
       return;
     }
 
@@ -156,8 +161,7 @@ function Store({ userData, updateUserData }) {
       }
     } finally {
       setIsProcessing(false);
-      toggleConfirmModal();
-      setSelectedGift(null);
+      closeConfirmModal();
     }
   };
 
@@ -223,7 +227,7 @@ function Store({ userData, updateUserData }) {
 
       <ConfirmModal
         isOpen={isConfirmModalOpen}
-        onClose={toggleConfirmModal}
+        onClose={closeConfirmModal}
         gift={selectedGift}
         onConfirm={handleConfirmPurchase}
         isProcessing={isProcessing}
