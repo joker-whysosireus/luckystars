@@ -1,37 +1,141 @@
-:root {
-  --text-color: white;
-  --font-family: "Rubik", serif;
-  --green-color: #c4f85c;
-  --container-color: #1c1c1e;
-  --container-color-two: #b9bbbc;
-  --background-color: #000000;
-  --purple-color: #7685f7;
-  --blue-color: #0098EA;
-  --blue-another-color: #1d71d1;
-}
-
-html, .bodytaskspage {
-  width: 100%;
+.tasks-page.dark-theme {
   min-height: 100vh;
-  margin: 0;
-  padding: 0;
-  flex-direction: column;
-}
-
-.bodytaskspage {
-  margin: 0;
-  padding: 0;
-  flex: 1;
-  min-height: 100vh;
-  width: 100vw;
-  background-color: #000000;
+  background: #000;
+  padding: 80px 9px 100px;
   display: flex;
-  justify-content: center;
-  align-items: center;
   flex-direction: column;
-  box-sizing: border-box;;
+  align-items: center;
+  color: #fff;
 }
 
-.no-scroll {
+.tasks-content {
+  width: 372px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.tasks-section {
+  background: #0f0f0f;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.section-header {
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #333;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.task {
+  display: flex;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid #333;
+}
+
+.task:last-child {
+  border-bottom: none;
+}
+
+.task-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-title {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #fff;
+  font-size: 16px;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.task-reward {
+  font-size: 14px;
+  color: #ccc;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.reward-text {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  color: #ffa500;
+}
+
+.progress-container {
+  height: 6px;
+  background: #333;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 8px;
+  width: 200px; /* Уменьшенная фиксированная ширина прогрессбара */
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #ff8c00, #ffa500);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.claim-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 80px;
+  height: 36px;
+  margin-left: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.claim-btn.active {
+  background: #ff8c00;
+  color: #000;
+}
+
+.claim-btn.active:hover {
+  background: #ffa500;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 165, 0, 0.3);
+}
+
+.claim-btn.disabled {
+  background: #333;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 30px 0;
+  color: #666;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 16px;
 }
