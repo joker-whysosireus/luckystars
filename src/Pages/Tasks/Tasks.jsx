@@ -3,7 +3,7 @@ import Menu from '../../Assets/Menus/Menu/Menu';
 import './Tasks.css';
 import FixedTopSection from '../Home/Containers/TopSection/FixedTopSection';
 import InfoModal from '../../Assets/Modal/InfoModal';
-import { Diamond, Box, RefreshCw } from 'lucide-react';
+import { Diamond, Box, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 
 // Константы для рекламных сетей
 const MONETAG_ZONE_ID = "9896477";
@@ -50,6 +50,8 @@ function Tasks({ isActive, userData, updateUserData }) {
   const [targetTgAds, setTargetTgAds] = useState([]);
   const [isTargetTgLoading, setIsTargetTgLoading] = useState(false);
   const [targetTgError, setTargetTgError] = useState(null);
+  const [targetTgLogs, setTargetTgLogs] = useState([]);
+  const [showLogs, setShowLogs] = useState(false);
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
@@ -111,6 +113,13 @@ function Tasks({ isActive, userData, updateUserData }) {
     return () => clearInterval(intervalId);
   }, []);
 
+  // Функция для добавления логов
+  const addLog = useCallback((message, type = 'info') => {
+    const timestamp = new Date().toISOString();
+    const newLog = { timestamp, message, type };
+    setTargetTgLogs(prev => [newLog, ...prev].slice(0, 20)); // Храним только последние 20 логов
+  }, []);
+
   // Загрузка рекламы Target.TG
   const loadTargetTgAds = useCallback(async () => {
     setIsTargetTgLoading(true);
@@ -124,44 +133,61 @@ function Tasks({ isActive, userData, updateUserData }) {
       url.searchParams.append('widget_size', '3');
       url.searchParams.append('tg_premium', 'false');
       
+      addLog(`Starting request to: ${url.toString()}`, 'info');
+      
       // Если у нас есть ID пользователя Telegram, добавляем его
       if (userData?.telegram_user_id) {
         url.searchParams.append('tg_id', userData.telegram_user_id);
+        addLog(`Added tg_id parameter: ${userData.telegram_user_id}`, 'info');
       } else {
-        setTargetTgError('User identification is required to load ads');
+        const errorMsg = 'User identification is required to load ads';
+        addLog(errorMsg, 'error');
+        setTargetTgError(errorMsg);
         setIsTargetTgLoading(false);
         return;
       }
       
+      addLog('Sending request to Target.TG API...', 'info');
       const response = await fetch(url.toString());
+      
+      addLog(`Received response with status: ${response.status}`, 'info');
       
       if (response.ok) {
         const data = await response.json();
+        addLog(`Successfully loaded ${data.length} ads from Target.TG`, 'success');
         console.log("Target.TG ads loaded:", data);
         
         if (data && data.length > 0) {
           setTargetTgAds(data);
         } else {
           setTargetTgAds([]);
-          setTargetTgError("No ads available at the moment. Please try again later.");
+          const errorMsg = "No ads available at the moment. Please try again later.";
+          addLog(errorMsg, 'warning');
+          setTargetTgError(errorMsg);
         }
       } else {
-        console.error('Failed to load Target.TG ads:', response.status);
-        setTargetTgError(`Failed to load ads: ${response.status}`);
+        const errorMsg = `Failed to load Target.TG ads: ${response.status}`;
+        addLog(errorMsg, 'error');
+        console.error(errorMsg);
+        setTargetTgError(errorMsg);
         setTargetTgAds([]);
       }
     } catch (error) {
+      const errorMsg = `Network error: ${error.message}`;
+      addLog(errorMsg, 'error');
       console.error('Error loading Target.TG ads:', error);
-      setTargetTgError(`Network error: ${error.message}`);
+      setTargetTgError(errorMsg);
       setTargetTgAds([]);
     } finally {
+      addLog('Request completed', 'info');
       setIsTargetTgLoading(false);
     }
-  }, [userData]);
+  }, [userData, addLog]);
 
   useEffect(() => {
+    addLog('Component mounted, loading Target.TG ads...', 'info');
     loadTargetTgAds();
-  }, [loadTargetTgAds]);
+  }, [loadTargetTgAds, addLog]);
 
   const dailyTasks = [
     { 
@@ -498,6 +524,16 @@ function Tasks({ isActive, userData, updateUserData }) {
     );
   };
 
+  const renderLogItem = (log, index) => {
+    const logTime = new Date(log.timestamp).toLocaleTimeString();
+    return (
+      <div key={index} className={`log-item log-${log.type}`}>
+        <span className="log-time">[{logTime}]</span>
+        <span className="log-message">{log.message}</span>
+      </div>
+    );
+  };
+
   return (
     <div className="tasks-page dark-theme">
       <FixedTopSection 
@@ -579,6 +615,29 @@ function Tasks({ isActive, userData, updateUserData }) {
               <p>No sponsored offers available at the moment</p>
             </div>
           )}
+
+          {/* Блок логов Target.TG */}
+          <div className="target-tg-logs">
+            <div 
+              className="logs-header" 
+              onClick={() => setShowLogs(!showLogs)}
+            >
+              <h3>Target.TG Logs</h3>
+              {showLogs ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+            </div>
+            
+            {showLogs && (
+              <div className="logs-content">
+                {targetTgLogs.length > 0 ? (
+                  targetTgLogs.map((log, index) => renderLogItem(log, index))
+                ) : (
+                  <div className="empty-state">
+                    <p>No logs available</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
       
