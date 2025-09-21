@@ -7,7 +7,7 @@ import { Diamond, Box, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 
 // Константы для рекламных сетей
 const MONETAG_ZONE_ID = "9896477";
-const TARGET_TG_WIDGET_ID = "ВАШ_WIDGET_ID"; // Замените на ваш widget_id
+const TARGET_TG_WIDGET_ID = "10"; // Замените на ваш widget_id
 
 function Tasks({ isActive, userData, updateUserData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
