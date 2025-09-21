@@ -7,7 +7,7 @@ import { Diamond, Box, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 
 // Константы для рекламных сетей
 const MONETAG_ZONE_ID = "9896477";
-const TARGET_TG_WIDGET_ID = "10"; // Замените на ваш widget_id
+const TARGET_TG_WIDGET_ID = "10"; // Ваш widget_id
 
 function Tasks({ isActive, userData, updateUserData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -124,15 +124,15 @@ function Tasks({ isActive, userData, updateUserData }) {
   const loadTargetTgAds = useCallback(async () => {
     setIsTargetTgLoading(true);
     setTargetTgError(null);
+    setTargetTgAds([]); // Сбрасываем предыдущие рекламные объявления
     
     try {
-      // Формируем URL согласно новой документации
       const url = new URL('https://tg-adsnet-core.target.tg/api/ads/creatives/');
       
       // Добавляем обязательные параметры
       url.searchParams.append('tg_id', userData?.telegram_user_id || '');
-      url.searchParams.append('widget_size', '5'); // Запрашиваем до 5 креативов
-      url.searchParams.append('tg_premium', 'false'); // По умолчанию false
+      url.searchParams.append('widget_size', '5');
+      url.searchParams.append('tg_premium', 'false');
       url.searchParams.append('widget_id', TARGET_TG_WIDGET_ID);
       
       addLog(`Starting request to: ${url.toString()}`, 'info');
@@ -145,23 +145,32 @@ function Tasks({ isActive, userData, updateUserData }) {
       
       addLog(`Received response with status: ${response.status}`, 'info');
       
-      if (response.status === 204) {
-        // Нет контента - это нормальная ситуация
-        addLog('No ads available (204 No Content)', 'info');
-        setTargetTgAds([]);
-      } else if (response.ok) {
+      if (response.ok) {
         const data = await response.json();
         addLog(`Successfully loaded ads from Target.TG`, 'success');
         
-        // Обрабатываем ответ (может быть массивом или одним объектом)
+        // Детальное логирование полученных данных
+        addLog(`Response data: ${JSON.stringify(data)}`, 'debug');
+        
+        // Проверяем различные форматы ответа
+        let ads = [];
+        
         if (Array.isArray(data)) {
-          setTargetTgAds(data);
+          // Если ответ - массив
+          ads = data;
         } else if (data && typeof data === 'object') {
-          setTargetTgAds([data]);
-        } else {
-          setTargetTgAds([]);
-          addLog('Unexpected response format', 'warning');
+          // Если ответ - одиночный объект
+          ads = [data];
+        } else if (data && data.creatives) {
+          // Если ответ содержит креативы в свойстве creatives
+          ads = data.creatives;
+        } else if (data && data.results) {
+          // Если ответ содержит результаты в свойстве results
+          ads = data.results;
         }
+        
+        addLog(`Processed ${ads.length} ads for display`, 'info');
+        setTargetTgAds(ads);
       } else if (response.status === 429) {
         const errorMsg = "Too many requests. Please try again later.";
         addLog(errorMsg, 'warning');
@@ -174,7 +183,6 @@ function Tasks({ isActive, userData, updateUserData }) {
     } catch (error) {
       const errorMsg = `Network error: ${error.message}`;
       addLog(errorMsg, 'error');
-      console.error('Error loading Target.TG ads:', error);
       setTargetTgError(errorMsg);
     } finally {
       addLog('Request completed', 'info');
@@ -501,25 +509,43 @@ function Tasks({ isActive, userData, updateUserData }) {
   };
 
   const renderTargetTgAd = (ad) => {
+    // Проверяем наличие обязательных полей
+    if (!ad || (!ad.title && !ad.description && !ad.icon)) {
+      addLog(`Skipping invalid ad: ${JSON.stringify(ad)}`, 'warning');
+      return null;
+    }
+    
     return (
-      <div key={ad.creative_id} className="target-tg-ad">
+      <div key={ad.creative_id || ad.id || Math.random()} className="target-tg-ad">
         <div className="ad-content">
           {ad.icon && (
-            <img src={ad.icon} alt={ad.title} className="ad-icon" />
+            <img 
+              src={ad.icon} 
+              alt={ad.title || 'Sponsored Offer'} 
+              className="ad-icon"
+              onError={(e) => {
+                // Обработка ошибок загрузки изображения
+                e.target.style.display = 'none';
+                addLog(`Failed to load ad image: ${ad.icon}`, 'warning');
+              }}
+            />
           )}
           <div className="ad-text">
             <h4 className="ad-title">{ad.title || 'Sponsored Offer'}</h4>
             <p className="ad-description">{ad.description || 'Special offer for our users'}</p>
           </div>
         </div>
-        <a 
-          href={ad.click_link || '#'} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="ad-link"
-        >
-          Participate
-        </a>
+        {ad.click_link && (
+          <a 
+            href={ad.click_link} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="ad-link"
+            onClick={() => addLog(`Clicked on ad: ${ad.title || 'Unknown'}`)}
+          >
+            Participate
+          </a>
+        )}
       </div>
     );
   };
