@@ -86,7 +86,7 @@
   border-radius: 3px;
   overflow: hidden;
   margin-top: 8px;
-  width: 200px; /* Уменьшенная фиксированная ширина прогрессбара */
+  width: 200px;
 }
 
 .progress-bar {
@@ -110,6 +110,14 @@
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  white-space: nowrap;
+}
+
+.claim-btn.daily-login {
+  width: auto;
+  min-width: 80px;
+  padding: 8px 10px;
+  font-size: 12px;
 }
 
 .claim-btn.active {

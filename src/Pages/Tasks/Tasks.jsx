@@ -7,22 +7,38 @@ import { Diamond, Box } from 'lucide-react';
 
 // Константа для зоны Monetag
 const MONETAG_ZONE_ID = "9896477";
-// Константа для Target.TG - используем Widget ID
-const TARGET_TG_WIDGET_ID = "8";
+// Константа для Target.TG - используем Site ID
+const TARGET_TG_SITE_ID = "9";
 
 function Tasks({ isActive, userData, updateUserData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [monetagAdCount, setMonetagAdCount] = useState(() => {
-    const storedCount = localStorage.getItem('monetagAdCount');
-    return storedCount ? parseInt(storedCount) : 0;
+  const [monetagAdCounts, setMonetagAdCounts] = useState(() => {
+    const storedCounts = localStorage.getItem('monetagAdCounts');
+    return storedCounts ? JSON.parse(storedCounts) : {
+      1: 0, // Watch 10 Ads
+      8: 0, // Watch 50 Ads
+      9: 0  // Watch 100 Ads
+    };
   });
-  const [monetagCooldownEnd, setMonetagCooldownEnd] = useState(() => {
-    const storedEnd = localStorage.getItem('monetagCooldownEnd');
-    return storedEnd ? parseInt(storedEnd) : 0;
+  const [monetagCooldowns, setMonetagCooldowns] = useState(() => {
+    const storedCooldowns = localStorage.getItem('monetagCooldowns');
+    return storedCooldowns ? JSON.parse(storedCooldowns) : {
+      1: 0, // Watch 10 Ads
+      8: 0, // Watch 50 Ads
+      9: 0  // Watch 100 Ads
+    };
   });
-  const [isMonetagLoading, setIsMonetagLoading] = useState(false);
+  const [isMonetagLoading, setIsMonetagLoading] = useState({
+    1: false, // Watch 10 Ads
+    8: false, // Watch 50 Ads
+    9: false  // Watch 100 Ads
+  });
   const [monetagAdAvailable, setMonetagAdAvailable] = useState(false);
-  const [remainingTime, setRemainingTime] = useState(0);
+  const [remainingTimes, setRemainingTimes] = useState({
+    1: 0, // Watch 10 Ads
+    8: 0, // Watch 50 Ads
+    9: 0  // Watch 100 Ads
+  });
   const [claimedTasks, setClaimedTasks] = useState(() => {
     const stored = localStorage.getItem('claimedTasks');
     return stored ? JSON.parse(stored) : [];
@@ -41,24 +57,31 @@ function Tasks({ isActive, userData, updateUserData }) {
 
   // Сохранение состояний в localStorage
   useEffect(() => {
-    localStorage.setItem('monetagAdCount', monetagAdCount.toString());
-    localStorage.setItem('monetagCooldownEnd', monetagCooldownEnd.toString());
+    localStorage.setItem('monetagAdCounts', JSON.stringify(monetagAdCounts));
+    localStorage.setItem('monetagCooldowns', JSON.stringify(monetagCooldowns));
     localStorage.setItem('claimedTasks', JSON.stringify(claimedTasks));
     localStorage.setItem('dailyLoginCooldown', dailyLoginCooldown.toString());
-  }, [monetagAdCount, monetagCooldownEnd, claimedTasks, dailyLoginCooldown]);
+  }, [monetagAdCounts, monetagCooldowns, claimedTasks, dailyLoginCooldown]);
 
-  // Вычисление оставшегося времени для Monetag
+  // Вычисление оставшегося времени для Monetag задач
   useEffect(() => {
-    const calculateRemainingTime = () => {
+    const calculateRemainingTimes = () => {
       const now = Date.now();
-      const timeLeft = monetagCooldownEnd > now ? Math.floor((monetagCooldownEnd - now) / 1000) : 0;
-      setRemainingTime(timeLeft);
+      const newRemainingTimes = {};
+      
+      Object.keys(monetagCooldowns).forEach(taskId => {
+        const timeLeft = monetagCooldowns[taskId] > now ? 
+          Math.floor((monetagCooldowns[taskId] - now) / 1000) : 0;
+        newRemainingTimes[taskId] = timeLeft;
+      });
+      
+      setRemainingTimes(newRemainingTimes);
     };
 
-    calculateRemainingTime();
-    const interval = setInterval(calculateRemainingTime, 1000);
+    calculateRemainingTimes();
+    const interval = setInterval(calculateRemainingTimes, 1000);
     return () => clearInterval(interval);
-  }, [monetagCooldownEnd]);
+  }, [monetagCooldowns]);
 
   // Вычисление оставшегося времени для ежедневного входа
   useEffect(() => {
@@ -96,7 +119,7 @@ function Tasks({ isActive, userData, updateUserData }) {
       setIsTargetTgLoading(true);
       try {
         const response = await fetch(
-          `https://tg-adsnet-core.target.tg/api/ads/creatives/?tg_id=${userData.telegram_user_id}&widget_size=3&tg_premium=false&widget_id=${TARGET_TG_WIDGET_ID}`
+          `https://tg-adsnet-core.target.tg/api/ads/creatives/?tg_id=${userData.telegram_user_id}&widget_size=3&tg_premium=false&site_id=${TARGET_TG_SITE_ID}`
         );
         
         if (response.ok) {
@@ -143,9 +166,9 @@ function Tasks({ isActive, userData, updateUserData }) {
       title: 'Watch 10 Ads', 
       reward: 5, 
       rewardType: 'blocks',
-      progress: monetagAdCount, 
+      progress: monetagAdCounts[1] || 0, 
       total: 10, 
-      completed: monetagAdCount >= 10,
+      completed: (monetagAdCounts[1] || 0) >= 10,
       type: 'monetag'
     },
     { 
@@ -153,9 +176,9 @@ function Tasks({ isActive, userData, updateUserData }) {
       title: 'Watch 50 Ads', 
       reward: 25, 
       rewardType: 'blocks',
-      progress: monetagAdCount, 
+      progress: monetagAdCounts[8] || 0, 
       total: 50, 
-      completed: monetagAdCount >= 50,
+      completed: (monetagAdCounts[8] || 0) >= 50,
       type: 'monetag'
     },
     { 
@@ -163,9 +186,9 @@ function Tasks({ isActive, userData, updateUserData }) {
       title: 'Watch 100 Ads', 
       reward: 50, 
       rewardType: 'blocks',
-      progress: monetagAdCount, 
+      progress: monetagAdCounts[9] || 0, 
       total: 100, 
-      completed: monetagAdCount >= 100,
+      completed: (monetagAdCounts[9] || 0) >= 100,
       type: 'monetag'
     },
     { 
@@ -226,17 +249,17 @@ function Tasks({ isActive, userData, updateUserData }) {
 
   const partnersTasks = [];
 
-  // Обработка показа рекламы Monetag
-  const handleMonetagAd = useCallback(() => {
-    if (!monetagAdAvailable || isMonetagLoading || remainingTime > 0) return;
+  // Обработка показа рекламы Monetag для конкретной задачи
+  const handleMonetagAd = useCallback((taskId) => {
+    if (!monetagAdAvailable || isMonetagLoading[taskId] || remainingTimes[taskId] > 0) return;
     
-    setIsMonetagLoading(true);
+    setIsMonetagLoading(prev => ({ ...prev, [taskId]: true }));
     
     const showAdFunction = window[`show_${MONETAG_ZONE_ID}`];
     
     if (typeof showAdFunction !== 'function') {
       console.error('Monetag show function not available');
-      setIsMonetagLoading(false);
+      setIsMonetagLoading(prev => ({ ...prev, [taskId]: false }));
       return;
     }
     
@@ -244,20 +267,20 @@ function Tasks({ isActive, userData, updateUserData }) {
       ymid: userData.telegram_user_id || 'anonymous'
     })
     .then(() => {
-      const newCount = monetagAdCount + 1;
-      setMonetagAdCount(newCount);
+      const newCount = (monetagAdCounts[taskId] || 0) + 1;
+      setMonetagAdCounts(prev => ({ ...prev, [taskId]: newCount }));
       
-      // Устанавливаем кулдаун 30 минут после каждого просмотра
-      const cooldownEnd = Date.now() + 30 * 60 * 1000;
-      setMonetagCooldownEnd(cooldownEnd);
+      // Устанавливаем кулдаун 3 секунды после каждого просмотра
+      const cooldownEnd = Date.now() + 3000;
+      setMonetagCooldowns(prev => ({ ...prev, [taskId]: cooldownEnd }));
     })
     .catch((error) => {
       console.error('Monetag ad error:', error);
     })
     .finally(() => {
-      setIsMonetagLoading(false);
+      setIsMonetagLoading(prev => ({ ...prev, [taskId]: false }));
     });
-  }, [monetagAdAvailable, isMonetagLoading, remainingTime, userData, monetagAdCount]);
+  }, [monetagAdAvailable, isMonetagLoading, remainingTimes, userData, monetagAdCounts]);
 
   // Обработка ежедневного входа
   const handleDailyLogin = useCallback(async () => {
@@ -351,10 +374,7 @@ function Tasks({ isActive, userData, updateUserData }) {
   };
 
   const formatTime = (seconds) => {
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    const s = seconds % 60;
-    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    return `${seconds}s`;
   };
 
   const formatDailyLoginTime = (seconds) => {
@@ -392,20 +412,20 @@ function Tasks({ isActive, userData, updateUserData }) {
             </button>
           ) : (
             <button 
-              className={`claim-btn ${remainingTime > 0 ? 'disabled' : ''}`}
-              onClick={handleMonetagAd}
-              disabled={remainingTime > 0 || isMonetagLoading || !monetagAdAvailable}
+              className={`claim-btn ${remainingTimes[task.id] > 0 ? 'disabled' : ''}`}
+              onClick={() => handleMonetagAd(task.id)}
+              disabled={remainingTimes[task.id] > 0 || isMonetagLoading[task.id] || !monetagAdAvailable}
             >
               {!monetagAdAvailable ? "Unavailable" : 
-               remainingTime > 0 ? formatTime(remainingTime) : 
-               isMonetagLoading ? "Loading..." : 
-               `${monetagAdCount}/${task.total}`}
+               remainingTimes[task.id] > 0 ? formatTime(remainingTimes[task.id]) : 
+               isMonetagLoading[task.id] ? "Loading..." : 
+               `${task.progress}/${task.total}`}
             </button>
           )
         ) : task.type === 'dailyLogin' ? (
           isClaimed || dailyLoginRemainingTime > 0 ? (
             <button 
-              className="claim-btn disabled"
+              className="claim-btn daily-login disabled"
               disabled
             >
               {dailyLoginRemainingTime > 0 ? formatDailyLoginTime(dailyLoginRemainingTime) : 'Done!'}
