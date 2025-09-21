@@ -7,7 +7,7 @@ import { Diamond, Box } from 'lucide-react';
 
 // Константы для рекламных сетей
 const MONETAG_ZONE_ID = "9896477";
-const TARGET_TG_WIDGET_ID = "10"; // Ваш Widget ID для Target.TG
+const TARGET_TG_WIDGET_ID = "10"; // Исправленный Widget ID на основе скриншотов
 
 function Tasks({ isActive, userData, updateUserData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -49,6 +49,7 @@ function Tasks({ isActive, userData, updateUserData }) {
   const [dailyLoginRemainingTime, setDailyLoginRemainingTime] = useState(0);
   const [targetTgAds, setTargetTgAds] = useState([]);
   const [isTargetTgLoading, setIsTargetTgLoading] = useState(false);
+  const [targetTgError, setTargetTgError] = useState(null);
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
@@ -113,28 +114,43 @@ function Tasks({ isActive, userData, updateUserData }) {
   // Загрузка рекламы Target.TG
   useEffect(() => {
     const loadTargetTgAds = async () => {
-      if (!userData?.telegram_user_id) return;
+      if (!userData?.telegram_user_id) {
+        console.log("User ID not available yet");
+        return;
+      }
       
       setIsTargetTgLoading(true);
+      setTargetTgError(null);
+      
       try {
+        console.log("Loading Target.TG ads for user:", userData.telegram_user_id);
         const response = await fetch(
           `https://tg-adsnet-core.target.tg/api/ads/creatives/?tg_id=${userData.telegram_user_id}&widget_size=3&tg_premium=false&widget_id=${TARGET_TG_WIDGET_ID}`
         );
         
+        console.log("Target.TG response status:", response.status);
+        
         if (response.ok) {
           const data = await response.json();
+          console.log("Target.TG ads loaded:", data);
           setTargetTgAds(data);
         } else {
-          console.error('Failed to load Target.TG ads');
+          const errorText = await response.text();
+          console.error('Failed to load Target.TG ads:', response.status, errorText);
+          setTargetTgError(`Error ${response.status}: ${errorText}`);
         }
       } catch (error) {
         console.error('Error loading Target.TG ads:', error);
+        setTargetTgError(`Network error: ${error.message}`);
       } finally {
         setIsTargetTgLoading(false);
       }
     };
 
-    loadTargetTgAds();
+    // Загружаем рекламу при изменении userData
+    if (userData?.telegram_user_id) {
+      loadTargetTgAds();
+    }
   }, [userData]);
 
   const dailyTasks = [
@@ -523,17 +539,30 @@ function Tasks({ isActive, userData, updateUserData }) {
         </div>
 
         {/* Блок рекламы Target.TG */}
-        {targetTgAds.length > 0 && (
-          <div className="tasks-section">
-            <div className="section-header">
-              <h2>Sponsored Offers</h2>
+        <div className="tasks-section">
+          <div className="section-header">
+            <h2>Sponsored Offers</h2>
+            {targetTgError && (
+              <div className="error-message">
+                Error loading ads: {targetTgError}
+              </div>
+            )}
+          </div>
+          
+          {isTargetTgLoading ? (
+            <div className="empty-state">
+              <p>Loading sponsored offers...</p>
             </div>
-            
+          ) : targetTgAds.length > 0 ? (
             <div className="target-tg-ads">
               {targetTgAds.map(ad => renderTargetTgAd(ad))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="empty-state">
+              <p>No sponsored offers available at the moment</p>
+            </div>
+          )}
+        </div>
       </div>
       
       <InfoModal isOpen={isModalOpen} onClose={toggleModal} />
