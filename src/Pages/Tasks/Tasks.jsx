@@ -3,7 +3,7 @@ import Menu from '../../Assets/Menus/Menu/Menu';
 import './Tasks.css';
 import FixedTopSection from '../Home/Containers/TopSection/FixedTopSection';
 import InfoModal from '../../Assets/Modal/InfoModal';
-import { Diamond, Box, RefreshCw, AlertCircle, Info } from 'lucide-react';
+import { Diamond, Box, RefreshCw } from 'lucide-react';
 
 // Константы для рекламных сетей
 const MONETAG_ZONE_ID = "9896477";
@@ -49,14 +49,6 @@ function Tasks({ isActive, userData, updateUserData }) {
   const [dailyLoginRemainingTime, setDailyLoginRemainingTime] = useState(0);
   const [targetTgAds, setTargetTgAds] = useState([]);
   const [isTargetTgLoading, setIsTargetTgLoading] = useState(false);
-  const [targetTgError, setTargetTgError] = useState(null);
-  const [debugInfo, setDebugInfo] = useState({
-    requestUrl: '',
-    responseStatus: '',
-    responseData: null,
-    userData: null,
-    timestamp: ''
-  });
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
@@ -121,84 +113,26 @@ function Tasks({ isActive, userData, updateUserData }) {
   // Загрузка рекламы Target.TG
   const loadTargetTgAds = useCallback(async () => {
     if (!userData?.telegram_user_id) {
-      setTargetTgError("User ID not available");
-      setDebugInfo(prev => ({
-        ...prev,
-        userData: userData,
-        timestamp: new Date().toISOString(),
-        error: "User ID not available"
-      }));
+      console.log("User ID not available yet");
       return;
     }
     
     setIsTargetTgLoading(true);
-    setTargetTgError(null);
-    
-    const requestUrl = `https://tg-adsnet-core.target.tg/api/ads/creatives/?tg_id=${userData.telegram_user_id}&widget_size=3&tg_premium=false&widget_id=${TARGET_TG_WIDGET_ID}`;
-    
-    setDebugInfo({
-      requestUrl: requestUrl,
-      responseStatus: 'loading',
-      responseData: null,
-      userData: { 
-        telegram_user_id: userData.telegram_user_id,
-        has_premium: userData.has_premium || false
-      },
-      timestamp: new Date().toISOString(),
-      error: null
-    });
     
     try {
-      console.log("Loading Target.TG ads from:", requestUrl);
-      const response = await fetch(requestUrl);
-      
-      const responseInfo = {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries([...response.headers]),
-        url: response.url
-      };
-      
-      console.log("Target.TG response:", responseInfo);
+      const response = await fetch(
+        `https://tg-adsnet-core.target.tg/api/ads/creatives/?tg_id=${userData.telegram_user_id}&widget_size=3&tg_premium=false&widget_id=${TARGET_TG_WIDGET_ID}`
+      );
       
       if (response.ok) {
         const data = await response.json();
         console.log("Target.TG ads loaded:", data);
-        
-        setDebugInfo(prev => ({
-          ...prev,
-          responseStatus: `success (${response.status})`,
-          responseData: data,
-          timestamp: new Date().toISOString()
-        }));
-        
         setTargetTgAds(data);
       } else {
-        const errorText = await response.text();
-        console.error('Failed to load Target.TG ads:', response.status, errorText);
-        
-        setDebugInfo(prev => ({
-          ...prev,
-          responseStatus: `error (${response.status})`,
-          responseData: { error: errorText },
-          timestamp: new Date().toISOString(),
-          error: `Error ${response.status}: ${errorText}`
-        }));
-        
-        setTargetTgError(`Error ${response.status}: ${errorText}`);
+        console.error('Failed to load Target.TG ads:', response.status);
       }
     } catch (error) {
       console.error('Error loading Target.TG ads:', error);
-      
-      setDebugInfo(prev => ({
-        ...prev,
-        responseStatus: 'network error',
-        responseData: { error: error.message },
-        timestamp: new Date().toISOString(),
-        error: `Network error: ${error.message}`
-      }));
-      
-      setTargetTgError(`Network error: ${error.message}`);
     } finally {
       setIsTargetTgLoading(false);
     }
@@ -545,73 +479,6 @@ function Tasks({ isActive, userData, updateUserData }) {
     );
   };
 
-  const renderDebugInfo = () => {
-    return (
-      <div className="debug-info">
-        <div className="debug-header">
-          <Info size={16} />
-          <span>Debug Information</span>
-          <button 
-            className="refresh-btn"
-            onClick={loadTargetTgAds}
-            title="Refresh ads"
-          >
-            <RefreshCw size={14} />
-          </button>
-        </div>
-        
-        <div className="debug-section">
-          <h4>Request Details:</h4>
-          <div className="debug-item">
-            <span className="debug-label">URL:</span>
-            <span className="debug-value">{debugInfo.requestUrl || 'Not requested yet'}</span>
-          </div>
-          <div className="debug-item">
-            <span className="debug-label">Widget ID:</span>
-            <span className="debug-value">{TARGET_TG_WIDGET_ID}</span>
-          </div>
-          <div className="debug-item">
-            <span className="debug-label">User ID:</span>
-            <span className="debug-value">{debugInfo.userData?.telegram_user_id || 'Not available'}</span>
-          </div>
-        </div>
-        
-        <div className="debug-section">
-          <h4>Response Status:</h4>
-          <div className="debug-item">
-            <span className="debug-label">Status:</span>
-            <span className={`debug-value ${debugInfo.responseStatus?.includes('error') ? 'error' : ''}`}>
-              {debugInfo.responseStatus || 'Not requested yet'}
-            </span>
-          </div>
-          <div className="debug-item">
-            <span className="debug-label">Timestamp:</span>
-            <span className="debug-value">{debugInfo.timestamp || 'N/A'}</span>
-          </div>
-        </div>
-        
-        {debugInfo.error && (
-          <div className="debug-section error">
-            <h4>
-              <AlertCircle size={16} />
-              Error:
-            </h4>
-            <div className="debug-item">
-              <span className="debug-value error">{debugInfo.error}</span>
-            </div>
-          </div>
-        )}
-        
-        <div className="debug-section">
-          <h4>Response Data:</h4>
-          <pre className="debug-json">
-            {debugInfo.responseData ? JSON.stringify(debugInfo.responseData, null, 2) : 'No data'}
-          </pre>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="tasks-page dark-theme">
       <FixedTopSection 
@@ -666,17 +533,18 @@ function Tasks({ isActive, userData, updateUserData }) {
         <div className="tasks-section">
           <div className="section-header">
             <h2>Sponsored Offers</h2>
-            {targetTgError && (
-              <div className="error-message">
-                <AlertCircle size={16} />
-                Error loading ads: {targetTgError}
-              </div>
-            )}
+            <button 
+              className="refresh-btn"
+              onClick={loadTargetTgAds}
+              title="Refresh ads"
+              disabled={isTargetTgLoading}
+            >
+              <RefreshCw size={16} className={isTargetTgLoading ? "spinner" : ""} />
+            </button>
           </div>
           
           {isTargetTgLoading ? (
             <div className="empty-state">
-              <RefreshCw className="spinner" size={20} />
               <p>Loading sponsored offers...</p>
             </div>
           ) : targetTgAds.length > 0 ? (
@@ -688,9 +556,6 @@ function Tasks({ isActive, userData, updateUserData }) {
               <p>No sponsored offers available at the moment</p>
             </div>
           )}
-          
-          {/* Отладочная информация */}
-          {renderDebugInfo()}
         </div>
       </div>
       
