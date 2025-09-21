@@ -7,7 +7,7 @@ import { Diamond, Box } from 'lucide-react';
 
 // Константы для рекламных сетей
 const MONETAG_ZONE_ID = "9896477";
-const TARGET_TG_WIDGET_ID = "8"; // Ваш Widget ID для Target.TG
+const TARGET_TG_WIDGET_ID = "10"; // Ваш Widget ID для Target.TG
 
 function Tasks({ isActive, userData, updateUserData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -466,7 +466,7 @@ function Tasks({ isActive, userData, updateUserData }) {
           rel="noopener noreferrer"
           className="ad-link"
         >
-          View Offer
+          View
         </a>
       </div>
     );
@@ -523,25 +523,17 @@ function Tasks({ isActive, userData, updateUserData }) {
         </div>
 
         {/* Блок рекламы Target.TG */}
-        <div className="tasks-section">
-          <div className="section-header">
-            <h2>Sponsored Offers</h2>
-          </div>
-          
-          {isTargetTgLoading ? (
-            <div className="empty-state">
-              <p>Loading ads...</p>
+        {targetTgAds.length > 0 && (
+          <div className="tasks-section">
+            <div className="section-header">
+              <h2>Sponsored Offers</h2>
             </div>
-          ) : targetTgAds.length > 0 ? (
+            
             <div className="target-tg-ads">
               {targetTgAds.map(ad => renderTargetTgAd(ad))}
             </div>
-          ) : (
-            <div className="empty-state">
-              <p>No sponsored offers available</p>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
       
       <InfoModal isOpen={isModalOpen} onClose={toggleModal} />
