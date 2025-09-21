@@ -7,7 +7,7 @@ import { Diamond, Box, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
 
 // Константы для рекламных сетей
 const MONETAG_ZONE_ID = "9896477";
-const TARGET_TG_WIDGET_ID = "10";
+const TARGET_TG_WIDGET_ID = "ВАШ_WIDGET_ID"; // Замените на ваш widget_id
 
 function Tasks({ isActive, userData, updateUserData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -126,28 +126,17 @@ function Tasks({ isActive, userData, updateUserData }) {
     setTargetTgError(null);
     
     try {
-      const url = new URL('https://api.targettg.com/api/v2/ads');
+      // Формируем URL согласно новой документации
+      const url = new URL('https://tg-adsnet-core.target.tg/api/ads/creatives/');
       
-      // Обновленные параметры согласно новой документации
-      url.searchParams.append('widgetId', TARGET_TG_WIDGET_ID);
-      url.searchParams.append('limit', '5');
-      url.searchParams.append('format', 'json');
+      // Добавляем обязательные параметры
+      url.searchParams.append('tg_id', userData?.telegram_user_id || '');
+      url.searchParams.append('widget_size', '5'); // Запрашиваем до 5 креативов
+      url.searchParams.append('tg_premium', 'false'); // По умолчанию false
+      url.searchParams.append('widget_id', TARGET_TG_WIDGET_ID);
       
       addLog(`Starting request to: ${url.toString()}`, 'info');
       
-      // Добавляем идентификатор пользователя
-      if (userData?.telegram_user_id) {
-        url.searchParams.append('userId', userData.telegram_user_id);
-        addLog(`Added userId parameter: ${userData.telegram_user_id}`, 'info');
-      } else {
-        const errorMsg = 'User identification is required to load ads';
-        addLog(errorMsg, 'error');
-        setTargetTgError(errorMsg);
-        setIsTargetTgLoading(false);
-        return;
-      }
-      
-      addLog('Sending request to Target.TG API...', 'info');
       const response = await fetch(url.toString(), {
         headers: {
           'Accept': 'application/json',
@@ -164,12 +153,14 @@ function Tasks({ isActive, userData, updateUserData }) {
         const data = await response.json();
         addLog(`Successfully loaded ads from Target.TG`, 'success');
         
-        if (data && data.ads && data.ads.length > 0) {
-          setTargetTgAds(data.ads);
+        // Обрабатываем ответ (может быть массивом или одним объектом)
+        if (Array.isArray(data)) {
+          setTargetTgAds(data);
+        } else if (data && typeof data === 'object') {
+          setTargetTgAds([data]);
         } else {
           setTargetTgAds([]);
-          const infoMsg = "No ads available at the moment. Please try again later.";
-          addLog(infoMsg, 'info');
+          addLog('Unexpected response format', 'warning');
         }
       } else if (response.status === 429) {
         const errorMsg = "Too many requests. Please try again later.";
@@ -511,7 +502,7 @@ function Tasks({ isActive, userData, updateUserData }) {
 
   const renderTargetTgAd = (ad) => {
     return (
-      <div key={ad.id} className="target-tg-ad">
+      <div key={ad.creative_id} className="target-tg-ad">
         <div className="ad-content">
           {ad.icon && (
             <img src={ad.icon} alt={ad.title} className="ad-icon" />
@@ -519,13 +510,10 @@ function Tasks({ isActive, userData, updateUserData }) {
           <div className="ad-text">
             <h4 className="ad-title">{ad.title || 'Sponsored Offer'}</h4>
             <p className="ad-description">{ad.description || 'Special offer for our users'}</p>
-            {ad.reward && (
-              <p className="ad-reward">Reward: {ad.reward}</p>
-            )}
           </div>
         </div>
         <a 
-          href={ad.link || '#'} 
+          href={ad.click_link || '#'} 
           target="_blank" 
           rel="noopener noreferrer"
           className="ad-link"
