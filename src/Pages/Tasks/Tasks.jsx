@@ -5,10 +5,9 @@ import FixedTopSection from '../Home/Containers/TopSection/FixedTopSection';
 import InfoModal from '../../Assets/Modal/InfoModal';
 import { Diamond, Box } from 'lucide-react';
 
-// Константа для зоны Monetag
+// Константы для рекламных сетей
 const MONETAG_ZONE_ID = "9896477";
-// Константа для Target.TG - используем Site ID
-const TARGET_TG_SITE_ID = "9";
+const TARGET_TG_WIDGET_ID = "8"; // Ваш Widget ID для Target.TG
 
 function Tasks({ isActive, userData, updateUserData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -119,7 +118,7 @@ function Tasks({ isActive, userData, updateUserData }) {
       setIsTargetTgLoading(true);
       try {
         const response = await fetch(
-          `https://tg-adsnet-core.target.tg/api/ads/creatives/?tg_id=${userData.telegram_user_id}&widget_size=3&tg_premium=false&site_id=${TARGET_TG_SITE_ID}`
+          `https://tg-adsnet-core.target.tg/api/ads/creatives/?tg_id=${userData.telegram_user_id}&widget_size=3&tg_premium=false&widget_id=${TARGET_TG_WIDGET_ID}`
         );
         
         if (response.ok) {
