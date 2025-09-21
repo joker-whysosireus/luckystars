@@ -8,7 +8,6 @@ import { Diamond, Box, RefreshCw } from 'lucide-react';
 // Константы для рекламных сетей
 const MONETAG_ZONE_ID = "9896477";
 const TARGET_TG_WIDGET_ID = "10";
-const TARGET_TG_SITE_ID = "10";
 
 function Tasks({ isActive, userData, updateUserData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -118,11 +117,9 @@ function Tasks({ isActive, userData, updateUserData }) {
     setTargetTgError(null);
     
     try {
-      // Формируем правильный URL с учетом Site ID и Widget ID
       const url = new URL('https://tg-adsnet-core.target.tg/api/ads/creatives/');
       
-      // Добавляем необходимые параметры
-      url.searchParams.append('site_id', TARGET_TG_SITE_ID);
+      // Добавляем необходимые параметры согласно документации
       url.searchParams.append('widget_id', TARGET_TG_WIDGET_ID);
       url.searchParams.append('widget_size', '3');
       url.searchParams.append('tg_premium', 'false');
@@ -130,6 +127,10 @@ function Tasks({ isActive, userData, updateUserData }) {
       // Если у нас есть ID пользователя Telegram, добавляем его
       if (userData?.telegram_user_id) {
         url.searchParams.append('tg_id', userData.telegram_user_id);
+      } else {
+        setTargetTgError('User identification is required to load ads');
+        setIsTargetTgLoading(false);
+        return;
       }
       
       const response = await fetch(url.toString());
@@ -141,41 +142,18 @@ function Tasks({ isActive, userData, updateUserData }) {
         if (data && data.length > 0) {
           setTargetTgAds(data);
         } else {
-          // Если данные пустые, устанавливаем тестовые данные для демонстрации
-          setTargetTgAds([{
-            creative_id: 1,
-            icon: "https://via.placeholder.com/50",
-            title: "Пример рекламного предложения",
-            description: "Установите наше приложение и получите бонус!",
-            click_link: "https://example.com"
-          }]);
-          setTargetTgError("Нет доступных рекламных предложений. Показан демо-контент.");
+          setTargetTgAds([]);
+          setTargetTgError("No ads available at the moment. Please try again later.");
         }
       } else {
         console.error('Failed to load Target.TG ads:', response.status);
-        setTargetTgError(`Ошибка загрузки: ${response.status}`);
-        
-        // Устанавливаем тестовые данные в случае ошибки
-        setTargetTgAds([{
-          creative_id: 1,
-          icon: "https://via.placeholder.com/50",
-          title: "Пример рекламного предложения",
-          description: "Установите наше приложение и получите бонус!",
-          click_link: "https://example.com"
-        }]);
+        setTargetTgError(`Failed to load ads: ${response.status}`);
+        setTargetTgAds([]);
       }
     } catch (error) {
       console.error('Error loading Target.TG ads:', error);
-      setTargetTgError(`Ошибка: ${error.message}`);
-      
-      // Устанавливаем тестовые данные в случае ошибки
-      setTargetTgAds([{
-        creative_id: 1,
-        icon: "https://via.placeholder.com/50",
-        title: "Пример рекламного предложения",
-        description: "Установите наше приложение и получите бонус!",
-        click_link: "https://example.com"
-      }]);
+      setTargetTgError(`Network error: ${error.message}`);
+      setTargetTgAds([]);
     } finally {
       setIsTargetTgLoading(false);
     }
