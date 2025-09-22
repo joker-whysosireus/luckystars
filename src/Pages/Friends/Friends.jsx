@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Menu from '../../Assets/Menus/Menu/Menu';
 import './Friends.css';
 import FixedTopSection from '../Home/Containers/TopSection/FixedTopSection';
@@ -9,6 +9,56 @@ import { Box, Diamond } from 'lucide-react';
 
 function Friends({ userData, updateUserData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Автоматический показ рекламы каждые 30 секунд
+  useEffect(() => {
+    let adInterval;
+
+    // Запускаем рекламу не сразу, а через 5 секунд после загрузки компонента
+    const initialDelay = setTimeout(() => {
+      // Первый показ рекламы
+      if (window.showAd) {
+        console.log('Показ первой рекламы');
+        window.showAd();
+      }
+
+      // Устанавливаем интервал для повторного показа каждые 30 секунд
+      adInterval = setInterval(() => {
+        if (window.showAd) {
+          console.log('Автоматический показ рекламы (30 сек)');
+          window.showAd();
+        } else {
+          console.warn('Функция showAd не доступна');
+        }
+      }, 30000); // 30 секунд
+
+    }, 5000); // Начальная задержка 5 секунд
+
+    // Очистка при размонтировании компонента
+    return () => {
+      clearTimeout(initialDelay);
+      clearInterval(adInterval);
+      console.log('Очистка интервала рекламы');
+    };
+  }, []);
+
+  // Дополнительный эффект для показа рекламы при изменении видимости страницы
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && window.showAd) {
+        // Если страница снова стала активной, показываем рекламу
+        setTimeout(() => {
+          window.showAd();
+        }, 2000);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
