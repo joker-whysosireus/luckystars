@@ -1,17 +1,58 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="stylesheet" href="index.css">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src='//munqu.com/sdk.js' data-zone='9896477' data-sdk='show_9896477'></script>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
     <title>Gifts Blocks</title>
-  </head>
-  <body>
+    
+    <!-- Добавьте эту строку обратно -->
+    <link rel="stylesheet" href="index.css">
+    
+    <!-- Подключение Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- Подключение GigaPub с улучшенным скриптом и резервными серверами -->
+    <script data-project-id="3186">
+      !function(){
+        var s=document.currentScript,p=s.getAttribute('data-project-id')||'default';
+        var d=['https://ad.gigapub.tech','https://ru-ad.gigapub.tech'],i=0,t,sc;
+        function l(){
+          sc=document.createElement('script');
+          sc.async=true;
+          sc.src=d[i]+'/script?id='+p;
+          clearTimeout(t);
+          t=setTimeout(function(){
+            sc.onload=sc.onerror=null;
+            sc.src='';
+            if(++i<d.length)l();
+          },15000);
+          sc.onload=function(){clearTimeout(t)};
+          sc.onerror=function(){clearTimeout(t);if(++i<d.length)l()};
+          document.head.appendChild(sc);
+        }
+        l();
+      }();
+    </script>
+    
+    <!-- Подключение скрипта Adexium -->
+    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
+    
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', () => {
+            const adexiumAds = new AdexiumWidget({
+                wid: 'e279c53e-42c1-42b9-93be-a535d900a92e',
+                adFormat: 'push-like',
+                firstAdImpressionIntervalInSeconds: 30,
+                adImpressionIntervalInSeconds: 30,
+                debug: false,
+                isFullScreen: false
+            });
+            adexiumAds.autoMode();
+        });
+    </script>
+</head>
+<body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-  </body>
+</body>
 </html>

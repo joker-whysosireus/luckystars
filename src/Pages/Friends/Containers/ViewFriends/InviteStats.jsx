@@ -18,7 +18,7 @@ function InviteStats({ userData }) {
         </div>
         
         <div className="stat-card">
-          <div className="stat-icon bg-blue">
+          <div className="stat-icon bg-yellow">
             <Diamond size={24} color="#3b82f6" />
           </div>
           <div className="stat-value">{shardsForInvited}</div>
@@ -26,8 +26,8 @@ function InviteStats({ userData }) {
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon bg-green">
-            <Box size={24} color="#3a3a3a" />
+          <div className="stat-icon bg-yellow">
+            <Box size={24} color="#B9BBBC" />
           </div>
           <div className="stat-value">{bloksForInvited}</div>
           <div className="stat-label">Blocks from Friends</div>

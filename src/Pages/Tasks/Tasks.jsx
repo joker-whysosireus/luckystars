@@ -3,36 +3,37 @@ import Menu from '../../Assets/Menus/Menu/Menu';
 import './Tasks.css';
 import FixedTopSection from '../Home/Containers/TopSection/FixedTopSection';
 import InfoModal from '../../Assets/Modal/InfoModal';
-import { Diamond, Box, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
+import DailyTasks from './Containers/Day/DailyTasks';
+import MainTasks from './Containers/Main/MainTasks';
+import PartnersTasks from './Containers/Partners/PartnersTasks';
 
-// Константы для рекламных сетей
-const MONETAG_ZONE_ID = "9896477";
-const TARGET_TG_WIDGET_ID = "10"; // Ваш widget_id
+// Константа для GigaPub Project ID
+const GIGAPUB_PROJECT_ID = "3186";
 
 function Tasks({ isActive, userData, updateUserData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [monetagAdCounts, setMonetagAdCounts] = useState(() => {
-    const storedCounts = localStorage.getItem('monetagAdCounts');
+  const [gigapubAdCounts, setGigapubAdCounts] = useState(() => {
+    const storedCounts = localStorage.getItem('gigapubAdCounts');
     return storedCounts ? JSON.parse(storedCounts) : {
       1: 0, // Watch 10 Ads
       8: 0, // Watch 50 Ads
       9: 0  // Watch 100 Ads
     };
   });
-  const [monetagCooldowns, setMonetagCooldowns] = useState(() => {
-    const storedCooldowns = localStorage.getItem('monetagCooldowns');
+  const [gigapubCooldowns, setGigapubCooldowns] = useState(() => {
+    const storedCooldowns = localStorage.getItem('gigapubCooldowns');
     return storedCooldowns ? JSON.parse(storedCooldowns) : {
       1: 0, // Watch 10 Ads
       8: 0, // Watch 50 Ads
       9: 0  // Watch 100 Ads
     };
   });
-  const [isMonetagLoading, setIsMonetagLoading] = useState({
+  const [isGigapubLoading, setIsGigapubLoading] = useState({
     1: false, // Watch 10 Ads
     8: false, // Watch 50 Ads
     9: false  // Watch 100 Ads
   });
-  const [monetagAdAvailable, setMonetagAdAvailable] = useState(false);
+  const [gigapubAdAvailable, setGigapubAdAvailable] = useState(false);
   const [remainingTimes, setRemainingTimes] = useState({
     1: 0, // Watch 10 Ads
     8: 0, // Watch 50 Ads
@@ -47,11 +48,6 @@ function Tasks({ isActive, userData, updateUserData }) {
     return stored ? parseInt(stored) : 0;
   });
   const [dailyLoginRemainingTime, setDailyLoginRemainingTime] = useState(0);
-  const [targetTgAds, setTargetTgAds] = useState([]);
-  const [isTargetTgLoading, setIsTargetTgLoading] = useState(false);
-  const [targetTgError, setTargetTgError] = useState(null);
-  const [targetTgLogs, setTargetTgLogs] = useState([]);
-  const [showLogs, setShowLogs] = useState(false);
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
@@ -59,21 +55,21 @@ function Tasks({ isActive, userData, updateUserData }) {
 
   // Сохранение состояний в localStorage
   useEffect(() => {
-    localStorage.setItem('monetagAdCounts', JSON.stringify(monetagAdCounts));
-    localStorage.setItem('monetagCooldowns', JSON.stringify(monetagCooldowns));
+    localStorage.setItem('gigapubAdCounts', JSON.stringify(gigapubAdCounts));
+    localStorage.setItem('gigapubCooldowns', JSON.stringify(gigapubCooldowns));
     localStorage.setItem('claimedTasks', JSON.stringify(claimedTasks));
     localStorage.setItem('dailyLoginCooldown', dailyLoginCooldown.toString());
-  }, [monetagAdCounts, monetagCooldowns, claimedTasks, dailyLoginCooldown]);
+  }, [gigapubAdCounts, gigapubCooldowns, claimedTasks, dailyLoginCooldown]);
 
-  // Вычисление оставшегося времени для Monetag задач
+  // Вычисление оставшегося времени для GigaPub задач
   useEffect(() => {
     const calculateRemainingTimes = () => {
       const now = Date.now();
       const newRemainingTimes = {};
       
-      Object.keys(monetagCooldowns).forEach(taskId => {
-        const timeLeft = monetagCooldowns[taskId] > now ? 
-          Math.floor((monetagCooldowns[taskId] - now) / 1000) : 0;
+      Object.keys(gigapubCooldowns).forEach(taskId => {
+        const timeLeft = gigapubCooldowns[taskId] > now ? 
+          Math.floor((gigapubCooldowns[taskId] - now) / 1000) : 0;
         newRemainingTimes[taskId] = timeLeft;
       });
       
@@ -83,7 +79,7 @@ function Tasks({ isActive, userData, updateUserData }) {
     calculateRemainingTimes();
     const interval = setInterval(calculateRemainingTimes, 1000);
     return () => clearInterval(interval);
-  }, [monetagCooldowns]);
+  }, [gigapubCooldowns]);
 
   // Вычисление оставшегося времени для ежедневного входа
   useEffect(() => {
@@ -98,102 +94,25 @@ function Tasks({ isActive, userData, updateUserData }) {
     return () => clearInterval(interval);
   }, [dailyLoginCooldown]);
 
-  // Проверка доступности функции Monetag
+  // Проверка доступности функции GigaPub
   useEffect(() => {
-    const checkMonetagFunction = () => {
-      if (window[`show_${MONETAG_ZONE_ID}`] && typeof window[`show_${MONETAG_ZONE_ID}`] === 'function') {
-        setMonetagAdAvailable(true);
+    const checkGigapubFunction = () => {
+      if (window.showGiga && typeof window.showGiga === 'function') {
+        setGigapubAdAvailable(true);
       } else {
-        setMonetagAdAvailable(false);
+        setGigapubAdAvailable(false);
+        // Fallback логика: если GigaPub недоступен, используйте резервный метод
+        if (window.AdGigaFallback && typeof window.AdGigaFallback === 'function') {
+          window.showGiga = () => window.AdGigaFallback();
+          setGigapubAdAvailable(true);
+        }
       }
     };
     
-    checkMonetagFunction();
-    const intervalId = setInterval(checkMonetagFunction, 1000);
+    checkGigapubFunction();
+    const intervalId = setInterval(checkGigapubFunction, 1000);
     return () => clearInterval(intervalId);
-  }, []);
-
-  // Функция для добавления логов
-  const addLog = useCallback((message, type = 'info') => {
-    const timestamp = new Date().toISOString();
-    const newLog = { timestamp, message, type };
-    setTargetTgLogs(prev => [newLog, ...prev].slice(0, 20)); // Храним только последние 20 логов
-  }, []);
-
-  // Загрузка рекламы Target.TG
-  const loadTargetTgAds = useCallback(async () => {
-    setIsTargetTgLoading(true);
-    setTargetTgError(null);
-    setTargetTgAds([]); // Сбрасываем предыдущие рекламные объявления
-    
-    try {
-      const url = new URL('https://tg-adsnet-core.target.tg/api/ads/creatives/');
-      
-      // Добавляем обязательные параметры
-      url.searchParams.append('tg_id', userData?.telegram_user_id || '');
-      url.searchParams.append('widget_size', '5');
-      url.searchParams.append('tg_premium', 'false');
-      url.searchParams.append('widget_id', TARGET_TG_WIDGET_ID);
-      
-      addLog(`Starting request to: ${url.toString()}`, 'info');
-      
-      const response = await fetch(url.toString(), {
-        headers: {
-          'Accept': 'application/json',
-        }
-      });
-      
-      addLog(`Received response with status: ${response.status}`, 'info');
-      
-      if (response.ok) {
-        const data = await response.json();
-        addLog(`Successfully loaded ads from Target.TG`, 'success');
-        
-        // Детальное логирование полученных данных
-        addLog(`Response data: ${JSON.stringify(data)}`, 'debug');
-        
-        // Проверяем различные форматы ответа
-        let ads = [];
-        
-        if (Array.isArray(data)) {
-          // Если ответ - массив
-          ads = data;
-        } else if (data && typeof data === 'object') {
-          // Если ответ - одиночный объект
-          ads = [data];
-        } else if (data && data.creatives) {
-          // Если ответ содержит креативы в свойстве creatives
-          ads = data.creatives;
-        } else if (data && data.results) {
-          // Если ответ содержит результаты в свойстве results
-          ads = data.results;
-        }
-        
-        addLog(`Processed ${ads.length} ads for display`, 'info');
-        setTargetTgAds(ads);
-      } else if (response.status === 429) {
-        const errorMsg = "Too many requests. Please try again later.";
-        addLog(errorMsg, 'warning');
-        setTargetTgError(errorMsg);
-      } else {
-        const errorMsg = `Server error: ${response.status}`;
-        addLog(errorMsg, 'error');
-        setTargetTgError(errorMsg);
-      }
-    } catch (error) {
-      const errorMsg = `Network error: ${error.message}`;
-      addLog(errorMsg, 'error');
-      setTargetTgError(errorMsg);
-    } finally {
-      addLog('Request completed', 'info');
-      setIsTargetTgLoading(false);
-    }
-  }, [userData, addLog]);
-
-  useEffect(() => {
-    addLog('Component mounted, loading Target.TG ads...', 'info');
-    loadTargetTgAds();
-  }, [loadTargetTgAds, addLog]);
+  }, [GIGAPUB_PROJECT_ID]);
 
   const dailyTasks = [
     { 
@@ -223,30 +142,30 @@ function Tasks({ isActive, userData, updateUserData }) {
       title: 'Watch 10 Ads', 
       reward: 5, 
       rewardType: 'blocks',
-      progress: monetagAdCounts[1] || 0, 
+      progress: gigapubAdCounts[1] || 0, 
       total: 10, 
-      completed: (monetagAdCounts[1] || 0) >= 10,
-      type: 'monetag'
+      completed: (gigapubAdCounts[1] || 0) >= 10,
+      type: 'gigapub'
     },
     { 
       id: 8, 
       title: 'Watch 50 Ads', 
       reward: 25, 
       rewardType: 'blocks',
-      progress: monetagAdCounts[8] || 0, 
+      progress: gigapubAdCounts[8] || 0, 
       total: 50, 
-      completed: (monetagAdCounts[8] || 0) >= 50,
-      type: 'monetag'
+      completed: (gigapubAdCounts[8] || 0) >= 50,
+      type: 'gigapub'
     },
     { 
       id: 9, 
       title: 'Watch 100 Ads', 
       reward: 50, 
       rewardType: 'blocks',
-      progress: monetagAdCounts[9] || 0, 
+      progress: gigapubAdCounts[9] || 0, 
       total: 100, 
-      completed: (monetagAdCounts[9] || 0) >= 100,
-      type: 'monetag'
+      completed: (gigapubAdCounts[9] || 0) >= 100,
+      type: 'gigapub'
     },
     { 
       id: 2, 
@@ -306,38 +225,44 @@ function Tasks({ isActive, userData, updateUserData }) {
 
   const partnersTasks = [];
 
-  // Обработка показа рекламы Monetag для конкретной задачи
-  const handleMonetagAd = useCallback((taskId) => {
-    if (!monetagAdAvailable || isMonetagLoading[taskId] || remainingTimes[taskId] > 0) return;
+  // Обработка показа рекламы GigaPub для конкретной задачи
+  const handleGigapubAd = useCallback((taskId) => {
+    if (!gigapubAdAvailable || isGigapubLoading[taskId] || remainingTimes[taskId] > 0) return;
     
-    setIsMonetagLoading(prev => ({ ...prev, [taskId]: true }));
+    setIsGigapubLoading(prev => ({ ...prev, [taskId]: true }));
     
-    const showAdFunction = window[`show_${MONETAG_ZONE_ID}`];
-    
-    if (typeof showAdFunction !== 'function') {
-      console.error('Monetag show function not available');
-      setIsMonetagLoading(prev => ({ ...prev, [taskId]: false }));
+    if (typeof window.showGiga !== 'function') {
+      console.error('GigaPub show function not available');
+      setIsGigapubLoading(prev => ({ ...prev, [taskId]: false }));
       return;
     }
     
-    showAdFunction({ 
-      ymid: userData.telegram_user_id || 'anonymous'
-    })
-    .then(() => {
-      const newCount = (monetagAdCounts[taskId] || 0) + 1;
-      setMonetagAdCounts(prev => ({ ...prev, [taskId]: newCount }));
-      
-      // Устанавливаем кулдаун 3 секунды после каждого просмотра
-      const cooldownEnd = Date.now() + 3000;
-      setMonetagCooldowns(prev => ({ ...prev, [taskId]: cooldownEnd }));
-    })
-    .catch((error) => {
-      console.error('Monetag ad error:', error);
-    })
-    .finally(() => {
-      setIsMonetagLoading(prev => ({ ...prev, [taskId]: false }));
-    });
-  }, [monetagAdAvailable, isMonetagLoading, remainingTimes, userData, monetagAdCounts]);
+    window.showGiga()
+      .then(() => {
+        const newCount = (gigapubAdCounts[taskId] || 0) + 1;
+        setGigapubAdCounts(prev => ({ ...prev, [taskId]: newCount }));
+        const cooldownEnd = Date.now() + 3000;
+        setGigapubCooldowns(prev => ({ ...prev, [taskId]: cooldownEnd }));
+      })
+      .catch((error) => {
+        console.error('GigaPub ad error:', error);
+        if (window.AdGigaFallback) {
+          window.AdGigaFallback()
+            .then(() => {
+              const newCount = (gigapubAdCounts[taskId] || 0) + 1;
+              setGigapubAdCounts(prev => ({ ...prev, [taskId]: newCount }));
+              const cooldownEnd = Date.now() + 3000;
+              setGigapubCooldowns(prev => ({ ...prev, [taskId]: cooldownEnd }));
+            })
+            .catch((fallbackError) => {
+              console.error('Fallback ad error:', fallbackError);
+            });
+        }
+      })
+      .finally(() => {
+        setIsGigapubLoading(prev => ({ ...prev, [taskId]: false }));
+      });
+  }, [gigapubAdAvailable, isGigapubLoading, remainingTimes, gigapubAdCounts]);
 
   // Обработка ежедневного входа
   const handleDailyLogin = useCallback(async () => {
@@ -421,15 +346,6 @@ function Tasks({ isActive, userData, updateUserData }) {
     }
   };
 
-  const renderRewardText = (reward, rewardType) => {
-    return (
-      <span className="reward-text">
-        {reward} 
-        {rewardType === 'diamonds' ? <Diamond size={16} /> : <Box size={16} />}
-      </span>
-    );
-  };
-
   const formatTime = (seconds) => {
     return `${seconds}s`;
   };
@@ -446,120 +362,6 @@ function Tasks({ isActive, userData, updateUserData }) {
     }
   };
 
-  const renderTaskItem = (task, section) => {
-    const progressPercentage = (task.progress / task.total) * 100;
-    const isClaimed = claimedTasks.includes(task.id);
-    const canClaim = task.completed && !isClaimed;
-    
-    return (
-      <div key={task.id} className="task">
-        <div className="task-content">
-          <div className="task-title">{task.title}</div>
-          <div className="task-reward">
-            Reward: {renderRewardText(task.reward, task.rewardType)}
-          </div>
-          <div className="progress-container">
-            <div className="progress-bar" style={{ width: `${progressPercentage}%` }}></div>
-          </div>
-        </div>
-        {task.type === 'monetag' ? (
-          isClaimed ? (
-            <button className="claim-btn done" disabled>
-              Done!
-            </button>
-          ) : (
-            <button 
-              className={`claim-btn ${remainingTimes[task.id] > 0 ? 'disabled' : ''}`}
-              onClick={() => handleMonetagAd(task.id)}
-              disabled={remainingTimes[task.id] > 0 || isMonetagLoading[task.id] || !monetagAdAvailable}
-            >
-              {!monetagAdAvailable ? "Unavailable" : 
-               remainingTimes[task.id] > 0 ? formatTime(remainingTimes[task.id]) : 
-               isMonetagLoading[task.id] ? "Loading..." : 
-               `${task.progress}/${task.total}`}
-            </button>
-          )
-        ) : task.type === 'dailyLogin' ? (
-          isClaimed || dailyLoginRemainingTime > 0 ? (
-            <button 
-              className="claim-btn daily-login disabled"
-              disabled
-            >
-              {dailyLoginRemainingTime > 0 ? formatDailyLoginTime(dailyLoginRemainingTime) : 'Done!'}
-            </button>
-          ) : (
-            <button 
-              className="claim-btn active"
-              onClick={handleDailyLogin}
-            >
-              Claim
-            </button>
-          )
-        ) : (
-          <button 
-            className={`claim-btn ${canClaim ? 'active' : isClaimed ? 'done' : 'disabled'}`}
-            onClick={() => canClaim && handleClaimReward(task, section)}
-            disabled={isClaimed || !canClaim}
-          >
-            {isClaimed ? 'Done!' : canClaim ? 'Claim' : `${task.progress}/${task.total}`}
-          </button>
-        )}
-      </div>
-    );
-  };
-
-  const renderTargetTgAd = (ad) => {
-    // Проверяем наличие обязательных полей
-    if (!ad || (!ad.title && !ad.description && !ad.icon)) {
-      addLog(`Skipping invalid ad: ${JSON.stringify(ad)}`, 'warning');
-      return null;
-    }
-    
-    return (
-      <div key={ad.creative_id || ad.id || Math.random()} className="target-tg-ad">
-        <div className="ad-content">
-          {ad.icon && (
-            <img 
-              src={ad.icon} 
-              alt={ad.title || 'Sponsored Offer'} 
-              className="ad-icon"
-              onError={(e) => {
-                // Обработка ошибок загрузки изображения
-                e.target.style.display = 'none';
-                addLog(`Failed to load ad image: ${ad.icon}`, 'warning');
-              }}
-            />
-          )}
-          <div className="ad-text">
-            <h4 className="ad-title">{ad.title || 'Sponsored Offer'}</h4>
-            <p className="ad-description">{ad.description || 'Special offer for our users'}</p>
-          </div>
-        </div>
-        {ad.click_link && (
-          <a 
-            href={ad.click_link} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="ad-link"
-            onClick={() => addLog(`Clicked on ad: ${ad.title || 'Unknown'}`)}
-          >
-            Participate
-          </a>
-        )}
-      </div>
-    );
-  };
-
-  const renderLogItem = (log, index) => {
-    const logTime = new Date(log.timestamp).toLocaleTimeString();
-    return (
-      <div key={index} className={`log-item log-${log.type}`}>
-        <span className="log-time">[{logTime}]</span>
-        <span className="log-message">{log.message}</span>
-      </div>
-    );
-  };
-
   return (
     <div className="tasks-page dark-theme">
       <FixedTopSection 
@@ -568,103 +370,26 @@ function Tasks({ isActive, userData, updateUserData }) {
       />
       
       <div className="tasks-content">
-        <div className="tasks-section">
-          <div className="section-header">
-            <h2>Daily Tasks</h2>
-          </div>
-          
-          {dailyTasks.length > 0 ? (
-            dailyTasks.map(task => renderTaskItem(task, 'daily'))
-          ) : (
-            <div className="empty-state">
-              <p>No daily tasks available</p>
-            </div>
-          )}
-        </div>
+        <DailyTasks 
+          tasks={dailyTasks}
+          claimedTasks={claimedTasks}
+          dailyLoginRemainingTime={dailyLoginRemainingTime}
+          handleDailyLogin={handleDailyLogin}
+          formatDailyLoginTime={formatDailyLoginTime}
+        />
         
-        <div className="tasks-section">
-          <div className="section-header">
-            <h2>Main Tasks</h2>
-          </div>
-          
-          {mainTasks.length > 0 ? (
-            mainTasks.map(task => renderTaskItem(task, 'main'))
-          ) : (
-            <div className="empty-state">
-              <p>No tasks available</p>
-            </div>
-          )}
-        </div>
+        <MainTasks 
+          tasks={mainTasks}
+          claimedTasks={claimedTasks}
+          gigapubAdAvailable={gigapubAdAvailable}
+          remainingTimes={remainingTimes}
+          isGigapubLoading={isGigapubLoading}
+          handleGigapubAd={handleGigapubAd}
+          handleClaimReward={handleClaimReward}
+          formatTime={formatTime}
+        />
         
-        <div className="tasks-section">
-          <div className="section-header">
-            <h2>Partners Tasks</h2>
-          </div>
-          
-          {partnersTasks.length > 0 ? (
-            partnersTasks.map(task => renderTaskItem(task, 'partners'))
-          ) : (
-            <div className="empty-state">
-              <p>No partner tasks available</p>
-            </div>
-          )}
-        </div>
-
-        {/* Блок рекламы Target.TG */}
-        <div className="tasks-section">
-          <div className="section-header">
-            <h2>Sponsored Offers</h2>
-            <button 
-              className="refresh-btn"
-              onClick={loadTargetTgAds}
-              title="Refresh ads"
-              disabled={isTargetTgLoading}
-            >
-              <RefreshCw size={16} className={isTargetTgLoading ? "spinner" : ""} />
-            </button>
-          </div>
-          
-          {isTargetTgLoading ? (
-            <div className="empty-state">
-              <p>Loading sponsored offers...</p>
-            </div>
-          ) : targetTgError ? (
-            <div className="empty-state">
-              <p>{targetTgError}</p>
-            </div>
-          ) : targetTgAds.length > 0 ? (
-            <div className="target-tg-ads">
-              {targetTgAds.map(ad => renderTargetTgAd(ad))}
-            </div>
-          ) : (
-            <div className="empty-state">
-              <p>No sponsored offers available at the moment</p>
-            </div>
-          )}
-
-          {/* Блок логов Target.TG */}
-          <div className="target-tg-logs">
-            <div 
-              className="logs-header" 
-              onClick={() => setShowLogs(!showLogs)}
-            >
-              <h3>Target.TG Logs</h3>
-              {showLogs ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-            </div>
-            
-            {showLogs && (
-              <div className="logs-content">
-                {targetTgLogs.length > 0 ? (
-                  targetTgLogs.map((log, index) => renderLogItem(log, index))
-                ) : (
-                  <div className="empty-state">
-                    <p>No logs available</p>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
+        <PartnersTasks tasks={partnersTasks} />
       </div>
       
       <InfoModal isOpen={isModalOpen} onClose={toggleModal} />
