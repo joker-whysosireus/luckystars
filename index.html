@@ -5,13 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Gifts Blocks</title>
     
-    <!-- Добавьте эту строку обратно -->
     <link rel="stylesheet" href="index.css">
     
     <!-- Подключение Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <!-- Подключение GigaPub с улучшенным скриптом и резервными серверами -->
+    <!-- Подключение GigaPub (один раз) -->
     <script data-project-id="3186">
       !function(){
         var s=document.currentScript,p=s.getAttribute('data-project-id')||'default';
@@ -34,33 +33,45 @@
       }();
     </script>
     
-    <!-- Подключение скрипта Adexium -->
+    <!-- Подключение Adexium (один раз) -->
     <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
-    
-    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
-    <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', () => {
-            const adexiumWidget = new AdexiumWidget({wid: 'e279c53e-42c1-42b9-93be-a535d900a92e', adFormat: 'push-like'});
-            adexiumWidget.autoMode();
-        });
-    </script>
-
-    <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', () => {
-            const adexiumAds = new AdexiumWidget({
-                wid: 'e279c53e-42c1-42b9-93be-a535d900a92e',
-                adFormat: 'push-like',
-                firstAdImpressionIntervalInSeconds: 30,
-                adImpressionIntervalInSeconds: 30,
-                debug: false,
-                isFullScreen: true
-            });
-            adexiumAds.autoMode();
-        });
-    </script>
 </head>
 <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Инициализация Adexium после загрузки DOM -->
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            // Проверяем доступность AdexiumWidget
+            if (typeof AdexiumWidget !== 'undefined') {
+                const adexiumAds = new AdexiumWidget({
+                    wid: 'e279c53e-42c1-42b9-93be-a535d900a92e',
+                    adFormat: 'push-like',
+                    firstAdImpressionIntervalInSeconds: 30,
+                    adImpressionIntervalInSeconds: 30,
+                    debug: false,
+                    isFullScreen: true
+                });
+                
+                // Подписываемся на события для отладки
+                adexiumAds.on('adReceived', function(ad) {
+                    console.log('Ad received:', ad);
+                });
+                
+                adexiumAds.on('noAdFound', function() {
+                    console.log('No ad available');
+                });
+                
+                adexiumAds.on('adDisplayed', function() {
+                    console.log('Ad displayed successfully');
+                });
+                
+                adexiumAds.autoMode();
+            } else {
+                console.error('AdexiumWidget not loaded');
+            }
+        });
+    </script>
 </body>
 </html>

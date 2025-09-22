@@ -9,7 +9,6 @@ import PartnersTasks from './Containers/Partners/PartnersTasks';
 
 // Константы
 const GIGAPUB_PROJECT_ID = "3186";
-const TARGET_TG_WIDGET_ID = "widget_wiget_for_blocks10"; // Замените на ваш widget_id
 
 function Tasks({ isActive, userData, updateUserData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -49,7 +48,6 @@ function Tasks({ isActive, userData, updateUserData }) {
     return stored ? parseInt(stored) : 0;
   });
   const [dailyLoginRemainingTime, setDailyLoginRemainingTime] = useState(0);
-  const [targetTGAdData, setTargetTGAdData] = useState(null);
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
@@ -115,30 +113,6 @@ function Tasks({ isActive, userData, updateUserData }) {
     const intervalId = setInterval(checkGigapubFunction, 1000);
     return () => clearInterval(intervalId);
   }, [GIGAPUB_PROJECT_ID]);
-
-  // Загрузка рекламы из Target.TG
-  useEffect(() => {
-    const loadTargetTGAd = async () => {
-      try {
-        const response = await fetch(
-          `https://tg-adsnet-core.target.tg/api/ads/creatives/?tg_id=${userData.telegram_user_id}&widget_size=1&tg_premium=false&widget_id=${TARGET_TG_WIDGET_ID}`
-        );
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data && data.length > 0) {
-            setTargetTGAdData(data[0]);
-          }
-        }
-      } catch (error) {
-        console.error('Error loading Target.TG ad:', error);
-      }
-    };
-
-    if (userData && userData.telegram_user_id) {
-      loadTargetTGAd();
-    }
-  }, [userData]);
 
   const dailyTasks = [
     { 
@@ -416,19 +390,6 @@ function Tasks({ isActive, userData, updateUserData }) {
         />
         
         <PartnersTasks tasks={partnersTasks} />
-        
-        {/* Блок Target.TG рекламы */}
-        {targetTGAdData && (
-          <div className="targettg-ad-container">
-            <div className="targettg-ad-content">
-              <img src={targetTGAdData.icon} alt="Ad" className="targettg-ad-image" />
-              <div className="targettg-ad-text">
-                <h3 className="targettg-ad-title">{targetTGAdData.title}</h3>
-                <p className="targettg-ad-description">{targetTGAdData.description}</p>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
       
       <InfoModal isOpen={isModalOpen} onClose={toggleModal} />
