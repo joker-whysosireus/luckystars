@@ -13,8 +13,115 @@
     <!-- Adexium Widget -->
     <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
     
-    <!-- Offer Wall SDK -->
+    <!-- GigaPub SDK -->
     <script src="https://cdn.giga.pub/script/offer/loader/loader.js"></script>
+    
+    <!-- Инициализация GigaPub -->
+    <script type="text/javascript">
+        // Инициализация GigaPub
+        window.loadGigaSDKCallbacks = window.loadGigaSDKCallbacks || [];
+        window.loadGigaSDKCallbacks.push(function() {
+            if (window.gigaOfferWallSDK) {
+                window.gigaOfferWallSDK.init({
+                    projectId: "3186"
+                });
+                console.log("GigaPub SDK инициализирован");
+                
+                // Делаем функцию доступной глобально
+                window.showGiga = function() {
+                    return new Promise((resolve, reject) => {
+                        if (window.gigaOfferWallSDK && typeof window.gigaOfferWallSDK.open === 'function') {
+                            window.gigaOfferWallSDK.open();
+                            console.log("GigaPub OfferWall открыт");
+                            resolve();
+                        } else {
+                            const error = "GigaPub SDK недоступен";
+                            console.error(error);
+                            reject(new Error(error));
+                        }
+                    });
+                };
+            } else {
+                console.error("GigaPub SDK не загружен");
+            }
+        });
+
+        // Резервная функция на случай недоступности GigaPub
+        window.AdGigaFallback = function() {
+            return new Promise((resolve) => {
+                console.log("Используем резервную рекламу");
+                // Симулируем успешный показ рекламы через 1 секунду
+                setTimeout(resolve, 1000);
+            });
+        };
+    </script>
+
+    <!-- Инициализация Adexium и автоматический показ каждые 30 секунд -->
+    <script type="text/javascript">
+        // Инициализация и запуск после полной загрузки DOM
+        document.addEventListener('DOMContentLoaded', () => {
+            let adexiumAds = null;
+            let adexiumInterval = null;
+
+            // Проверяем, что класс AdexiumWidget доступен
+            if (typeof AdexiumWidget !== 'undefined') {
+                adexiumAds = new AdexiumWidget({
+                    wid: 'e279c53e-42c1-42b9-93be-a535d900a92e', // Замените на ваш Widget ID
+                    adFormat: 'push-like', // Формат рекламы: 'push-like' или 'interstitial'
+                    debug: true // Включаем режим отладки
+                });
+
+                // Включаем автоматический показ рекламы
+                adexiumAds.autoMode();
+
+                // Автоматический показ рекламы каждые 30 секунд
+                adexiumInterval = setInterval(() => {
+                    try {
+                        if (adexiumAds && typeof adexiumAds.showAd === 'function') {
+                            console.log("Автоматический показ рекламы Adexium");
+                            adexiumAds.showAd();
+                        } else {
+                            console.log("Adexium автоматический режим активен");
+                        }
+                    } catch (error) {
+                        console.error("Ошибка при автоматическом показе рекламы Adexium:", error);
+                    }
+                }, 30000); // 30 секунд
+
+                // Делаем функцию доступной глобально для ручного вызова
+                window.showAd = function() {
+                    try {
+                        if (adexiumAds && typeof adexiumAds.showAd === 'function') {
+                            adexiumAds.showAd();
+                            console.log("Ручной показ рекламы Adexium");
+                        } else {
+                            console.log("Adexium в автоматическом режиме");
+                        }
+                    } catch (error) {
+                        console.error("Ошибка при показе рекламы Adexium:", error);
+                    }
+                };
+
+                console.log('Adexium Widget инициализирован в автоматическом режиме с интервалом 30 секунд.');
+
+            } else {
+                console.error('Ошибка: Скрипт Adexium не загружен корректно.');
+                
+                // Резервная функция если Adexium недоступен
+                window.showAd = function() {
+                    console.log("Adexium недоступен, используем резервный метод");
+                    return Promise.resolve();
+                };
+            }
+
+            // Очистка интервала при разгрузке страницы
+            window.addEventListener('beforeunload', () => {
+                if (adexiumInterval) {
+                    clearInterval(adexiumInterval);
+                }
+            });
+        });
+    </script>
 </head>
 <body>
     <div id="root"></div>

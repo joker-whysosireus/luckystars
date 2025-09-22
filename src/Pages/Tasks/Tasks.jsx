@@ -7,9 +7,6 @@ import DailyTasks from './Containers/Day/DailyTasks';
 import MainTasks from './Containers/Main/MainTasks';
 import PartnersTasks from './Containers/Partners/PartnersTasks';
 
-// Константы
-const GIGAPUB_PROJECT_ID = "3186";
-
 function Tasks({ isActive, userData, updateUserData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [gigapubAdCounts, setGigapubAdCounts] = useState(() => {
@@ -53,54 +50,24 @@ function Tasks({ isActive, userData, updateUserData }) {
     setIsModalOpen(!isModalOpen);
   };
 
-  // Автоматический показ рекламы каждые 30 секунд
+  // Автоматический показ рекламы Adexium каждые 30 секунд
   useEffect(() => {
-    let adInterval;
-
-    // Запускаем рекламу не сразу, а через 5 секунд после загрузки компонента
-    const initialDelay = setTimeout(() => {
-      // Первый показ рекламы
-      if (window.showAd) {
-        console.log('Показ первой рекламы');
-        window.showAd();
-      }
-
-      // Устанавливаем интервал для повторного показа каждые 30 секунд
-      adInterval = setInterval(() => {
-        if (window.showAd) {
-          console.log('Автоматический показ рекламы (30 сек)');
+    // Adexium автоматически показывается через скрипт в index.html
+    // Здесь мы только логируем для отладки
+    const adexiumInterval = setInterval(() => {
+      console.log("Adexium реклама должна показываться автоматически (настроено в index.html)");
+      
+      // Дополнительная проверка и ручной вызов если нужно
+      if (window.showAd && typeof window.showAd === 'function') {
+        try {
           window.showAd();
-        } else {
-          console.warn('Функция showAd не доступна');
+        } catch (error) {
+          console.error("Ошибка при автоматическом показе Adexium:", error);
         }
-      }, 30000); // 30 секунд
-
-    }, 5000); // Начальная задержка 5 секунд
-
-    // Очистка при размонтировании компонента
-    return () => {
-      clearTimeout(initialDelay);
-      clearInterval(adInterval);
-      console.log('Очистка интервала рекламы');
-    };
-  }, []);
-
-  // Дополнительный эффект для показа рекламы при изменении видимости страницы
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden && window.showAd) {
-        // Если страница снова стала активной, показываем рекламу
-        setTimeout(() => {
-          window.showAd();
-        }, 2000);
       }
-    };
+    }, 30000); // 30 секунд
 
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
+    return () => clearInterval(adexiumInterval);
   }, []);
 
   // Сохранение состояний в localStorage
@@ -153,16 +120,20 @@ function Tasks({ isActive, userData, updateUserData }) {
         setGigapubAdAvailable(false);
         // Fallback логика: если GigaPub недоступен, используйте резервный метод
         if (window.AdGigaFallback && typeof window.AdGigaFallback === 'function') {
+          // Создаем fallback функцию
           window.showGiga = () => window.AdGigaFallback();
           setGigapubAdAvailable(true);
         }
       }
     };
     
+    // Проверяем сразу при монтировании
     checkGigapubFunction();
-    const intervalId = setInterval(checkGigapubFunction, 1000);
+    
+    // Периодически проверяем доступность (каждые 5 секунд)
+    const intervalId = setInterval(checkGigapubFunction, 5000);
     return () => clearInterval(intervalId);
-  }, [GIGAPUB_PROJECT_ID]);
+  }, []);
 
   const dailyTasks = [
     { 
@@ -277,7 +248,10 @@ function Tasks({ isActive, userData, updateUserData }) {
 
   // Обработка показа рекламы GigaPub для конкретной задачи
   const handleGigapubAd = useCallback((taskId) => {
-    if (!gigapubAdAvailable || isGigapubLoading[taskId] || remainingTimes[taskId] > 0) return;
+    if (!gigapubAdAvailable || isGigapubLoading[taskId] || remainingTimes[taskId] > 0) {
+      console.log(`GigaPub недоступен: available=${gigapubAdAvailable}, loading=${isGigapubLoading[taskId]}, cooldown=${remainingTimes[taskId]}`);
+      return;
+    }
     
     setIsGigapubLoading(prev => ({ ...prev, [taskId]: true }));
     
@@ -289,24 +263,36 @@ function Tasks({ isActive, userData, updateUserData }) {
     
     window.showGiga()
       .then(() => {
+        console.log(`GigaPub реклама успешно показана для задачи ${taskId}`);
         const newCount = (gigapubAdCounts[taskId] || 0) + 1;
         setGigapubAdCounts(prev => ({ ...prev, [taskId]: newCount }));
+        
+        // Устанавливаем кулдаун 3 секунды
         const cooldownEnd = Date.now() + 3000;
         setGigapubCooldowns(prev => ({ ...prev, [taskId]: cooldownEnd }));
+        
+        console.log(`Счетчик задачи ${taskId} увеличен до ${newCount}`);
       })
       .catch((error) => {
         console.error('GigaPub ad error:', error);
-        if (window.AdGigaFallback) {
+        
+        // Пробуем использовать fallback
+        if (window.AdGigaFallback && typeof window.AdGigaFallback === 'function') {
+          console.log('Пытаемся использовать резервный метод...');
           window.AdGigaFallback()
             .then(() => {
               const newCount = (gigapubAdCounts[taskId] || 0) + 1;
               setGigapubAdCounts(prev => ({ ...prev, [taskId]: newCount }));
               const cooldownEnd = Date.now() + 3000;
               setGigapubCooldowns(prev => ({ ...prev, [taskId]: cooldownEnd }));
+              console.log(`Резервный метод успешен для задачи ${taskId}`);
             })
             .catch((fallbackError) => {
               console.error('Fallback ad error:', fallbackError);
+              alert('Реклама временно недоступна. Попробуйте позже.');
             });
+        } else {
+          alert('Реклама временно недоступна. Попробуйте позже.');
         }
       })
       .finally(() => {
