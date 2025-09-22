@@ -9,7 +9,7 @@ import PartnersTasks from './Containers/Partners/PartnersTasks';
 
 // Константы
 const GIGAPUB_PROJECT_ID = "3186";
-const TARGET_TG_WIDGET_ID = "10"; // Замените на ваш widget_id
+const TARGET_TG_WIDGET_ID = "widget_wiget_for_blocks10"; // Замените на ваш widget_id
 
 function Tasks({ isActive, userData, updateUserData }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
