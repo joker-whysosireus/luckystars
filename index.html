@@ -81,82 +81,81 @@
     </script>
 
     <!-- Инициализация Adexium с реальной рекламой -->
+    <!-- Инициализация Adexium -->
     <script type="text/javascript">
-      document.addEventListener('DOMContentLoaded', () => {
-        let adexiumAds = null;
-        let adexiumInterval = null;
-        let lastAdTime = 0;
-        const AD_COOLDOWN = 60000; // 60 секунд между показами
-        let isPageVisible = true;
+        document.addEventListener('DOMContentLoaded', () => {
+            let adexiumAds = null;
+            let adexiumInterval = null;
+            let lastAdTime = 0;
+            const AD_COOLDOWN = 60000; // 60 секунд между показами
+            let isPageVisible = true;
 
-        // Проверка видимости страницы
-        document.addEventListener('visibilitychange', () => {
-          isPageVisible = !document.hidden;
-          console.log('Видимость страницы:', isPageVisible);
-        });
+            // Проверка видимости страницы
+            document.addEventListener('visibilitychange', () => {
+                isPageVisible = !document.hidden;
+                console.log('Видимость страницы:', isPageVisible);
+            });
 
-        // Функция показа рекламы Adexium
-        const showAdexiumAd = () => {
-          if (!isPageVisible) {
-            console.log("Страница неактивна, пропускаем показ рекламы");
-            return;
-          }
+            // Функция показа рекламы Adexium
+            const showAdexiumAd = () => {
+                if (!isPageVisible) {
+                    console.log("Страница неактивна, пропускаем показ рекламы");
+                    return;
+                }
 
-          const now = Date.now();
-          if (now - lastAdTime < AD_COOLDOWN) {
-            console.log("Реклама Adexium еще в кулдауне");
-            return;
-          }
+                const now = Date.now();
+                if (now - lastAdTime < AD_COOLDOWN) {
+                    console.log("Реклама Adexium еще в кулдауне");
+                    return;
+                }
 
-          try {
-            if (adexiumAds && typeof adexiumAds.showAd === 'function') {
-              console.log("Показываем реальную рекламу Adexium");
-              adexiumAds.showAd();
-              lastAdTime = now;
+                try {
+                    if (adexiumAds && typeof adexiumAds.showAd === 'function') {
+                        console.log("Показываем рекламу Adexium");
+                        adexiumAds.showAd();
+                        lastAdTime = now;
+                    } else {
+                        console.log("Adexium недоступен для показа");
+                    }
+                } catch (error) {
+                    console.error("Ошибка при показе рекламы Adexium:", error);
+                }
+            };
+
+            // Проверяем, что класс AdexiumWidget доступен
+            if (typeof AdexiumWidget !== 'undefined') {
+                // Инициализация виджета с параметрами из документации
+                adexiumAds = new AdexiumWidget({
+                    wid: 'e279c53e-42c1-42b9-93be-a535d900a92e', // Ваш Widget ID
+                    adFormat: 'interstitial',
+                    // Параметр debug больше не упоминается
+                });
+
+                // Показываем рекламу при полной загрузке страницы
+                window.addEventListener('load', () => {
+                    console.log('Страница полностью загружена, запускаем Adexium');
+                    // Автоматический показ рекламы каждые 60 секунд
+                    adexiumInterval = setInterval(showAdexiumAd, AD_COOLDOWN);
+                    // Первая реклама через 5 секунд после загрузки
+                    setTimeout(showAdexiumAd, 5000);
+                });
+
+                // Делаем функцию доступной глобально для ручного вызова
+                window.showAd = showAdexiumAd;
+
+                console.log('Adexium Widget инициализирован');
+
             } else {
-              console.log("Adexium недоступен для показа");
+                console.error('Ошибка: Скрипт Adexium не загружен корректно.');
             }
-          } catch (error) {
-            console.error("Ошибка при показе рекламы Adexium:", error);
-          }
-        };
 
-        // Проверяем, что класс AdexiumWidget доступен
-        if (typeof AdexiumWidget !== 'undefined') {
-          adexiumAds = new AdexiumWidget({
-            wid: 'e279c53e-42c1-42b9-93be-a535d900a92e',
-            adFormat: 'interstitial',
-            debug: false // ВЫКЛЮЧАЕМ тестовый режим для реальной рекламы
-          });
-
-          // Автоматический показ рекламы каждые 60 секунд
-          adexiumInterval = setInterval(showAdexiumAd, AD_COOLDOWN);
-
-          // Показываем первую рекламу через 10 секунд после загрузки
-          setTimeout(showAdexiumAd, 10000);
-
-          // Делаем функцию доступной глобально для ручного вызова
-          window.showAd = showAdexiumAd;
-
-          console.log('Adexium Widget инициализирован с реальной рекламой');
-
-        } else {
-          console.error('Ошибка: Скрипт Adexium не загружен корректно.');
-          
-          // Резервная функция если Adexium недоступен
-          window.showAd = function() {
-            console.log("Adexium недоступен, используем резервный метод");
-            return Promise.resolve();
-          };
-        }
-
-        // Очистка интервала при разгрузке страницы
-        window.addEventListener('beforeunload', () => {
-          if (adexiumInterval) {
-            clearInterval(adexiumInterval);
-          }
+            // Очистка интервала при разгрузке страницы
+            window.addEventListener('beforeunload', () => {
+                if (adexiumInterval) {
+                    clearInterval(adexiumInterval);
+                }
+            });
         });
-      });
     </script>
 </head>
 <body>
