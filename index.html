@@ -10,11 +10,17 @@
     <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
+    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/tg-ads-co-widget.min.js"></script>
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', () => {
-            const adexiumWidget = new AdexiumWidget({wid: 'f799829c-e2cf-483a-be46-28ea585791f8', adFormat: 'interstitial'});
-            adexiumWidget.autoMode();
+            const adexiumAds = new AdexiumWidget({
+                wid: 'f799829c-e2cf-483a-be46-28ea585791f8',
+                adFormat: 'interstitial', //adFormat только такие: push-like/interstitial
+                firstAdImpressionIntervalInSeconds: 5, // по умолчанию если параметр не задан, реклама покажется через 20 секунд после загрузки приложения
+                adImpressionIntervalInSeconds: 100,
+                isFullScreen: false // если требуется принудительное включение показа рекламы в полноэкранном режиме - просто поменяйте значение на true 
+            });
+            adexiumAds.autoMode(); // этот метод необходимо вызывать если необходимо чтоб реклама показывалась автоматически в зависимости от заданных параметров
         });
     </script>
     
