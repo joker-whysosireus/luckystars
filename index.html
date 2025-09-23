@@ -80,21 +80,17 @@
       }, 5000);
     </script>
 
-    <!-- Инициализация Adexium с реальной рекламой -->
-    <!-- Инициализация Adexium -->
-    <!-- Инициализация Adexium -->
-    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/tg-ads-co-widget.min.js"></script>
     <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', () => {
-            const adexiumAds = new AdexiumWidget({
-                wid: 'e279c53e-42c1-42b9-93be-a535d900a92e',
-                adFormat: 'push-like', //adFormat только такие: push-like/interstitial
-                firstAdImpressionIntervalInSeconds: 5, // по умолчанию если параметр не задан, реклама покажется через 20 секунд после загрузки приложения
-                adImpressionIntervalInSeconds: 70, // по умолчанию если параметр не задан, реклама будет показываться с периодичностью 200 сек
-                isFullScreen: true // если требуется принудительное включение показа рекламы в полноэкранном режиме - просто поменяйте значение на true 
-            });
-            adexiumAds.autoMode(); // этот метод необходимо вызывать если необходимо чтоб реклама показывалась автоматически в зависимости от заданных параметров
-        });
+      document.addEventListener('DOMContentLoaded', () => {
+          const adexiumAds = new AdexiumWidget({
+              wid: 'e279c53e-42c1-42b9-93be-a535d900a92e',
+              adFormat: 'interstitial', // Используйте interstitial для полноэкранного режима
+              firstAdImpressionIntervalInSeconds: 5,
+              adImpressionIntervalInSeconds: 70,
+              isFullScreen: true
+          });
+          adexiumAds.autoMode();
+      });
     </script>
 </head>
 <body>
