@@ -1,6 +1,4 @@
 import React from 'react';
-import { Diamond, Box } from 'lucide-react';
-import './MainTasks.css';
 
 const MainTasks = ({ 
   tasks, 
@@ -10,16 +8,10 @@ const MainTasks = ({
   isGigapubLoading, 
   handleGigapubAd, 
   handleClaimReward, 
-  formatTime 
+  formatTime, 
+  isClaiming 
 }) => {
-  const renderRewardText = (reward, rewardType) => {
-    return (
-      <span className="reward-text">
-        {reward} 
-        {rewardType === 'diamonds' ? <Diamond size={16} /> : <Box size={16} />}
-      </span>
-    );
-  };
+  if (!tasks || tasks.length === 0) return null;
 
   return (
     <div className="tasks-section">
@@ -27,58 +19,73 @@ const MainTasks = ({
         <h2>Main Tasks</h2>
       </div>
       
-      {tasks.length > 0 ? (
-        tasks.map(task => {
-          const isClaimed = claimedTasks.includes(task.id);
-          const progressPercentage = (task.progress / task.total) * 100;
-          const canClaim = task.completed && !isClaimed;
-          
-          return (
-            <div key={task.id} className="task">
-              <div className="task-content">
-                <div className="task-title">{task.title}</div>
-                <div className="task-reward">
-                  Reward: {renderRewardText(task.reward, task.rewardType)}
-                </div>
-                <div className="progress-container">
-                  <div className="progress-bar" style={{ width: `${progressPercentage}%` }}></div>
-                </div>
+      {tasks.map(task => {
+        const isCompleted = task.completed;
+        const isClaimed = claimedTasks.includes(task.id);
+        const progressPercentage = Math.min((task.progress / task.total) * 100, 100);
+
+        return (
+          <div key={task.id} className="task">
+            <div className="task-content">
+              <div className="task-title">{task.title}</div>
+              <div className="task-reward">
+                Reward: <span className="reward-text">+{task.reward} {task.rewardType}</span>
               </div>
-              
-              {task.type === 'gigapub' ? (
-                isClaimed ? (
-                  <button className="claim-btn done" disabled>
-                    Done!
-                  </button>
-                ) : (
-                  <button 
-                    className={`claim-btn ${remainingTimes[task.id] > 0 ? 'disabled' : ''}`}
-                    onClick={() => handleGigapubAd(task.id)}
-                    disabled={remainingTimes[task.id] > 0 || isGigapubLoading[task.id] || !gigapubAdAvailable}
-                  >
-                    {!gigapubAdAvailable ? "Unavailable" : 
-                     remainingTimes[task.id] > 0 ? formatTime(remainingTimes[task.id]) : 
-                     isGigapubLoading[task.id] ? "Loading..." : 
-                     `${task.progress}/${task.total}`}
-                  </button>
-                )
-              ) : (
+              <div className="progress-container">
+                <div 
+                  className="progress-bar" 
+                  style={{ width: `${progressPercentage}%` }}
+                ></div>
+              </div>
+              <div className="task-info">
+                <span>{task.progress}/{task.total}</span>
+                <span>{Math.round(progressPercentage)}%</span>
+              </div>
+            </div>
+            
+            <div>
+              {isClaimed ? (
+                <button className="claim-btn done" disabled>Done!</button>
+              ) : isCompleted ? (
                 <button 
-                  className={`claim-btn ${canClaim ? 'active' : isClaimed ? 'done' : 'disabled'}`}
-                  onClick={() => canClaim && handleClaimReward(task, 'main')}
-                  disabled={isClaimed || !canClaim}
+                  className="claim-btn active" 
+                  onClick={() => handleClaimReward(task)}
+                  disabled={isClaiming}
                 >
-                  {isClaimed ? 'Done!' : canClaim ? 'Claim' : `${task.progress}/${task.total}`}
+                  {isClaiming ? '...' : 'Claim'}
                 </button>
+              ) : task.type === 'gigapub' ? (
+                <button 
+                  className={`claim-btn ${
+                    !gigapubAdAvailable || remainingTimes[task.id] > 0 || isGigapubLoading[task.id] 
+                      ? 'disabled' 
+                      : 'active'
+                  }`}
+                  onClick={() => handleGigapubAd(task.id)}
+                  disabled={!gigapubAdAvailable || remainingTimes[task.id] > 0 || isGigapubLoading[task.id]}
+                >
+                  {isGigapubLoading[task.id] 
+                    ? '...' 
+                    : remainingTimes[task.id] > 0 
+                      ? formatTime(remainingTimes[task.id]) 
+                      : 'Start'
+                  }
+                </button>
+              ) : task.type === 'url' ? (
+                <button 
+                  className="claim-btn active" 
+                  onClick={() => handleClaimReward(task)}
+                  disabled={isClaiming}
+                >
+                  {isClaiming ? '...' : 'Start'}
+                </button>
+              ) : (
+                <button className="claim-btn disabled" disabled>Start</button>
               )}
             </div>
-          );
-        })
-      ) : (
-        <div className="empty-state">
-          <p>No tasks available</p>
-        </div>
-      )}
+          </div>
+        );
+      })}
     </div>
   );
 };

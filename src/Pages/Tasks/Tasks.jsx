@@ -45,7 +45,7 @@ function Tasks({ isActive, userData, updateUserData }) {
     return stored ? parseInt(stored) : 0;
   });
   const [dailyLoginRemainingTime, setDailyLoginRemainingTime] = useState(0);
-  const [isClaiming, setIsClaiming] = useState(false); // Защита от двойного клика
+  const [isClaiming, setIsClaiming] = useState(false);
 
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
@@ -56,7 +56,6 @@ function Tasks({ isActive, userData, updateUserData }) {
     const adexiumInterval = setInterval(() => {
       console.log("Adexium реклама должна показываться автоматически");
       
-      // Дополнительная проверка и ручной вызов если нужно
       if (window.showAd && typeof window.showAd === 'function') {
         try {
           window.showAd();
@@ -64,7 +63,7 @@ function Tasks({ isActive, userData, updateUserData }) {
           console.error("Ошибка при автоматическом показе Adexium:", error);
         }
       }
-    }, 30000); // 30 секунд
+    }, 30000);
 
     return () => clearInterval(adexiumInterval);
   }, []);
@@ -117,19 +116,14 @@ function Tasks({ isActive, userData, updateUserData }) {
         setGigapubAdAvailable(true);
       } else {
         setGigapubAdAvailable(false);
-        // Fallback логика: если GigaPub недоступен, используйте резервный метод
         if (window.AdGigaFallback && typeof window.AdGigaFallback === 'function') {
-          // Создаем fallback функцию
           window.showGiga = () => window.AdGigaFallback();
           setGigapubAdAvailable(true);
         }
       }
     };
     
-    // Проверяем сразу при монтировании
     checkGigapubFunction();
-    
-    // Периодически проверяем доступность (каждые 5 секунд)
     const intervalId = setInterval(checkGigapubFunction, 5000);
     return () => clearInterval(intervalId);
   }, []);
@@ -155,9 +149,9 @@ function Tasks({ isActive, userData, updateUserData }) {
       rewardType: 'diamonds',
       progress: 1, 
       total: 1, 
-      completed: true,
+      completed: claimedTasks.includes(0),
       type: 'url',
-      url: 'https://t.me/your_channel' // Замените на реальный URL
+      url: 'https://t.me/your_channel'
     },
     { 
       id: 1, 
@@ -166,7 +160,7 @@ function Tasks({ isActive, userData, updateUserData }) {
       rewardType: 'blocks',
       progress: gigapubAdCounts[1] || 0, 
       total: 10, 
-      completed: (gigapubAdCounts[1] || 0) >= 10,
+      completed: claimedTasks.includes(1) || (gigapubAdCounts[1] || 0) >= 10,
       type: 'gigapub'
     },
     { 
@@ -176,7 +170,7 @@ function Tasks({ isActive, userData, updateUserData }) {
       rewardType: 'blocks',
       progress: gigapubAdCounts[8] || 0, 
       total: 50, 
-      completed: (gigapubAdCounts[8] || 0) >= 50,
+      completed: claimedTasks.includes(8) || (gigapubAdCounts[8] || 0) >= 50,
       type: 'gigapub'
     },
     { 
@@ -186,7 +180,7 @@ function Tasks({ isActive, userData, updateUserData }) {
       rewardType: 'blocks',
       progress: gigapubAdCounts[9] || 0, 
       total: 100, 
-      completed: (gigapubAdCounts[9] || 0) >= 100,
+      completed: claimedTasks.includes(9) || (gigapubAdCounts[9] || 0) >= 100,
       type: 'gigapub'
     },
     { 
@@ -196,7 +190,7 @@ function Tasks({ isActive, userData, updateUserData }) {
       rewardType: 'diamonds',
       progress: userData?.open_blocks || 0, 
       total: 10, 
-      completed: (userData?.open_blocks || 0) >= 10
+      completed: claimedTasks.includes(2) || (userData?.open_blocks || 0) >= 10
     },
     { 
       id: 3, 
@@ -205,7 +199,7 @@ function Tasks({ isActive, userData, updateUserData }) {
       rewardType: 'diamonds',
       progress: userData?.open_blocks || 0, 
       total: 50, 
-      completed: (userData?.open_blocks || 0) >= 50
+      completed: claimedTasks.includes(3) || (userData?.open_blocks || 0) >= 50
     },
     { 
       id: 4, 
@@ -214,7 +208,7 @@ function Tasks({ isActive, userData, updateUserData }) {
       rewardType: 'diamonds',
       progress: userData?.open_blocks || 0, 
       total: 100, 
-      completed: (userData?.open_blocks || 0) >= 100
+      completed: claimedTasks.includes(4) || (userData?.open_blocks || 0) >= 100
     },
     { 
       id: 5, 
@@ -223,7 +217,7 @@ function Tasks({ isActive, userData, updateUserData }) {
       rewardType: 'diamonds',
       progress: userData?.invited_friends || 0, 
       total: 5, 
-      completed: (userData?.invited_friends || 0) >= 5
+      completed: claimedTasks.includes(5) || (userData?.invited_friends || 0) >= 5
     },
     { 
       id: 6, 
@@ -232,7 +226,7 @@ function Tasks({ isActive, userData, updateUserData }) {
       rewardType: 'diamonds',
       progress: userData?.invited_friends || 0, 
       total: 15, 
-      completed: (userData?.invited_friends || 0) >= 15
+      completed: claimedTasks.includes(6) || (userData?.invited_friends || 0) >= 15
     },
     { 
       id: 7, 
@@ -241,7 +235,7 @@ function Tasks({ isActive, userData, updateUserData }) {
       rewardType: 'diamonds',
       progress: userData?.invited_friends || 0, 
       total: 50, 
-      completed: (userData?.invited_friends || 0) >= 50
+      completed: claimedTasks.includes(7) || (userData?.invited_friends || 0) >= 50
     }
   ];
 
@@ -255,14 +249,13 @@ function Tasks({ isActive, userData, updateUserData }) {
       total: 1, 
       completed: claimedTasks.includes(11),
       type: 'url',
-      url: 'https://t.me/liquid_coin_bot?startapp=ref_7465408366' // Замените на реальный URL
+      url: 'https://liquidcoin.com'
     }
   ];
 
-  // Обработка показа рекламы GigaPub для конкретной задачи
+  // Обработка показа рекламы GigaPub
   const handleGigapubAd = useCallback((taskId) => {
     if (!gigapubAdAvailable || isGigapubLoading[taskId] || remainingTimes[taskId] > 0) {
-      console.log(`GigaPub недоступен: available=${gigapubAdAvailable}, loading=${isGigapubLoading[taskId]}, cooldown=${remainingTimes[taskId]}`);
       return;
     }
     
@@ -276,54 +269,33 @@ function Tasks({ isActive, userData, updateUserData }) {
     
     window.showGiga()
       .then(() => {
-        console.log(`GigaPub реклама успешно показана для задачи ${taskId}`);
         const newCount = (gigapubAdCounts[taskId] || 0) + 1;
         setGigapubAdCounts(prev => ({ ...prev, [taskId]: newCount }));
         
-        // Устанавливаем кулдаун 3 секунды
         const cooldownEnd = Date.now() + 3000;
         setGigapubCooldowns(prev => ({ ...prev, [taskId]: cooldownEnd }));
         
-        console.log(`Счетчик задачи ${taskId} увеличен до ${newCount}`);
-        
-        // Сбрасываем счетчик при достижении максимума (цикл заново)
+        // Сбрасываем счетчик при достижении максимума
         const taskTotals = { 1: 10, 8: 50, 9: 100 };
         if (newCount >= taskTotals[taskId]) {
           setTimeout(() => {
             setGigapubAdCounts(prev => ({ ...prev, [taskId]: 0 }));
-            console.log(`Счетчик задачи ${taskId} сброшен`);
           }, 1000);
         }
       })
       .catch((error) => {
         console.error('GigaPub ad error:', error);
-        
-        // Пробуем использовать fallback
         if (window.AdGigaFallback && typeof window.AdGigaFallback === 'function') {
-          console.log('Пытаемся использовать резервный метод...');
           window.AdGigaFallback()
             .then(() => {
               const newCount = (gigapubAdCounts[taskId] || 0) + 1;
               setGigapubAdCounts(prev => ({ ...prev, [taskId]: newCount }));
               const cooldownEnd = Date.now() + 3000;
               setGigapubCooldowns(prev => ({ ...prev, [taskId]: cooldownEnd }));
-              console.log(`Резервный метод успешен для задачи ${taskId}`);
-              
-              // Сбрасываем счетчик при достижении максимума
-              const taskTotals = { 1: 10, 8: 50, 9: 100 };
-              if (newCount >= taskTotals[taskId]) {
-                setTimeout(() => {
-                  setGigapubAdCounts(prev => ({ ...prev, [taskId]: 0 }));
-                  console.log(`Счетчик задачи ${taskId} сброшен`);
-                }, 1000);
-              }
             })
             .catch((fallbackError) => {
               console.error('Fallback ad error:', fallbackError);
-              alert('Реклама временно недоступна. Попробуйте позже.');
             });
-        } else {
-          alert('Реклама временно недоступна. Попробуйте позже.');
         }
       })
       .finally(() => {
@@ -355,11 +327,8 @@ function Tasks({ isActive, userData, updateUserData }) {
         updateUserData({ ...userData, shards: result.newShards });
         setClaimedTasks(prev => [...prev, 10]);
         
-        // Устанавливаем кулдаун 12 часов
         const cooldownEnd = Date.now() + 12 * 60 * 60 * 1000;
         setDailyLoginCooldown(cooldownEnd);
-        
-        alert('Daily reward claimed successfully!');
       } else {
         alert('Error claiming daily reward: ' + result.error);
       }
@@ -371,7 +340,7 @@ function Tasks({ isActive, userData, updateUserData }) {
     }
   }, [userData, updateUserData, dailyLoginRemainingTime, isClaiming]);
 
-  const handleClaimReward = async (task, section) => {
+  const handleClaimReward = async (task) => {
     if (isClaiming) return;
     
     setIsClaiming(true);
@@ -380,6 +349,9 @@ function Tasks({ isActive, userData, updateUserData }) {
       // Для URL задач открываем ссылку
       if (task.type === 'url' && task.url) {
         window.open(task.url, '_blank', 'noopener,noreferrer');
+        
+        // Ждем 2 секунды перед начислением награды
+        await new Promise(resolve => setTimeout(resolve, 2000));
       }
 
       let response;
@@ -408,17 +380,13 @@ function Tasks({ isActive, userData, updateUserData }) {
       const result = await response.json();
 
       if (response.ok) {
-        // Обновляем userData
         if (task.rewardType === 'diamonds') {
           updateUserData({ ...userData, shards: result.newShards });
         } else if (task.rewardType === 'blocks') {
           updateUserData({ ...userData, bloks_count: result.newBloksCount });
         }
         
-        // Помечаем задачу как выполненную
         setClaimedTasks(prev => [...prev, task.id]);
-        
-        alert('Reward claimed successfully!');
       } else {
         alert('Error claiming reward: ' + result.error);
       }

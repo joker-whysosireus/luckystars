@@ -1,38 +1,43 @@
 import React from 'react';
-import './PartnersTasks.css';
 
-const PartnersTasks = ({ tasks }) => {
+const PartnersTasks = ({ tasks, claimedTasks, handleClaimReward, isClaiming }) => {
+  if (!tasks || tasks.length === 0) return null;
+
   return (
     <div className="tasks-section">
       <div className="section-header">
         <h2>Partners Tasks</h2>
       </div>
       
-      {tasks.length > 0 ? (
-        tasks.map(task => (
+      {tasks.map(task => {
+        const isClaimed = claimedTasks.includes(task.id);
+        const progressPercentage = (task.progress / task.total) * 100;
+
+        return (
           <div key={task.id} className="task">
             <div className="task-content">
               <div className="task-title">{task.title}</div>
               <div className="task-reward">
-                Reward: {task.reward} {task.rewardType === 'diamonds' ? '💎' : '📦'}
+                Reward: <span className="reward-text">+{task.reward} {task.rewardType}</span>
               </div>
               <div className="progress-container">
                 <div 
                   className="progress-bar" 
-                  style={{ width: `${(task.progress / task.total) * 100}%` }}
+                  style={{ width: `${progressPercentage}%` }}
                 ></div>
               </div>
             </div>
-            <button className="claim-btn disabled" disabled>
-              {task.progress}/{task.total}
+            
+            <button 
+              className={`claim-btn ${isClaimed ? 'done' : 'active'}`}
+              onClick={() => handleClaimReward(task)}
+              disabled={isClaiming || isClaimed}
+            >
+              {isClaimed ? 'Done!' : isClaiming ? '...' : 'Start'}
             </button>
           </div>
-        ))
-      ) : (
-        <div className="empty-state">
-          <p>No partner tasks available</p>
-        </div>
-      )}
+        );
+      })}
     </div>
   );
 };
