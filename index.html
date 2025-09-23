@@ -10,7 +10,7 @@
     <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <!-- Adexium Widget -->
+    <!-- Adexium Widget (подключен один раз) -->
     <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
     
     <!-- GigaPub SDK -->
@@ -80,16 +80,13 @@
       }, 5000);
     </script>
 
-    <!-- Инициализация Adexium с реальной рекламой -->
-    <!-- Инициализация Adexium -->
-    <!-- Инициализация Adexium -->
-    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
+    <!-- Инициализация Adexium Widget с параметрами для полноэкранной рекламы -->
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', () => {
             const adexiumWidget = new AdexiumWidget({
                 wid: 'e279c53e-42c1-42b9-93be-a535d900a92e',
                 adFormat: 'interstitial', // Формат для полноэкранного показа
-                firstAdImpressionIntervalInSeconds: 3, // Показать первую рекламу через 60 сек.
+                firstAdImpressionIntervalInSeconds: 60, // Показать первую рекламу через 60 сек.
                 adImpressionIntervalInSeconds: 60, // Периодичность показа: каждые 60 сек.
                 isFullScreen: true // Принудительный полноэкранный режим
             });
