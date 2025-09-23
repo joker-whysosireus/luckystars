@@ -1,4 +1,5 @@
 import React from 'react';
+import { Box, Diamond } from 'lucide-react';
 
 const DailyTasks = ({ 
   tasks, 
@@ -17,7 +18,6 @@ const DailyTasks = ({
       </div>
       
       {tasks.map(task => {
-        const isCompleted = task.completed && dailyLoginRemainingTime === 0;
         const isClaimed = claimedTasks.includes(task.id);
         const progressPercentage = (task.progress / task.total) * 100;
 
@@ -26,13 +26,24 @@ const DailyTasks = ({
             <div className="task-content">
               <div className="task-title">{task.title}</div>
               <div className="task-reward">
-                Reward: <span className="reward-text">+{task.reward} {task.rewardType}</span>
+                Reward: <span className="reward-text">
+                  +{task.reward} 
+                  {task.rewardType === 'diamonds' ? (
+                    <Diamond size={16} className="reward-icon" />
+                  ) : task.rewardType === 'blocks' ? (
+                    <Box size={16} className="reward-icon" />
+                  ) : null}
+                </span>
               </div>
               <div className="progress-container">
                 <div 
-                  className="progress-bar" 
+                  className={`progress-bar ${progressPercentage > 0 ? 'filled' : ''}`}
                   style={{ width: `${progressPercentage}%` }}
                 ></div>
+              </div>
+              <div className="task-info">
+                <span>{task.progress}/{task.total}</span>
+                <span>{Math.round(progressPercentage)}%</span>
               </div>
             </div>
             

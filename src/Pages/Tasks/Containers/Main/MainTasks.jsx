@@ -1,4 +1,5 @@
 import React from 'react';
+import { Box, Diamond } from 'lucide-react';
 
 const MainTasks = ({ 
   tasks, 
@@ -24,16 +25,26 @@ const MainTasks = ({
         const isClaimed = claimedTasks.includes(task.id);
         const progressPercentage = Math.min((task.progress / task.total) * 100, 100);
 
+        // Определяем, является ли задача блоком или приглашением друзей
+        const isProgressTask = task.id >= 2 && task.id <= 7;
+
         return (
           <div key={task.id} className="task">
             <div className="task-content">
               <div className="task-title">{task.title}</div>
               <div className="task-reward">
-                Reward: <span className="reward-text">+{task.reward} {task.rewardType}</span>
+                Reward: <span className="reward-text">
+                  +{task.reward} 
+                  {task.rewardType === 'diamonds' ? (
+                    <Diamond size={16} className="reward-icon" />
+                  ) : task.rewardType === 'blocks' ? (
+                    <Box size={16} className="reward-icon" />
+                  ) : null}
+                </span>
               </div>
               <div className="progress-container">
                 <div 
-                  className="progress-bar" 
+                  className={`progress-bar ${progressPercentage > 0 ? 'filled' : ''}`}
                   style={{ width: `${progressPercentage}%` }}
                 ></div>
               </div>
@@ -56,10 +67,10 @@ const MainTasks = ({
                 </button>
               ) : task.type === 'gigapub' ? (
                 <button 
-                  className={`claim-btn ${
+                  className={`claim-btn ad ${
                     !gigapubAdAvailable || remainingTimes[task.id] > 0 || isGigapubLoading[task.id] 
                       ? 'disabled' 
-                      : 'active'
+                      : ''
                   }`}
                   onClick={() => handleGigapubAd(task.id)}
                   disabled={!gigapubAdAvailable || remainingTimes[task.id] > 0 || isGigapubLoading[task.id]}
@@ -68,16 +79,12 @@ const MainTasks = ({
                     ? '...' 
                     : remainingTimes[task.id] > 0 
                       ? formatTime(remainingTimes[task.id]) 
-                      : 'Start'
+                      : 'Watch'
                   }
                 </button>
-              ) : task.type === 'url' ? (
-                <button 
-                  className="claim-btn active" 
-                  onClick={() => handleClaimReward(task)}
-                  disabled={isClaiming}
-                >
-                  {isClaiming ? '...' : 'Start'}
+              ) : isProgressTask ? (
+                <button className="claim-btn disabled" disabled>
+                  {task.progress}/{task.total}
                 </button>
               ) : (
                 <button className="claim-btn disabled" disabled>Start</button>

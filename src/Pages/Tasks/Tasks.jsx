@@ -134,7 +134,7 @@ function Tasks({ isActive, userData, updateUserData }) {
       title: 'Daily Login', 
       reward: 10, 
       rewardType: 'diamonds',
-      progress: 1, 
+      progress: claimedTasks.includes(10) ? 1 : 0, 
       total: 1, 
       completed: dailyLoginRemainingTime === 0,
       type: 'dailyLogin'
@@ -147,7 +147,7 @@ function Tasks({ isActive, userData, updateUserData }) {
       title: 'Join Telegram Channel', 
       reward: 50, 
       rewardType: 'diamonds',
-      progress: 1, 
+      progress: claimedTasks.includes(0) ? 1 : 0, 
       total: 1, 
       completed: claimedTasks.includes(0),
       type: 'url',
@@ -245,11 +245,22 @@ function Tasks({ isActive, userData, updateUserData }) {
       title: 'Join Liquid Coin', 
       reward: 5, 
       rewardType: 'diamonds',
-      progress: 1, 
+      progress: claimedTasks.includes(11) ? 1 : 0, 
       total: 1, 
       completed: claimedTasks.includes(11),
       type: 'url',
       url: 'https://liquidcoin.com'
+    },
+    { 
+      id: 12, 
+      title: 'Subscribe to Liquid Coin', 
+      reward: 5, 
+      rewardType: 'diamonds',
+      progress: claimedTasks.includes(12) ? 1 : 0, 
+      total: 1, 
+      completed: claimedTasks.includes(12),
+      type: 'url',
+      url: 'https://t.me/liquidcoin'
     }
   ];
 
