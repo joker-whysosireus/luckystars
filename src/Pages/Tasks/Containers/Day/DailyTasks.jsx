@@ -3,13 +3,25 @@ import { Box, Diamond } from 'lucide-react';
 
 const DailyTasks = ({ 
   tasks, 
-  claimedTasks, 
   dailyLoginRemainingTime, 
   handleDailyLogin, 
   formatDailyLoginTime, 
   isClaiming 
 }) => {
   if (!tasks || tasks.length === 0) return null;
+
+  // Функция форматирования времени в формат 12:00
+  const formatTimer = (seconds) => {
+    if (seconds >= 3600) {
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+    } else {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+  };
 
   return (
     <div className="tasks-section">
@@ -18,8 +30,7 @@ const DailyTasks = ({
       </div>
       
       {tasks.map(task => {
-        const isClaimed = claimedTasks.includes(task.id);
-        const progressPercentage = (task.progress / task.total) * 100;
+        const progressPercentage = dailyLoginRemainingTime === 0 ? 100 : 0;
 
         return (
           <div key={task.id} className="task">
@@ -42,7 +53,7 @@ const DailyTasks = ({
                 ></div>
               </div>
               <div className="task-info">
-                <span>{task.progress}/{task.total}</span>
+                <span>{dailyLoginRemainingTime === 0 ? 1 : 0}/1</span>
                 <span>{Math.round(progressPercentage)}%</span>
               </div>
             </div>
@@ -52,11 +63,11 @@ const DailyTasks = ({
                 dailyLoginRemainingTime > 0 || isClaiming ? 'disabled' : 'active'
               }`}
               onClick={() => handleDailyLogin(task)}
-              disabled={dailyLoginRemainingTime > 0 || isClaiming || isClaimed}
+              disabled={dailyLoginRemainingTime > 0 || isClaiming}
             >
               {dailyLoginRemainingTime > 0 
-                ? formatDailyLoginTime(dailyLoginRemainingTime) 
-                : isClaimed ? 'Done!' : 'Claim'
+                ? formatTimer(dailyLoginRemainingTime) 
+                : 'Claim'
               }
             </button>
           </div>

@@ -134,7 +134,7 @@ function Tasks({ isActive, userData, updateUserData }) {
       title: 'Daily Login', 
       reward: 10, 
       rewardType: 'diamonds',
-      progress: claimedTasks.includes(10) ? 1 : 0, 
+      progress: dailyLoginRemainingTime === 0 ? 1 : 0, 
       total: 1, 
       completed: dailyLoginRemainingTime === 0,
       type: 'dailyLogin'
@@ -336,8 +336,8 @@ function Tasks({ isActive, userData, updateUserData }) {
 
       if (response.ok) {
         updateUserData({ ...userData, shards: result.newShards });
-        setClaimedTasks(prev => [...prev, 10]);
         
+        // Устанавливаем кулдаун 12 часов
         const cooldownEnd = Date.now() + 12 * 60 * 60 * 1000;
         setDailyLoginCooldown(cooldownEnd);
       } else {
@@ -417,11 +417,11 @@ function Tasks({ isActive, userData, updateUserData }) {
     if (seconds >= 3600) {
       const h = Math.floor(seconds / 3600);
       const m = Math.floor((seconds % 3600) / 60);
-      return `${h}h ${m}m`;
+      return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
     } else {
       const m = Math.floor(seconds / 60);
       const s = seconds % 60;
-      return `${m}m ${s}s`;
+      return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     }
   };
 
@@ -435,7 +435,6 @@ function Tasks({ isActive, userData, updateUserData }) {
       <div className="tasks-content">
         <DailyTasks 
           tasks={dailyTasks}
-          claimedTasks={claimedTasks}
           dailyLoginRemainingTime={dailyLoginRemainingTime}
           handleDailyLogin={handleDailyLogin}
           formatDailyLoginTime={formatDailyLoginTime}

@@ -13,7 +13,7 @@
     <!-- Adexium Widget -->
     <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
     
-    <!-- GigaPub SDK (обновленная версия) -->
+    <!-- GigaPub SDK -->
     <script data-project-id="3186">
       !function(){
         var s=document.currentScript,p=s.getAttribute('data-project-id')||'default';
@@ -31,7 +31,6 @@
           sc.onload=function(){
             clearTimeout(t);
             console.log("GigaPub SDK загружен успешно");
-            // Инициализируем функцию показа рекламы после загрузки
             if (window.gigaOfferWallSDK) {
               window.gigaOfferWallSDK.init({
                 projectId: "3186"
@@ -66,16 +65,13 @@
 
     <!-- Резервная функция GigaPub -->
     <script type="text/javascript">
-      // Резервная функция на случай недоступности GigaPub
       window.AdGigaFallback = function() {
         return new Promise((resolve) => {
           console.log("Используем резервную рекламу GigaPub");
-          // Симулируем успешный показ рекламы через 1 секунду
           setTimeout(resolve, 1000);
         });
       };
 
-      // Создаем функцию showGiga, если она не была создана скриптом GigaPub
       setTimeout(() => {
         if (typeof window.showGiga !== 'function') {
           console.warn("GigaPub не загрузился, используем резервную функцию");
@@ -84,25 +80,21 @@
       }, 5000);
     </script>
 
-    <!-- Инициализация Adexium с автоматическим показом -->
+    <!-- Инициализация Adexium с реальной рекламой -->
     <script type="text/javascript">
-      // Инициализация и запуск после полной загрузки DOM
       document.addEventListener('DOMContentLoaded', () => {
         let adexiumAds = null;
         let adexiumInterval = null;
         let lastAdTime = 0;
-        const AD_COOLDOWN = 60000; // 30 секунд между показами
+        const AD_COOLDOWN = 60000; // 60 секунд
         let isPageVisible = true;
 
-        // Проверка видимости страницы
         document.addEventListener('visibilitychange', () => {
           isPageVisible = !document.hidden;
           console.log('Видимость страницы:', isPageVisible);
         });
 
-        // Функция показа рекламы Adexium
         const showAdexiumAd = () => {
-          // Проверяем, активна ли страница
           if (!isPageVisible) {
             console.log("Страница неактивна, пропускаем показ рекламы");
             return;
@@ -116,11 +108,8 @@
 
           try {
             if (adexiumAds && typeof adexiumAds.showAd === 'function') {
-              console.log("Показываем рекламу Adexium");
+              console.log("Показываем реальную рекламу Adexium");
               adexiumAds.showAd();
-              lastAdTime = now;
-            } else if (adexiumAds && adexiumAds.autoMode) {
-              console.log("Adexium в автоматическом режиме");
               lastAdTime = now;
             } else {
               console.log("Adexium недоступен для показа");
@@ -130,36 +119,29 @@
           }
         };
 
-        // Проверяем, что класс AdexiumWidget доступен
         if (typeof AdexiumWidget !== 'undefined') {
           adexiumAds = new AdexiumWidget({
-            wid: 'e279c53e-42c1-42b9-93be-a535d900a92e', // Замените на ваш Widget ID
-            adFormat: 'interstitial', // Используем interstitial для лучшего охвата
-            debug: true // Включаем режим отладки
+            wid: 'e279c53e-42c1-42b9-93be-a535d900a92e',
+            adFormat: 'interstitial',
+            debug: false // Реальная реклама, не тестовая
           });
 
-          // Запускаем автоматический режим
-          adexiumAds.autoMode();
-
-          // Автоматический показ рекламы каждые 30 секунд
           adexiumInterval = setInterval(showAdexiumAd, AD_COOLDOWN);
-
-          // Показываем первую рекламу через 10 секунд после загрузки
           setTimeout(showAdexiumAd, 10000);
 
-          console.log('Adexium Widget инициализирован с автоматическим показом каждые 30 секунд');
+          window.showAd = showAdexiumAd;
+
+          console.log('Adexium Widget инициализирован с реальной рекламой');
 
         } else {
           console.error('Ошибка: Скрипт Adexium не загружен корректно.');
           
-          // Резервная функция если Adexium недоступен
           window.showAd = function() {
             console.log("Adexium недоступен, используем резервный метод");
             return Promise.resolve();
           };
         }
 
-        // Очистка интервала при разгрузке страницы
         window.addEventListener('beforeunload', () => {
           if (adexiumInterval) {
             clearInterval(adexiumInterval);
