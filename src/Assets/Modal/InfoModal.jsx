@@ -1,6 +1,5 @@
 import './InfoModal.css';
 import { Box, Diamond } from 'lucide-react';
-import Stars from '../../Pages/Home/Containers/img-jsx/Stars';
 
 function InfoModal({ isOpen, onClose }) {
   return (
@@ -28,31 +27,13 @@ function InfoModal({ isOpen, onClose }) {
           </div>
           
           <div className="modal-text">
-            When you open all blocks on the field, you'll receive +1 free block as a reward,
-            and all blocks will reset for you to open again.
+            When you open all blocks on the field all blocks will reset for you to open again.
           </div>
           
           <div className="modal-text">
             Use diamonds to redeem exclusive gifts in Telegram! The more diamonds you collect,
             the better gifts you can unlock.
           </div>
-          
-          <div className="modal-text">
-            <strong>Block Packages:</strong><br />
-            <div className="package-item">
-              5 Blocks = <Stars size={16} /> 5
-            </div>
-            <div className="package-item">
-              25 Blocks = <Stars size={16} /> 25
-            </div>
-            <div className="package-item">
-              75 Blocks = <Stars size={16} /> 75
-            </div>
-            <div className="package-item">
-              125 Blocks = <Stars size={16} /> 125
-            </div>
-          </div>
-          
           <div className="modal-text">
             <strong>Friend Invitation:</strong><br />
             Invite friends to play and earn bonus blocks and diamonds when they join.

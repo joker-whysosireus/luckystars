@@ -568,7 +568,12 @@ function HomePage({ userData, updateUserData, isActive }) {
               {block?.isLoading ? (
                 <div className="loading-spinner"></div>
               ) : (
-                block?.isOpened && <span className="shards-count">{block.shards}  <Diamond size={14} color="#3b82f6" /></span>
+                block?.isOpened && (
+                  <div className="shards-display">
+                    <span className="shards-count">{block.shards}</span>
+                    <Diamond size={16} color="#3b82f6" fill="#3b82f6" />
+                  </div>
+                )
               )}
             </div>
           </div>
