@@ -8,10 +8,7 @@
     <link rel="stylesheet" href="index.css">
     
     <!-- Telegram Web App SDK -->
-    <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
-
-    <!-- Adexium Widget (подключен один раз) -->
-    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
     <!-- GigaPub SDK -->
     <script data-project-id="3186">
@@ -63,6 +60,19 @@
       }();
     </script>
 
+    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', () => {
+            const adexiumWidget = new AdexiumWidget({
+                wid: 'e279c53e-42c1-42b9-93be-a535d900a92e', 
+                adFormat: 'push-like',
+                firstAdImpressionIntervalInSeconds: 30, // Первая реклама через 30 секунд
+                adImpressionIntervalInSeconds: 30 // Показ рекламы каждые 30 секунд
+            });
+            adexiumWidget.autoMode();
+        });
+    </script>
+
     <!-- Резервная функция GigaPub -->
     <script type="text/javascript">
       window.AdGigaFallback = function() {
@@ -80,19 +90,7 @@
       }, 5000);
     </script>
 
-    <!-- Инициализация Adexium Widget с параметрами для полноэкранной рекламы -->
-    <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', () => {
-            const adexiumWidget = new AdexiumWidget({
-                wid: 'e279c53e-42c1-42b9-93be-a535d900a92e',
-                adFormat: 'interstitial', // Формат для полноэкранного показа
-                firstAdImpressionIntervalInSeconds: 10, // Показать первую рекламу через 60 сек.
-                adImpressionIntervalInSeconds: 60, // Периодичность показа: каждые 60 сек.
-                isFullScreen: true // Принудительный полноэкранный режим
-            });
-            adexiumWidget.autoMode(); // Включение автоматического показа
-        });
-    </script>
+    
 </head>
 <body>
     <div id="root"></div>
