@@ -13,7 +13,7 @@
     <!-- Adexium Widget -->
     <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
     
-    <!-- GigaPub SDK (обновленная версия) -->
+    <!-- GigaPub SDK -->
     <script data-project-id="3186">
       !function(){
         var s=document.currentScript,p=s.getAttribute('data-project-id')||'default';
@@ -31,7 +31,6 @@
           sc.onload=function(){
             clearTimeout(t);
             console.log("GigaPub SDK загружен успешно");
-            // Инициализируем функцию показа рекламы после загрузки
             if (window.gigaOfferWallSDK) {
               window.gigaOfferWallSDK.init({
                 projectId: "3186"
@@ -66,16 +65,13 @@
 
     <!-- Резервная функция GigaPub -->
     <script type="text/javascript">
-      // Резервная функция на случай недоступности GigaPub
       window.AdGigaFallback = function() {
         return new Promise((resolve) => {
           console.log("Используем резервную рекламу GigaPub");
-          // Симулируем успешный показ рекламы через 1 секунду
           setTimeout(resolve, 1000);
         });
       };
 
-      // Создаем функцию showGiga, если она не была создана скриптом GigaPub
       setTimeout(() => {
         if (typeof window.showGiga !== 'function') {
           console.warn("GigaPub не загрузился, используем резервную функцию");
@@ -86,7 +82,6 @@
 
     <!-- Инициализация Adexium с реальной рекламой -->
     <script type="text/javascript">
-      // Инициализация и запуск после полной загрузки DOM
       document.addEventListener('DOMContentLoaded', () => {
         let adexiumAds = null;
         let adexiumInterval = null;
@@ -102,7 +97,6 @@
 
         // Функция показа рекламы Adexium
         const showAdexiumAd = () => {
-          // Проверяем, активна ли страница
           if (!isPageVisible) {
             console.log("Страница неактивна, пропускаем показ рекламы");
             return;
@@ -130,9 +124,9 @@
         // Проверяем, что класс AdexiumWidget доступен
         if (typeof AdexiumWidget !== 'undefined') {
           adexiumAds = new AdexiumWidget({
-            wid: 'e279c53e-42c1-42b9-93be-a535d900a92e', // Ваш реальный Widget ID
-            adFormat: 'interstitial', // Используем interstitial для реальной рекламы
-            debug: false // Отключаем режим отладки для реальной рекламы
+            wid: 'e279c53e-42c1-42b9-93be-a535d900a92e',
+            adFormat: 'interstitial',
+            debug: false // ВЫКЛЮЧАЕМ тестовый режим для реальной рекламы
           });
 
           // Автоматический показ рекламы каждые 60 секунд
