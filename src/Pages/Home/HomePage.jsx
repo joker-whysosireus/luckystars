@@ -224,6 +224,31 @@ function HomePage({ userData, updateUserData, isActive }) {
     }
   };
 
+  // НОВАЯ ФУНКЦИЯ: Увеличивает счетчик открытых блоков
+  const incrementOpenBlocksOnServer = async () => {
+    try {
+      const response = await axios.post(
+        'https://lucky-stars-backend.netlify.app/.netlify/functions/increment-open-blocks',
+        {
+          telegram_user_id: userData.telegram_user_id
+        }
+      );
+
+      if (response.data.success) {
+        // Обновляем локальные данные
+        updateUserData({
+          ...userData,
+          open_blocks: response.data.newOpenBlocksCount
+        });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error incrementing open blocks:", error);
+      return false;
+    }
+  };
+
   const handleSquareClick = async (blockId) => {
     // Если происходит сброс блоков, анимация, задержка или блок уже в обработке, игнорируем клики
     if (isResetting || isAnimating || isCooldown || processingBlocks.has(blockId)) return;
@@ -313,6 +338,9 @@ function HomePage({ userData, updateUserData, isActive }) {
         shards: newShards
       });
     }
+    
+    // НОВЫЙ ВЫЗОВ: Увеличиваем счетчик открытых блоков
+    await incrementOpenBlocksOnServer();
     
     // Убираем блок из обработки и разблокируем другие блоки
     setProcessingBlocks(prev => {
