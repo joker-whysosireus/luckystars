@@ -82,79 +82,18 @@
 
     <!-- Инициализация Adexium с реальной рекламой -->
     <!-- Инициализация Adexium -->
+    <!-- Инициализация Adexium -->
+    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/tg-ads-co-widget.min.js"></script>
     <script type="text/javascript">
         document.addEventListener('DOMContentLoaded', () => {
-            let adexiumAds = null;
-            let adexiumInterval = null;
-            let lastAdTime = 0;
-            const AD_COOLDOWN = 60000; // 60 секунд между показами
-            let isPageVisible = true;
-
-            // Проверка видимости страницы
-            document.addEventListener('visibilitychange', () => {
-                isPageVisible = !document.hidden;
-                console.log('Видимость страницы:', isPageVisible);
+            const adexiumAds = new AdexiumWidget({
+                wid: 'e279c53e-42c1-42b9-93be-a535d900a92e',
+                adFormat: 'push-like', //adFormat только такие: push-like/interstitial
+                firstAdImpressionIntervalInSeconds: 5, // по умолчанию если параметр не задан, реклама покажется через 20 секунд после загрузки приложения
+                adImpressionIntervalInSeconds: 70, // по умолчанию если параметр не задан, реклама будет показываться с периодичностью 200 сек
+                isFullScreen: true // если требуется принудительное включение показа рекламы в полноэкранном режиме - просто поменяйте значение на true 
             });
-
-            // Функция показа рекламы Adexium
-            const showAdexiumAd = () => {
-                if (!isPageVisible) {
-                    console.log("Страница неактивна, пропускаем показ рекламы");
-                    return;
-                }
-
-                const now = Date.now();
-                if (now - lastAdTime < AD_COOLDOWN) {
-                    console.log("Реклама Adexium еще в кулдауне");
-                    return;
-                }
-
-                try {
-                    if (adexiumAds && typeof adexiumAds.showAd === 'function') {
-                        console.log("Показываем рекламу Adexium");
-                        adexiumAds.showAd();
-                        lastAdTime = now;
-                    } else {
-                        console.log("Adexium недоступен для показа");
-                    }
-                } catch (error) {
-                    console.error("Ошибка при показе рекламы Adexium:", error);
-                }
-            };
-
-            // Проверяем, что класс AdexiumWidget доступен
-            if (typeof AdexiumWidget !== 'undefined') {
-                // Инициализация виджета с параметрами из документации
-                adexiumAds = new AdexiumWidget({
-                    wid: 'e279c53e-42c1-42b9-93be-a535d900a92e', // Ваш Widget ID
-                    adFormat: 'interstitial',
-                    // Параметр debug больше не упоминается
-                });
-
-                // Показываем рекламу при полной загрузке страницы
-                window.addEventListener('load', () => {
-                    console.log('Страница полностью загружена, запускаем Adexium');
-                    // Автоматический показ рекламы каждые 60 секунд
-                    adexiumInterval = setInterval(showAdexiumAd, AD_COOLDOWN);
-                    // Первая реклама через 5 секунд после загрузки
-                    setTimeout(showAdexiumAd, 5000);
-                });
-
-                // Делаем функцию доступной глобально для ручного вызова
-                window.showAd = showAdexiumAd;
-
-                console.log('Adexium Widget инициализирован');
-
-            } else {
-                console.error('Ошибка: Скрипт Adexium не загружен корректно.');
-            }
-
-            // Очистка интервала при разгрузке страницы
-            window.addEventListener('beforeunload', () => {
-                if (adexiumInterval) {
-                    clearInterval(adexiumInterval);
-                }
-            });
+            adexiumAds.autoMode(); // этот метод необходимо вызывать если необходимо чтоб реклама показывалась автоматически в зависимости от заданных параметров
         });
     </script>
 </head>
