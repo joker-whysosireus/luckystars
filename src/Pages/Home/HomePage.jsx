@@ -271,8 +271,10 @@ function HomePage({ userData, updateUserData, isActive }) {
       return;
     }
     
-    // Блокируем все блоки во время анимации
+    // Блокируем все блоки во время анимации - МГНОВЕННО
     setIsAnimating(true);
+    // Активируем задержку МГНОВЕННО
+    setIsCooldown(true);
     
     // Добавляем блок в обработку
     setProcessingBlocks(prev => new Set(prev).add(blockId));
@@ -303,6 +305,7 @@ function HomePage({ userData, updateUserData, isActive }) {
         return newSet;
       });
       setIsAnimating(false);
+      setIsCooldown(false);
       return;
     }
     
@@ -313,7 +316,7 @@ function HomePage({ userData, updateUserData, isActive }) {
     // Имитация загрузки
     await new Promise(resolve => setTimeout(resolve, 300));
     
-    // После завершения анимации устанавливаем значения
+    // После завершения анимации устанавливаем значения - СНАЧАЛА обновляем состояние блока
     const finalizedBlocks = blocksRef.current.map(block => 
       block.id === blockId 
         ? { 
@@ -328,31 +331,27 @@ function HomePage({ userData, updateUserData, isActive }) {
     
     setBlocks(finalizedBlocks);
     
-    // Обновляем алмазы на сервере
-    const shardsUpdated = await updateShardsOnServer(randomShards);
-    if (!shardsUpdated) {
-      // Если не удалось обновить на сервере, обновляем локально
-      const newShards = (userData?.shards || 0) + randomShards;
-      updateUserData({
-        ...userData,
-        shards: newShards
-      });
-    }
+    // Затем обновляем алмазы на сервере (асинхронно, не ждем)
+    updateShardsOnServer(randomShards).catch(error => {
+      console.error("Error updating shards:", error);
+    });
     
     // НОВЫЙ ВЫЗОВ: Увеличиваем счетчик открытых блоков (вызываем без задержки)
-    await incrementOpenBlocksOnServer();
+    incrementOpenBlocksOnServer().catch(error => {
+      console.error("Error incrementing open blocks:", error);
+    });
     
-    // Убираем блок из обработки и разблокируем другие блоки
+    // Убираем блок из обработки
     setProcessingBlocks(prev => {
       const newSet = new Set(prev);
       newSet.delete(blockId);
       return newSet;
     });
     
+    // Снимаем блокировку анимации, но оставляем задержку
     setIsAnimating(false);
     
     // Устанавливаем задержку на 2 секунды для анимации
-    setIsCooldown(true);
     setTimeout(() => {
       setIsCooldown(false);
       
