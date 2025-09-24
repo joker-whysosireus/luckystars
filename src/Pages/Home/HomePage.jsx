@@ -339,7 +339,7 @@ function HomePage({ userData, updateUserData, isActive }) {
       });
     }
     
-    // НОВЫЙ ВЫЗОВ: Увеличиваем счетчик открытых блоков
+    // НОВЫЙ ВЫЗОВ: Увеличиваем счетчик открытых блоков (вызываем без задержки)
     await incrementOpenBlocksOnServer();
     
     // Убираем блок из обработки и разблокируем другие блоки
@@ -351,17 +351,19 @@ function HomePage({ userData, updateUserData, isActive }) {
     
     setIsAnimating(false);
     
-    // Устанавливаем задержку на 2 секунды
+    // Устанавливаем задержку на 2 секунды для анимации
     setIsCooldown(true);
     setTimeout(() => {
       setIsCooldown(false);
       
-      // Убираем флаг недавно открытого блока
-      const updatedBlocks = blocksRef.current.map(block => ({
-        ...block,
-        recentlyOpened: false
-      }));
-      setBlocks(updatedBlocks);
+      // Убираем флаг недавно открытого блока только у текущего блока
+      setBlocks(prevBlocks => 
+        prevBlocks.map(block => 
+          block.id === blockId 
+            ? { ...block, recentlyOpened: false }
+            : block
+        )
+      );
     }, 2000);
   };
 
@@ -568,12 +570,7 @@ function HomePage({ userData, updateUserData, isActive }) {
               {block?.isLoading ? (
                 <div className="loading-spinner"></div>
               ) : (
-                block?.isOpened && (
-                  <div className="shards-display">
-                    <span className="shards-count">{block.shards}</span>
-                    <Diamond size={16} color="#3b82f6" fill="#3b82f6" />
-                  </div>
-                )
+                block?.isOpened && <span className="shards-count">{block.shards}  <Diamond size={14} color="#3b82f6" /></span>
               )}
             </div>
           </div>
