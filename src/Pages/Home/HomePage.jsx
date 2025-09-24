@@ -316,7 +316,7 @@ function HomePage({ userData, updateUserData, isActive }) {
     // Имитация загрузки
     await new Promise(resolve => setTimeout(resolve, 300));
     
-    // После завершения анимации устанавливаем значения - СНАЧАЛА обновляем состояние блока
+    // После завершения анимации устанавливаем значения
     const finalizedBlocks = blocksRef.current.map(block => 
       block.id === blockId 
         ? { 
@@ -331,12 +331,11 @@ function HomePage({ userData, updateUserData, isActive }) {
     
     setBlocks(finalizedBlocks);
     
-    // Затем обновляем алмазы на сервере (асинхронно, не ждем)
-    updateShardsOnServer(randomShards).catch(error => {
-      console.error("Error updating shards:", error);
-    });
+    // Обновляем алмазы на сервере
+    await updateShardsOnServer(randomShards);
     
     // НОВЫЙ ВЫЗОВ: Увеличиваем счетчик открытых блоков (вызываем без задержки)
+    // Вызываем асинхронно, но не ждем завершения, чтобы не блокировать UI
     incrementOpenBlocksOnServer().catch(error => {
       console.error("Error incrementing open blocks:", error);
     });

@@ -48,7 +48,6 @@
   perspective: 1000px;
   transform-style: preserve-3d;
   transition: transform 0.3s ease;
-  background-color: transparent; /* Убедимся, что фон прозрачный */
 }
 
 .square-front, .square-back {
@@ -60,7 +59,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: background-color 0.3s ease; /* Плавный переход для фона */
 }
 
 .square-front {
@@ -74,13 +72,9 @@
   border: 1px solid #888;
 }
 
-/* Убираем изменение фона для .square в состоянии loading */
+/* Убрано состояние flipping, заменено на loading */
 .square.loading {
   transform: rotateY(180deg);
-}
-
-/* Вместо этого задаем фон для .square-back в состоянии loading */
-.square.loading .square-back {
   background-color: #e5e7eb; /* Серый цвет для загрузки */
 }
 
@@ -88,17 +82,11 @@
   transform: rotateY(180deg);
 }
 
-/* ПЛАВНОЕ затемнение блоков во время блокировки с мгновенной активацией */
-.squares-container.disabled .square:not(.opened),
+/* Стиль для блоков во время задержки после открытия */
 .squares-container.cooldown .square:not(.opened) {
   cursor: not-allowed;
-  opacity: 0.6;
-  transition: opacity 0.3s ease;
-}
-
-/* Мгновенная блокировка при активации cooldown */
-.squares-container.cooldown {
-  pointer-events: none;
+  opacity: 0.8; /* Более плавное затемнение */
+  transition: opacity 0.3s ease; /* Плавный переход */
 }
 
 .shards-count {
@@ -129,18 +117,13 @@
   background-color: #666;
 }
 
-/* Блокировка кликов во время анимации */
+/* Убрано затемнение экрана (opacity: 0.7) */
 .squares-container.disabled {
   pointer-events: none;
 }
 
-/* Убедимся, что обе стороны всегда видны и правильно скрыты/показаны */
-.square-front {
-  display: flex;
-}
-
-.square-back {
-  display: flex;
+.squares-container.disabled .square {
+  cursor: not-allowed;
 }
 
 /* Скрываем переднюю часть при загрузке и открытии */
@@ -155,11 +138,6 @@
   display: flex;
 }
 
-/* Плавный переход между состояниями */
-.square .square-back {
-  transition: background-color 0.3s ease, opacity 0.3s ease;
-}
-
 /* Анимация для нового открытого блока */
 .square.recently-opened {
   animation: pulse 2s ease;
@@ -169,25 +147,4 @@
   0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
   70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
   100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
-}
-
-/* Плавное появление блоков после загрузки */
-.square {
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-/* Убедимся, что при переходе из loading в opened не будет черного экрана */
-.square.loading .square-back,
-.square.opened .square-back {
-  background-color: #666; /* Одинаковый фон для обоих состояний */
-}
-
-/* Только во время загрузки меняем фон на светлый */
-.square.loading .square-back {
-  background-color: #e5e7eb;
 }
