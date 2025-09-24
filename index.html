@@ -10,15 +10,90 @@
     <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
+    <!-- Adexium Widget -->
     <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', () => {
-            const adexiumWidget = new AdexiumWidget({wid: 'e279c53e-42c1-42b9-93be-a535d900a92e', adFormat: 'push-like'});
-            adexiumWidget.autoMode();
+        // Функция для инициализации Adexium после загрузки DOM
+        function initAdexium() {
+            if (typeof AdexiumWidget !== 'undefined') {
+                try {
+                    const adexiumWidget = new AdexiumWidget({
+                        wid: 'e279c53e-42c1-42b9-93be-a535d900a92e', 
+                        adFormat: 'push-like'
+                    });
+                    adexiumWidget.autoMode();
+                    console.log('Adexium widget initialized successfully');
+                    
+                    // Сохраняем ссылку на виджет для ручного управления
+                    window.adexiumWidget = adexiumWidget;
+                } catch (error) {
+                    console.error('Adexium initialization error:', error);
+                }
+            } else {
+                console.warn('AdexiumWidget is not defined');
+            }
+        }
+
+        // Загружаем скрипт Adexium
+        function loadAdexiumScript() {
+            return new Promise((resolve, reject) => {
+                if (document.querySelector('script[src*="adexium-widget"]')) {
+                    resolve();
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = 'https://cdn.tgads.space/assets/js/adexium-widget.min.js';
+                script.type = 'text/javascript';
+                script.async = true;
+                
+                script.onload = () => {
+                    console.log('Adexium script loaded');
+                    resolve();
+                };
+                
+                script.onerror = () => {
+                    console.error('Failed to load Adexium script');
+                    reject(new Error('Adexium script load failed'));
+                };
+                
+                document.head.appendChild(script);
+            });
+        }
+
+        // Инициализация после полной загрузки страницы
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await loadAdexiumScript();
+                // Даем время для загрузки библиотеки
+                setTimeout(initAdexium, 1000);
+            } catch (error) {
+                console.error('Adexium loading failed:', error);
+            }
         });
+
+        // Резервная функция для показа рекламы Adexium
+        window.showAdexiumAd = function() {
+            return new Promise((resolve, reject) => {
+                if (window.adexiumWidget && typeof window.adexiumWidget.show === 'function') {
+                    try {
+                        window.adexiumWidget.show();
+                        console.log('Adexium ad shown manually');
+                        // Симулируем успешный показ через 2 секунды
+                        setTimeout(resolve, 2000);
+                    } catch (error) {
+                        console.error('Error showing Adexium ad:', error);
+                        reject(error);
+                    }
+                } else {
+                    console.warn('Adexium widget not available, using fallback');
+                    // Резервное решение
+                    setTimeout(resolve, 2000);
+                }
+            });
+        };
     </script>
-    
-    <!-- GigaPub SDK (обновленная веррсия) -->
+
+    <!-- GigaPub SDK -->
     <script data-project-id="3186">
       !function(){
         var s=document.currentScript,p=s.getAttribute('data-project-id')||'default';
@@ -36,7 +111,6 @@
           sc.onload=function(){
             clearTimeout(t);
             console.log("GigaPub SDK загружен успешно");
-            // Инициализируем функцию показа рекламы после загрузки
             if (window.gigaOfferWallSDK) {
               window.gigaOfferWallSDK.init({
                 projectId: "3186"
@@ -69,18 +143,50 @@
       }();
     </script>
 
-    <!-- Резервная функция GigaPub -->
+    <!-- Резервные функции -->
     <script type="text/javascript">
-      // Резервная функция на случай недоступности GigaPub
+      // Резервная функция для GigaPub
       window.AdGigaFallback = function() {
         return new Promise((resolve) => {
           console.log("Используем резервную рекламу GigaPub");
-          // Симулируем успешный показ рекламы через 1 секунду
           setTimeout(resolve, 1000);
         });
       };
 
-      // Создаем функцию showGiga, если она не была создана скриптом GigaPub
+      // Универсальная функция для показа рекламы
+      window.showAd = function() {
+        return new Promise(async (resolve) => {
+          console.log('Attempting to show ad...');
+          
+          // Сначала пробуем Adexium
+          try {
+            await window.showAdexiumAd();
+            console.log('Adexium ad completed');
+            resolve();
+            return;
+          } catch (error) {
+            console.warn('Adexium failed, trying GigaPub:', error);
+          }
+          
+          // Затем пробуем GigaPub
+          try {
+            if (typeof window.showGiga === 'function') {
+              await window.showGiga();
+              console.log('GigaPub ad completed');
+            } else {
+              await window.AdGigaFallback();
+              console.log('GigaPub fallback completed');
+            }
+            resolve();
+          } catch (error) {
+            console.error('All ad providers failed, using final fallback:', error);
+            // Финальное резервное решение
+            setTimeout(resolve, 1500);
+          }
+        });
+      };
+
+      // Инициализация резервных функций через 5 секунд
       setTimeout(() => {
         if (typeof window.showGiga !== 'function') {
           console.warn("GigaPub не загрузился, используем резервную функцию");
@@ -88,11 +194,23 @@
         }
       }, 5000);
     </script>
-
     
 </head>
 <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Дополнительная инициализация после загрузки React -->
+    <script type="text/javascript">
+        // Проверяем доступность рекламных SDK после загрузки приложения
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                console.log('Ad availability check:');
+                console.log('- Adexium available:', typeof window.adexiumWidget !== 'undefined');
+                console.log('- GigaPub available:', typeof window.showGiga === 'function');
+                console.log('- Universal ad function available:', typeof window.showAd === 'function');
+            }, 2000);
+        });
+    </script>
 </body>
 </html>
