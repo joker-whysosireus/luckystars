@@ -271,10 +271,8 @@ function HomePage({ userData, updateUserData, isActive }) {
       return;
     }
     
-    // Блокируем все блоки во время анимации - МГНОВЕННО
+    // Блокируем все блоки во время анимации
     setIsAnimating(true);
-    // Активируем задержку МГНОВЕННО
-    setIsCooldown(true);
     
     // Добавляем блок в обработку
     setProcessingBlocks(prev => new Set(prev).add(blockId));
@@ -305,7 +303,6 @@ function HomePage({ userData, updateUserData, isActive }) {
         return newSet;
       });
       setIsAnimating(false);
-      setIsCooldown(false);
       return;
     }
     
@@ -332,25 +329,30 @@ function HomePage({ userData, updateUserData, isActive }) {
     setBlocks(finalizedBlocks);
     
     // Обновляем алмазы на сервере
-    await updateShardsOnServer(randomShards);
+    const shardsUpdated = await updateShardsOnServer(randomShards);
+    if (!shardsUpdated) {
+      // Если не удалось обновить на сервере, обновляем локально
+      const newShards = (userData?.shards || 0) + randomShards;
+      updateUserData({
+        ...userData,
+        shards: newShards
+      });
+    }
     
     // НОВЫЙ ВЫЗОВ: Увеличиваем счетчик открытых блоков (вызываем без задержки)
-    // Вызываем асинхронно, но не ждем завершения, чтобы не блокировать UI
-    incrementOpenBlocksOnServer().catch(error => {
-      console.error("Error incrementing open blocks:", error);
-    });
+    await incrementOpenBlocksOnServer();
     
-    // Убираем блок из обработки
+    // Убираем блок из обработки и разблокируем другие блоки
     setProcessingBlocks(prev => {
       const newSet = new Set(prev);
       newSet.delete(blockId);
       return newSet;
     });
     
-    // Снимаем блокировку анимации, но оставляем задержку
     setIsAnimating(false);
     
     // Устанавливаем задержку на 2 секунды для анимации
+    setIsCooldown(true);
     setTimeout(() => {
       setIsCooldown(false);
       
