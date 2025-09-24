@@ -10,87 +10,29 @@
     <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <!-- Adexium Widget -->
+    <!-- Adexium Widget - согласно официальной документации -->
+    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
     <script type="text/javascript">
-        // Функция для инициализации Adexium после загрузки DOM
-        function initAdexium() {
-            if (typeof AdexiumWidget !== 'undefined') {
+        // Инициализация Adexium согласно документации
+        document.addEventListener('DOMContentLoaded', function() {
+            // Даем время для загрузки всех скриптов
+            setTimeout(function() {
                 try {
-                    const adexiumWidget = new AdexiumWidget({
-                        wid: 'e279c53e-42c1-42b9-93be-a535d900a92e', 
-                        adFormat: 'push-like'
+                    // Создаем экземпляр виджета с настройками из документации
+                    var adexiumWidget = new AdexiumWidget({
+                        wid: 'e279c53e-42c1-42b9-93be-a535d900a92e',
+                        adFormat: 'push-like' // Формат для Telegram Mini Apps
                     });
-                    adexiumWidget.autoMode();
-                    console.log('Adexium widget initialized successfully');
                     
-                    // Сохраняем ссылку на виджет для ручного управления
-                    window.adexiumWidget = adexiumWidget;
+                    // Запускаем автоматический режим показа рекламы
+                    adexiumWidget.autoMode();
+                    
+                    console.log('Adexium widget initialized successfully');
                 } catch (error) {
-                    console.error('Adexium initialization error:', error);
+                    console.error('Error initializing Adexium:', error);
                 }
-            } else {
-                console.warn('AdexiumWidget is not defined');
-            }
-        }
-
-        // Загружаем скрипт Adexium
-        function loadAdexiumScript() {
-            return new Promise((resolve, reject) => {
-                if (document.querySelector('script[src*="adexium-widget"]')) {
-                    resolve();
-                    return;
-                }
-                
-                const script = document.createElement('script');
-                script.src = 'https://cdn.tgads.space/assets/js/adexium-widget.min.js';
-                script.type = 'text/javascript';
-                script.async = true;
-                
-                script.onload = () => {
-                    console.log('Adexium script loaded');
-                    resolve();
-                };
-                
-                script.onerror = () => {
-                    console.error('Failed to load Adexium script');
-                    reject(new Error('Adexium script load failed'));
-                };
-                
-                document.head.appendChild(script);
-            });
-        }
-
-        // Инициализация после полной загрузки страницы
-        document.addEventListener('DOMContentLoaded', async () => {
-            try {
-                await loadAdexiumScript();
-                // Даем время для загрузки библиотеки
-                setTimeout(initAdexium, 1000);
-            } catch (error) {
-                console.error('Adexium loading failed:', error);
-            }
+            }, 1000);
         });
-
-        // Резервная функция для показа рекламы Adexium
-        window.showAdexiumAd = function() {
-            return new Promise((resolve, reject) => {
-                if (window.adexiumWidget && typeof window.adexiumWidget.show === 'function') {
-                    try {
-                        window.adexiumWidget.show();
-                        console.log('Adexium ad shown manually');
-                        // Симулируем успешный показ через 2 секунды
-                        setTimeout(resolve, 2000);
-                    } catch (error) {
-                        console.error('Error showing Adexium ad:', error);
-                        reject(error);
-                    }
-                } else {
-                    console.warn('Adexium widget not available, using fallback');
-                    // Резервное решение
-                    setTimeout(resolve, 2000);
-                }
-            });
-        };
     </script>
 
     <!-- GigaPub SDK -->
@@ -143,9 +85,9 @@
       }();
     </script>
 
-    <!-- Резервные функции -->
+    <!-- Резервная функция GigaPub -->
     <script type="text/javascript">
-      // Резервная функция для GigaPub
+      // Резервная функция на случай недоступности GigaPub
       window.AdGigaFallback = function() {
         return new Promise((resolve) => {
           console.log("Используем резервную рекламу GigaPub");
@@ -153,40 +95,7 @@
         });
       };
 
-      // Универсальная функция для показа рекламы
-      window.showAd = function() {
-        return new Promise(async (resolve) => {
-          console.log('Attempting to show ad...');
-          
-          // Сначала пробуем Adexium
-          try {
-            await window.showAdexiumAd();
-            console.log('Adexium ad completed');
-            resolve();
-            return;
-          } catch (error) {
-            console.warn('Adexium failed, trying GigaPub:', error);
-          }
-          
-          // Затем пробуем GigaPub
-          try {
-            if (typeof window.showGiga === 'function') {
-              await window.showGiga();
-              console.log('GigaPub ad completed');
-            } else {
-              await window.AdGigaFallback();
-              console.log('GigaPub fallback completed');
-            }
-            resolve();
-          } catch (error) {
-            console.error('All ad providers failed, using final fallback:', error);
-            // Финальное резервное решение
-            setTimeout(resolve, 1500);
-          }
-        });
-      };
-
-      // Инициализация резервных функций через 5 секунд
+      // Создаем функцию showGiga, если она не была создана скриптом GigaPub
       setTimeout(() => {
         if (typeof window.showGiga !== 'function') {
           console.warn("GigaPub не загрузился, используем резервную функцию");
@@ -199,18 +108,5 @@
 <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
-
-    <!-- Дополнительная инициализация после загрузки React -->
-    <script type="text/javascript">
-        // Проверяем доступность рекламных SDK после загрузки приложения
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                console.log('Ad availability check:');
-                console.log('- Adexium available:', typeof window.adexiumWidget !== 'undefined');
-                console.log('- GigaPub available:', typeof window.showGiga === 'function');
-                console.log('- Universal ad function available:', typeof window.showAd === 'function');
-            }, 2000);
-        });
-    </script>
 </body>
 </html>
