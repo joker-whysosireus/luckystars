@@ -76,7 +76,7 @@ function Store({ userData, updateUserData }) {
   const fetchUserGifts = async () => {
     try {
       const response = await axios.post(
-        'https://lucky-stars-backend.netlify.app/.netlify/functions/get-user-gifts',
+        'https://giftsblocksbackend.store/.netlify/functions/get-user-gifts',
         {
           telegram_user_id: userData.telegram_user_id
         }
@@ -114,7 +114,7 @@ function Store({ userData, updateUserData }) {
 
     try {
       const response = await axios.post(
-        'https://lucky-stars-backend.netlify.app/.netlify/functions/buy-gift',
+        'https://giftsblocksbackend.store/.netlify/functions/buy-gift',
         {
           telegram_user_id: userData.telegram_user_id,
           gift_name: selectedGift.name,

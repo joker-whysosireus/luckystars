@@ -8,7 +8,7 @@ import PageTransition from './Assets/Transition/PageTransition.jsx';
 import Loader from './Assets/Loader/Loader.jsx';
 import Store from './Pages/Store/Store.jsx';
 
-const AUTH_FUNCTION_URL = 'https://lucky-stars-backend.netlify.app/.netlify/functions/auth';
+const AUTH_FUNCTION_URL = 'https://giftsblocksbackend.store/.netlify/functions/auth';
 
 const App = () => {
     const location = useLocation();

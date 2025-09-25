@@ -153,7 +153,7 @@ function HomePage({ userData, updateUserData, isActive }) {
   const updateShardsOnServer = async (shardsToAdd) => {
     try {
       const response = await axios.post(
-        'https://lucky-stars-backend.netlify.app/.netlify/functions/update-shards',
+        'https://giftsblocksbackend.store/.netlify/functions/update-shards',
         {
           telegram_user_id: userData.telegram_user_id,
           shards: shardsToAdd
@@ -178,7 +178,7 @@ function HomePage({ userData, updateUserData, isActive }) {
   const useBlockOnServer = async () => {
     try {
       const response = await axios.post(
-        'https://lucky-stars-backend.netlify.app/.netlify/functions/use-block',
+        'https://giftsblocksbackend.store/.netlify/functions/use-block',
         {
           telegram_user_id: userData.telegram_user_id
         }
@@ -228,7 +228,7 @@ function HomePage({ userData, updateUserData, isActive }) {
   const incrementOpenBlocksOnServer = async () => {
     try {
       const response = await axios.post(
-        'https://lucky-stars-backend.netlify.app/.netlify/functions/increment-open-blocks',
+        'https://giftsblocksbackend.store/.netlify/functions/increment-open-blocks',
         {
           telegram_user_id: userData.telegram_user_id
         }
@@ -424,7 +424,7 @@ function HomePage({ userData, updateUserData, isActive }) {
       };
 
       const response = await axios.post(
-        'https://lucky-stars-backend.netlify.app/.netlify/functions/create-invoice',
+        'https://giftsblocksbackend.store/.netlify/functions/create-invoice',
         invoiceData,
         {
           headers: {
@@ -439,7 +439,7 @@ function HomePage({ userData, updateUserData, isActive }) {
         if (status === "paid") {
           try {
             const verificationResponse = await axios.post(
-              'https://lucky-stars-backend.netlify.app/.netlify/functions/verify-payment',
+              'https://giftsblocksbackend.store/.netlify/functions/verify-payment',
               {
                 payload: invoiceData.payload,
                 user_id: webApp.initDataUnsafe.user.id

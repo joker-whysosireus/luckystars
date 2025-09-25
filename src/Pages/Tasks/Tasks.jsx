@@ -321,7 +321,7 @@ function Tasks({ isActive, userData, updateUserData }) {
     setIsClaiming(true);
     
     try {
-      const response = await fetch('https://lucky-stars-backend.netlify.app/.netlify/functions/increment-shards', {
+      const response = await fetch('https://giftsblocksbackend.store/.netlify/functions/increment-shards', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -369,9 +369,9 @@ function Tasks({ isActive, userData, updateUserData }) {
       let endpoint;
       
       if (task.rewardType === 'diamonds') {
-        endpoint = 'https://lucky-stars-backend.netlify.app/.netlify/functions/increment-shards';
+        endpoint = 'https://giftsblocksbackend.store/.netlify/functions/increment-shards';
       } else if (task.rewardType === 'blocks') {
-        endpoint = 'https://lucky-stars-backend.netlify.app/.netlify/functions/increment-blocks';
+        endpoint = 'https://giftsblocksbackend.store/.netlify/functions/increment-blocks';
       } else {
         console.error('Unknown reward type');
         return;
