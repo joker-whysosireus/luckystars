@@ -151,7 +151,7 @@ function Tasks({ isActive, userData, updateUserData }) {
       total: 1, 
       completed: claimedTasks.includes(0),
       type: 'url',
-      url: 'https://t.me/your_channel'
+      url: 'https://t.me/gifts_blocks_channel'
     },
     { 
       id: 1, 
@@ -249,7 +249,7 @@ function Tasks({ isActive, userData, updateUserData }) {
       total: 1, 
       completed: claimedTasks.includes(11),
       type: 'url',
-      url: 'https://t.me/gifts_bloks_bot/gifts_blocks_app'
+      url: 'https://t.me/liquid_coin_bot/liquid_coin_app'
     },
     { 
       id: 12, 
@@ -261,6 +261,17 @@ function Tasks({ isActive, userData, updateUserData }) {
       completed: claimedTasks.includes(12),
       type: 'url',
       url: 'https://t.me/liquid_coin_channel'
+    },
+    { 
+      id: 13, 
+      title: 'Join Not Spy', 
+      reward: 10, 
+      rewardType: 'diamonds',
+      progress: claimedTasks.includes(13) ? 1 : 0, 
+      total: 1, 
+      completed: claimedTasks.includes(13),
+      type: 'url',
+      url: 'https://t.me/appss/store?startapp=MjE3MzF8NzQ2NTQwODM2Ng=='
     }
   ];
 
