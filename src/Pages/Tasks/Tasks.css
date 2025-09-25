@@ -213,3 +213,33 @@
 .button-loading {
   animation: pulse 1.5s infinite;
 }
+
+
+@media  (max-height: 670px) {
+  
+  .tasks-page.dark-theme {
+    padding: 80px 3px 100px;
+  }
+
+}
+
+
+@media (min-height: 790px) and (max-height: 800px) {
+  .tasks-page.dark-theme {
+    padding: 80px 5px 100px;
+  }
+
+}
+
+@media (min-height: 890px) and (max-height: 940px) {
+  .tasks-content {
+    width: 388px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .tasks-page.dark-theme {
+    padding: 80px 15px 100px;
+  }
+}

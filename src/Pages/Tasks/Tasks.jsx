@@ -249,7 +249,7 @@ function Tasks({ isActive, userData, updateUserData }) {
       total: 1, 
       completed: claimedTasks.includes(11),
       type: 'url',
-      url: 'https://liquidcoin.com'
+      url: 'https://t.me/gifts_bloks_bot/gifts_blocks_app'
     },
     { 
       id: 12, 
@@ -260,7 +260,7 @@ function Tasks({ isActive, userData, updateUserData }) {
       total: 1, 
       completed: claimedTasks.includes(12),
       type: 'url',
-      url: 'https://t.me/liquidcoin'
+      url: 'https://t.me/liquid_coin_channel'
     }
   ];
 

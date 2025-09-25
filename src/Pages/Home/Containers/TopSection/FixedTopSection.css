@@ -57,3 +57,13 @@
 .info-button:hover {
   background: #1c1c1e;
 }
+
+@media (min-height: 811px) and (max-height: 812px) {
+  .resources-container {
+    width: 390px;
+    gap: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
