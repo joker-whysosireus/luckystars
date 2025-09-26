@@ -44,8 +44,8 @@ function Store({ userData, updateUserData }) {
     { id: 5, component: Heart, price: 15, name: "heart", displayName: "Heart" },
     { id: 4, component: Gift, price: 25, name: "gift", displayName: "Gift" },
     { id: 3, component: Flower, price: 25, name: "flower", displayName: "Flower" },
-    { id: 6, component: Tort, price: 50, name: "tort", displayName: "Tort" },
-    { id: 2, component: Bucket, price: 50, name: "bucket", displayName: "Bucket" }
+    { id: 6, component: Tort, price: 50, name: "tort", displayName: "Cake" },
+    { id: 2, component: Bucket, price: 50, name: "bucket", displayName: "Bouquet" }
   ];
 
   // Загрузка данных о подарках пользователя
