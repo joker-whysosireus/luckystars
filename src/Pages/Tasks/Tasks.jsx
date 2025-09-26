@@ -51,23 +51,6 @@ function Tasks({ isActive, userData, updateUserData }) {
     setIsModalOpen(!isModalOpen);
   };
 
-  // Автоматический показ рекламы Adexium каждые 30 секунд
-  useEffect(() => {
-    const adexiumInterval = setInterval(() => {
-      console.log("Adexium реклама должна показываться автоматически");
-      
-      if (window.showAd && typeof window.showAd === 'function') {
-        try {
-          window.showAd();
-        } catch (error) {
-          console.error("Ошибка при автоматическом показе Adexium:", error);
-        }
-      }
-    }, 30000);
-
-    return () => clearInterval(adexiumInterval);
-  }, []);
-
   // Сохранение состояний в localStorage
   useEffect(() => {
     localStorage.setItem('gigapubAdCounts', JSON.stringify(gigapubAdCounts));
@@ -420,6 +403,13 @@ function Tasks({ isActive, userData, updateUserData }) {
     }
   };
 
+  // Новая функция для обработки URL задач (открытие ссылки без начисления награды)
+  const handleUrlTask = (task) => {
+    if (task.type === 'url' && task.url) {
+      window.open(task.url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   const formatTime = (seconds) => {
     return `${seconds}s`;
   };
@@ -460,6 +450,7 @@ function Tasks({ isActive, userData, updateUserData }) {
           isGigapubLoading={isGigapubLoading}
           handleGigapubAd={handleGigapubAd}
           handleClaimReward={handleClaimReward}
+          handleUrlTask={handleUrlTask} // Передаем новую функцию
           formatTime={formatTime}
           isClaiming={isClaiming}
         />
@@ -468,6 +459,7 @@ function Tasks({ isActive, userData, updateUserData }) {
           tasks={partnersTasks}
           claimedTasks={claimedTasks}
           handleClaimReward={handleClaimReward}
+          handleUrlTask={handleUrlTask} // Передаем новую функцию
           isClaiming={isClaiming}
         />
       </div>

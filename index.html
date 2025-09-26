@@ -10,28 +10,11 @@
     <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-    <!-- Adexium Widget - согласно официальной документации -->
     <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
     <script type="text/javascript">
-        // Инициализация Adexium согласно документации
-        document.addEventListener('DOMContentLoaded', function() {
-            // Даем время для загрузки всех скриптов
-            setTimeout(function() {
-                try {
-                    // Создаем экземпляр виджета с настройками из документации
-                    var adexiumWidget = new AdexiumWidget({
-                        wid: 'e279c53e-42c1-42b9-93be-a535d900a92e',
-                        adFormat: 'push-like' // Формат для Telegram Mini Apps
-                    });
-                    
-                    // Запускаем автоматический режим показа рекламы
-                    adexiumWidget.autoMode();
-                    
-                    console.log('Adexium widget initialized successfully');
-                } catch (error) {
-                    console.error('Error initializing Adexium:', error);
-                }
-            }, 1000);
+        document.addEventListener('DOMContentLoaded', () => {
+            const adexiumWidget = new AdexiumWidget({wid: 'e279c53e-42c1-42b9-93be-a535d900a92e', adFormat: 'push-like'});
+            adexiumWidget.autoMode();
         });
     </script>
 

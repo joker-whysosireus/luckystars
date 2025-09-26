@@ -510,14 +510,8 @@ function HomePage({ userData, updateUserData, isActive }) {
             }
           }
         } else {
+          // УБРАН POPUP ДЛЯ ОТМЕНЕННОЙ ПОКУПКИ - только консоль лог
           console.error("Payment cancelled or failed");
-          if (webApp) {
-            webApp.showPopup({
-              title: "Payment Cancelled",
-              message: "Payment was cancelled or failed. Please try again.",
-              buttons: [{ type: "ok" }]
-            });
-          }
         }
         
         setIsProcessing(false);
