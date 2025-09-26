@@ -7,8 +7,19 @@ import Tasks from './Pages/Tasks/Tasks.jsx';
 import PageTransition from './Assets/Transition/PageTransition.jsx';
 import Loader from './Assets/Loader/Loader.jsx';
 import Store from './Pages/Store/Store.jsx';
+import telegramAnalytics from '@telegram-apps/analytics'; 
 
 const AUTH_FUNCTION_URL = 'https://giftsblocksbackend.store/.netlify/functions/auth';
+
+// Initialize Telegram Analytics
+if (process.env.NODE_ENV === 'production') { 
+        telegramAnalytics.init({
+        token: 'eyJhcHBfbmFtZSI6ImdpZnRzX2Jsb2NrcyIsImFwcF91cmwiOiJodHRwczovL3QubWUvZ2lmdHNfYmxva3NfYm90IiwiYXBwX2RvbWFpbiI6Imh0dHBzOi8vZ2lmdHNibG9ja3Muc3RvcmUifQ==!YTgtOHl1CigSzV4vm3cvJMTrUPjrdu60cEJD1s5yOk4=',
+        appName: 'gifts_blocks', 
+    });
+} else {
+    console.log("Telegram Analytics SDK not initialized in development mode.");
+}
 
 const App = () => {
     const location = useLocation();
@@ -18,186 +29,7 @@ const App = () => {
     const [telegramReady, setTelegramReady] = useState(false);
     const adIntervalRef = useRef(null);
 
-    // Инициализация рекламы
-    useEffect(() => {
-        console.log("App.jsx: Инициализация рекламных SDK");
-
-        // Функция для показа рекламы
-        window.showAd = function() {
-            if (window.adexiumAds) {
-                console.log('Показ рекламы через Adexium');
-                // Adexium автоматически показывает рекламу в autoMode
-            } else if (window.gigaOfferWallSDK) {
-                console.log('Показ рекламы через Offer Wall');
-                window.openOfferWall();
-            } else {
-                console.log('Рекламные SDK не загружены');
-                // Попытка переинициализации
-                initializeAdexium();
-            }
-        };
-
-        // Инициализация Adexium
-        const initializeAdexium = () => {
-            if (typeof AdexiumWidget === 'undefined') {
-                console.error('AdexiumWidget не загружен');
-                return false;
-            }
-
-            try {
-                window.adexiumAds = new AdexiumWidget({
-                    wid: 'e279c53e-42c1-42b9-93be-a535d900a92e',
-                    adFormat: 'push-like',
-                    firstAdImpressionIntervalInSeconds: 30,
-                    adImpressionIntervalInSeconds: 30,
-                    debug: false,
-                    isFullScreen: true
-                });
-
-                // Обработчики событий Adexium
-                window.adexiumAds.on('adReceived', function(ad) {
-                    console.log('Adexium: Реклама получена', ad);
-                });
-                
-                window.adexiumAds.on('noAdFound', function() {
-                    console.log('Adexium: Реклама недоступна');
-                });
-                
-                window.adexiumAds.on('adDisplayed', function() {
-                    console.log('Adexium: Реклама показана');
-                });
-
-                window.adexiumAds.autoMode();
-                console.log('Adexium инициализирован успешно');
-                return true;
-                
-            } catch (error) {
-                console.error('Ошибка инициализации Adexium:', error);
-                return false;
-            }
-        };
-
-        // Инициализация Offer Wall
-        const initializeOfferWall = () => {
-            (window.loadGigaSDKCallbacks || (window.loadGigaSDKCallbacks = [])).push(() => {
-                window.loadOfferWallSDK({
-                    projectId: '3186'
-                })
-                .then(sdk => {
-                    console.log('Offer Wall SDK загружен успешно');
-                    window.gigaOfferWallSDK = sdk;
-                    
-                    sdk.on('rewardClaim', async (data) => {
-                        console.log('Награда получена:', data);
-                        const confirmationHash = await verifyWithYourBackend(data);
-                        if (confirmationHash) {
-                            sdk.confirmReward(data.rewardId, confirmationHash);
-                        }
-                    });
-                    
-                    window.openOfferWall = function() {
-                        if (window.gigaOfferWallSDK) {
-                            window.gigaOfferWallSDK.open();
-                        }
-                    };
-                })
-                .catch(error => {
-                    console.error('Ошибка загрузки Offer Wall SDK:', error);
-                });
-            });
-        };
-
-        // Функция проверки наград
-        const verifyWithYourBackend = async (reward) => {
-            try {
-                const response = await fetch('/api/verify-reward', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(reward)
-                });
-                
-                const result = await response.json();
-                return result.success ? result.confirmationHash : null;
-            } catch (error) {
-                console.error('Ошибка проверки награды:', error);
-                return null;
-            }
-        };
-
-        // Инициализируем рекламные SDK
-        initializeAdexium();
-        initializeOfferWall();
-
-        return () => {
-            // Очистка при размонтировании
-            if (adIntervalRef.current) {
-                clearInterval(adIntervalRef.current);
-            }
-        };
-    }, []);
-
-    // Запуск автоматического показа рекламы после аутентификации
-    useEffect(() => {
-        if (!authCheckLoading && userData) {
-            console.log('Запуск автоматического показа рекламы');
-
-            // Первый показ через 10 секунд после загрузки
-            const initialTimeout = setTimeout(() => {
-                if (window.showAd) {
-                    window.showAd();
-                }
-            }, 10000);
-
-            // Интервал каждые 30 секунд
-            adIntervalRef.current = setInterval(() => {
-                if (window.showAd) {
-                    console.log('Автоматический показ рекламы (30 секунд)');
-                    window.showAd();
-                }
-            }, 30000);
-
-            return () => {
-                clearTimeout(initialTimeout);
-                if (adIntervalRef.current) {
-                    clearInterval(adIntervalRef.current);
-                }
-            };
-        }
-    }, [authCheckLoading, userData]);
-
-    // Обработчик изменения видимости страницы
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (document.hidden) {
-                // Страница неактивна - приостанавливаем рекламу
-                if (adIntervalRef.current) {
-                    clearInterval(adIntervalRef.current);
-                    console.log('Реклама приостановлена (страница неактивна)');
-                }
-            } else if (!authCheckLoading && userData) {
-                // Страница снова активна - возобновляем рекламу
-                adIntervalRef.current = setInterval(() => {
-                    if (window.showAd) {
-                        window.showAd();
-                    }
-                }, 30000);
-                console.log('Реклама возобновлена (страница активна)');
-                
-                // Показываем рекламу сразу после возвращения
-                setTimeout(() => {
-                    if (window.showAd) {
-                        window.showAd();
-                    }
-                }, 2000);
-            }
-        };
-
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-        };
-    }, [authCheckLoading, userData]);
+    
 
     // Оригинальный useEffect для Telegram WebApp
     useEffect(() => {
@@ -246,7 +78,7 @@ const App = () => {
     }, []);
 
     useEffect(() => {
-        if (['/', '/friends', '/tasks'].includes(location.pathname)) {
+        if (['/', '/friends'].includes(location.pathname)) {
             document.body.classList.add('no-scroll');
         } else {
             document.body.classList.remove('no-scroll');
