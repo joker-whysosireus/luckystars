@@ -9,6 +9,7 @@ const MainTasks = ({
   isGigapubLoading, 
   handleGigapubAd, 
   handleClaimReward, 
+  handleUrlTask, // Добавлен пропс handleUrlTask
   formatTime, 
   isClaiming 
 }) => {
@@ -57,6 +58,14 @@ const MainTasks = ({
             <div>
               {isClaimed ? (
                 <button className="claim-btn done" disabled>Done!</button>
+              ) : task.type === 'url' ? ( // Добавлена обработка URL задач
+                <button 
+                  className="claim-btn active" 
+                  onClick={() => handleUrlTask(task)}
+                  disabled={isClaiming}
+                >
+                  {isClaiming ? '...' : 'Join'}
+                </button>
               ) : isCompleted ? (
                 <button 
                   className="claim-btn active" 

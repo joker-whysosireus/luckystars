@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Diamond } from 'lucide-react';
 
-const PartnersTasks = ({ tasks, claimedTasks, handleClaimReward, isClaiming }) => {
+const PartnersTasks = ({ tasks, claimedTasks, handleClaimReward, handleUrlTask, isClaiming }) => {
   if (!tasks || tasks.length === 0) return null;
 
   return (
@@ -40,13 +40,25 @@ const PartnersTasks = ({ tasks, claimedTasks, handleClaimReward, isClaiming }) =
               </div>
             </div>
             
-            <button 
-              className={`claim-btn ${isClaimed ? 'done' : 'active'}`}
-              onClick={() => handleClaimReward(task)}
-              disabled={isClaiming || isClaimed}
-            >
-              {isClaimed ? 'Done!' : isClaiming ? '...' : 'Start'}
-            </button>
+            {isClaimed ? (
+              <button className="claim-btn done" disabled>Done!</button>
+            ) : task.type === 'url' ? (
+              <button 
+                className="claim-btn active"
+                onClick={() => handleUrlTask(task)}
+                disabled={isClaiming}
+              >
+                {isClaiming ? '...' : 'Join'}
+              </button>
+            ) : (
+              <button 
+                className="claim-btn active"
+                onClick={() => handleClaimReward(task)}
+                disabled={isClaiming}
+              >
+                {isClaiming ? '...' : 'Start'}
+              </button>
+            )}
           </div>
         );
       })}

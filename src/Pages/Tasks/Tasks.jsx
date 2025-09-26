@@ -403,10 +403,15 @@ function Tasks({ isActive, userData, updateUserData }) {
     }
   };
 
-  // Новая функция для обработки URL задач (открытие ссылки без начисления награды)
+  // Функция для обработки URL задач (открытие ссылки)
   const handleUrlTask = (task) => {
     if (task.type === 'url' && task.url) {
       window.open(task.url, '_blank', 'noopener,noreferrer');
+      
+      // Для URL задач награда начисляется сразу после открытия ссылки
+      setTimeout(() => {
+        handleClaimReward(task);
+      }, 1000);
     }
   };
 
@@ -450,7 +455,7 @@ function Tasks({ isActive, userData, updateUserData }) {
           isGigapubLoading={isGigapubLoading}
           handleGigapubAd={handleGigapubAd}
           handleClaimReward={handleClaimReward}
-          handleUrlTask={handleUrlTask} // Передаем новую функцию
+          handleUrlTask={handleUrlTask}
           formatTime={formatTime}
           isClaiming={isClaiming}
         />
@@ -459,7 +464,7 @@ function Tasks({ isActive, userData, updateUserData }) {
           tasks={partnersTasks}
           claimedTasks={claimedTasks}
           handleClaimReward={handleClaimReward}
-          handleUrlTask={handleUrlTask} // Передаем новую функцию
+          handleUrlTask={handleUrlTask}
           isClaiming={isClaiming}
         />
       </div>
